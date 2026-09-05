@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galaxy Arena</title>
 
-  <title>Galaxy Arena 🚀</title>
-
-  <meta name="description" content="Galaxy Arena - منصة اللاعبين والبطولات والألعاب">
-
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -23,80 +21,61 @@
 
     body {
       font-family: Arial, Tahoma, sans-serif;
-      background:
-        radial-gradient(circle at 20% 20%, rgba(100, 50, 255, .25), transparent 30%),
-        radial-gradient(circle at 80% 30%, rgba(0, 180, 255, .18), transparent 30%),
-        radial-gradient(circle at 50% 80%, rgba(255, 0, 180, .15), transparent 35%),
-        #050510;
-      color: white;
       min-height: 100vh;
+      color: #fff;
       overflow-x: hidden;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(106, 76, 255, .20), transparent 30%),
+        radial-gradient(circle at 85% 25%, rgba(0, 200, 255, .15), transparent 30%),
+        radial-gradient(circle at 50% 90%, rgba(170, 0, 255, .12), transparent 35%),
+        linear-gradient(180deg, #03030d 0%, #08081a 45%, #020208 100%);
     }
 
-    /* ===== GALAXY BACKGROUND ===== */
-
-    body::before,
-    body::after {
-      content: "";
+    #space {
       position: fixed;
-      inset: -50%;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
       pointer-events: none;
-      z-index: -2;
     }
 
-    body::before {
-      background:
-        radial-gradient(circle, white 1px, transparent 1.5px);
-      background-size: 80px 80px;
-      opacity: .18;
-      animation: stars 70s linear infinite;
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: .7;
+      animation: starMove linear infinite;
     }
 
-    body::after {
-      background:
-        radial-gradient(circle, #9b5cff 1px, transparent 2px);
-      background-size: 140px 140px;
-      opacity: .16;
-      animation: starsReverse 90s linear infinite;
-    }
-
-    @keyframes stars {
-      from {
-        transform: translate(0, 0) rotate(0deg);
+    @keyframes starMove {
+      0% {
+        transform: translateY(-20px);
+        opacity: .1;
       }
-
-      to {
-        transform: translate(120px, 80px) rotate(5deg);
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh);
+        opacity: .1;
       }
     }
-
-    @keyframes starsReverse {
-      from {
-        transform: translate(0, 0);
-      }
-
-      to {
-        transform: translate(-100px, -120px);
-      }
-    }
-
-    /* ===== HEADER ===== */
 
     header {
       position: sticky;
       top: 0;
-      z-index: 1000;
-      background: rgba(5, 5, 18, .88);
+      z-index: 100;
+      background: rgba(3, 3, 15, .78);
       backdrop-filter: blur(18px);
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
 
-    .nav {
-      max-width: 1200px;
+    nav {
+      width: min(1200px, 94%);
+      min-height: 72px;
       margin: auto;
-      min-height: 70px;
-      padding: 12px 18px;
-
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -104,471 +83,805 @@
     }
 
     .logo {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 900;
       white-space: nowrap;
-      background: linear-gradient(90deg, #fff, #a66cff, #00d9ff);
+      background: linear-gradient(90deg, #fff, #62eaff, #967aff, #fff);
+      background-size: 250%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      animation: logoGlow 5s ease infinite;
     }
 
-    .nav-buttons {
+    @keyframes logoGlow {
+      0%,100% {
+        background-position: 0%;
+      }
+      50% {
+        background-position: 100%;
+      }
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #d9d9ed;
+      text-decoration: none;
+      font-size: 14px;
+      transition: .25s;
+    }
+
+    .nav-links a:hover {
+      color: #62eaff;
+    }
+
+    .user-area {
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
+    }
+
+    .coins {
+      padding: 9px 12px;
+      border-radius: 13px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .username-badge {
+      display: none;
+      max-width: 150px;
+      padding: 9px 12px;
+      border-radius: 13px;
+      background: rgba(98,234,255,.08);
+      border: 1px solid rgba(98,234,255,.18);
+      color: #8eeeff;
+      font-size: 13px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .username-badge.show {
+      display: block;
     }
 
     button {
-      border: none;
-      cursor: pointer;
-      color: white;
+      border: 0;
+      border-radius: 13px;
+      padding: 11px 16px;
+      color: #fff;
       font-weight: 800;
-      border-radius: 12px;
-      padding: 11px 15px;
-      transition: .2s;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6957e8, #00bfff);
+      box-shadow: 0 8px 28px rgba(0, 190, 255, .14);
+      transition: .22s;
     }
 
     button:hover {
       transform: translateY(-2px);
-      filter: brightness(1.12);
+      box-shadow: 0 12px 32px rgba(0, 190, 255, .24);
     }
 
-    .primary {
-      background: linear-gradient(135deg, #7b35ff, #b000ff);
-      box-shadow: 0 8px 25px rgba(130, 40, 255, .25);
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
     }
 
     .secondary {
-      background: rgba(255,255,255,.08);
-      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.07);
+      box-shadow: none;
     }
 
     .danger {
-      background: linear-gradient(135deg, #ff315c, #b50038);
+      background: linear-gradient(135deg, #8d244d, #e53969);
     }
 
-    .success {
-      background: linear-gradient(135deg, #00c878, #008f63);
-    }
-
-    /* ===== MAIN ===== */
-
-    main {
-      max-width: 1200px;
-      margin: auto;
-      padding: 25px 18px 80px;
+    .small-btn {
+      padding: 8px 12px;
+      font-size: 13px;
     }
 
     .hero {
-      min-height: 500px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: min(1100px, 92%);
+      margin: 90px auto 80px;
+      padding: 65px 25px;
       text-align: center;
-      position: relative;
-      padding: 70px 15px;
+      border-radius: 35px;
+      background:
+        radial-gradient(circle at center,
+        rgba(100,70,220,.20),
+        rgba(0,0,0,.05));
     }
 
-    .hero-content {
-      max-width: 850px;
+    .welcome {
+      color: #71eaff;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 5px;
     }
 
     .hero h1 {
-      font-size: clamp(45px, 9vw, 90px);
-      line-height: 1;
-      margin-bottom: 22px;
+      margin: 16px 0;
+      font-size: clamp(45px, 9vw, 100px);
+      font-weight: 1000;
+      letter-spacing: 2px;
       background: linear-gradient(
         90deg,
         #fff,
-        #bd8cff,
-        #00eaff,
+        #62eaff,
+        #9278ff,
         #fff
       );
       background-size: 300%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: gradientMove 8s linear infinite;
+      animation: galaxyText 5s ease infinite;
     }
 
-    @keyframes gradientMove {
-      0% {
+    @keyframes galaxyText {
+      0%,100% {
         background-position: 0%;
       }
-
-      100% {
-        background-position: 300%;
+      50% {
+        background-position: 100%;
       }
     }
 
-    .hero p {
-      color: #c7c7dc;
-      font-size: 19px;
-      line-height: 1.8;
-      margin-bottom: 28px;
-    }
-
-    .hero-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .hero-buttons button {
-      padding: 14px 22px;
-      font-size: 16px;
-    }
-
-    /* ===== SECTIONS ===== */
-
-    .section {
-      margin-top: 35px;
-      padding: 28px 0;
-    }
-
-    .section-title {
-      font-size: 28px;
+    .hero h2 {
+      font-size: clamp(20px, 4vw, 32px);
       margin-bottom: 18px;
     }
 
-    .section-subtitle {
-      color: #9e9eb5;
-      margin-bottom: 20px;
+    .hero-description {
+      max-width: 700px;
+      margin: 0 auto 30px;
+      color: #b9b9d0;
+      line-height: 1.9;
     }
 
-    .card {
-      background: rgba(14, 14, 32, .76);
-      border: 1px solid rgba(255,255,255,.09);
+    .logged-user-card {
+      display: none;
+      width: min(650px, 100%);
+      margin: 25px auto 0;
+      padding: 18px;
       border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 15px 50px rgba(0,0,0,.25);
-      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(98,234,255,.15);
+      text-align: right;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 15px;
+    .logged-user-card.show {
+      display: block;
     }
 
-    /* ===== STATS ===== */
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-    }
-
-    .stat {
-      text-align: center;
-      padding: 25px 15px;
-    }
-
-    .stat-icon {
-      font-size: 35px;
-      margin-bottom: 10px;
-    }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 900;
-    }
-
-    .stat-label {
-      color: #aaaac0;
-      margin-top: 5px;
-    }
-
-    /* ===== GAMES ===== */
-
-    .game-card {
-      position: relative;
-      overflow: hidden;
-      min-height: 170px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    }
-
-    .game-icon {
-      font-size: 55px;
-      margin-bottom: auto;
-    }
-
-    .game-card h3 {
-      font-size: 21px;
-      margin-bottom: 6px;
-    }
-
-    .game-card p {
-      color: #aaaac0;
-    }
-
-    /* ===== TOURNAMENTS ===== */
-
-    .tournament-card h3 {
-      margin-bottom: 10px;
-    }
-
-    .tournament-card p {
-      color: #aaaac0;
-      line-height: 1.7;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
+    .logged-user-card-title {
+      color: #777792;
       font-size: 12px;
-      margin-bottom: 12px;
-      background: rgba(123,53,255,.2);
-      color: #c9a9ff;
-      border: 1px solid rgba(123,53,255,.3);
+      margin-bottom: 7px;
     }
 
-    /* ===== STORE ===== */
-
-    .coin-card {
-      text-align: center;
-    }
-
-    .coin-icon {
-      font-size: 55px;
-      margin-bottom: 12px;
-    }
-
-    .coin-card h3 {
-      margin-bottom: 8px;
-    }
-
-    .coin-card .coins {
-      color: #ffd84d;
-      font-size: 23px;
+    .logged-user-name {
+      font-size: 22px;
       font-weight: 900;
-      margin-bottom: 6px;
+      color: #7beaff;
     }
 
-    .coin-card .price {
-      color: #aaaac0;
-      margin-bottom: 15px;
-    }
-
-    /* ===== PLAYERS ===== */
-
-    .search-box {
+    .logged-user-meta {
       display: flex;
       gap: 10px;
-      margin-bottom: 20px;
+      flex-wrap: wrap;
+      margin-top: 12px;
     }
 
-    input {
-      width: 100%;
-      background: rgba(0,0,0,.3);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 12px;
-      padding: 13px 15px;
-      color: white;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #9c5cff;
-      box-shadow: 0 0 0 3px rgba(156,92,255,.12);
-    }
-
-    .player-card {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .avatar {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      object-fit: cover;
-      background: linear-gradient(135deg,#7b35ff,#00d9ff);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 23px;
-      flex-shrink: 0;
-    }
-
-    .player-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .player-info strong {
-      display: block;
-      margin-bottom: 5px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .player-info span {
-      color: #9999af;
+    .meta-pill {
+      padding: 7px 11px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.06);
+      color: #c9c9dd;
       font-size: 13px;
     }
 
-    /* ===== MODALS ===== */
+    .section {
+      width: min(1100px, 92%);
+      margin: 0 auto 80px;
+    }
+
+    .section-title {
+      margin-bottom: 25px;
+      font-size: 30px;
+    }
+
+    .section-subtitle {
+      color: #8f8fa8;
+      margin-top: -15px;
+      margin-bottom: 22px;
+      line-height: 1.7;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      padding: 25px;
+      border-radius: 22px;
+      background: rgba(13,13,38,.72);
+      border: 1px solid rgba(255,255,255,.09);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      transition: .25s;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(80,220,255,.35);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 21px;
+    }
+
+    .card p {
+      color: #aaaac0;
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    .player-search-box {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .player-search-input {
+      flex: 1;
+      min-width: 0;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: #fff;
+      outline: none;
+      font-size: 15px;
+    }
+
+    .player-search-input:focus {
+      border-color: #00d4ff;
+      box-shadow: 0 0 20px rgba(0,212,255,.10);
+    }
+
+    .player-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .player-card {
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: .2s;
+      cursor: pointer;
+    }
+
+    .player-card:hover {
+      border-color: rgba(98,234,255,.25);
+      transform: translateY(-2px);
+    }
+
+    .player-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .player-avatar {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg,#6957e8,#00bfff);
+      font-size: 21px;
+      overflow: hidden;
+    }
+
+    .player-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .player-username {
+      font-weight: 900;
+      font-size: 16px;
+      margin-bottom: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .player-rank {
+      color: #9292aa;
+      font-size: 12px;
+    }
+
+    .player-empty {
+      padding: 25px;
+      text-align: center;
+      border-radius: 18px;
+      background: rgba(255,255,255,.035);
+      color: #8e8ea7;
+      border: 1px dashed rgba(255,255,255,.10);
+    }
+
+    .players-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    #adminPanel {
+      display: none;
+    }
+
+    .admin-input {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      outline: none;
+      background: rgba(255,255,255,.05);
+      color: #fff;
+      font-size: 15px;
+    }
+
+    .admin-input:focus {
+      border-color: #00d4ff;
+    }
 
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.72);
-      backdrop-filter: blur(8px);
-      z-index: 3000;
+      z-index: 1000;
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 18px;
+      padding: 20px;
+      background: rgba(0,0,0,.80);
+      backdrop-filter: blur(12px);
     }
 
     .modal.show {
       display: flex;
+      animation: fadeIn .25s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
 
     .modal-box {
-      width: min(500px, 100%);
+      width: min(430px, 100%);
       max-height: 90vh;
       overflow-y: auto;
-      background: #101024;
-      border: 1px solid rgba(255,255,255,.1);
+      padding: 30px;
+      border-radius: 28px;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(25,25,65,.98),
+          rgba(7,7,25,.98)
+        );
+      border: 1px solid rgba(255,255,255,.13);
+      box-shadow: 0 30px 100px rgba(0,0,0,.65);
+      animation: modalIn .45s cubic-bezier(.2,.8,.2,1);
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(.90);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 18px;
       border-radius: 22px;
-      padding: 25px;
-      box-shadow: 0 25px 100px rgba(0,0,0,.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: linear-gradient(135deg,#6957e8,#00d4ff);
+      box-shadow: 0 0 35px rgba(0,212,255,.20);
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%,100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-7px);
+      }
     }
 
     .modal-box h2 {
-      margin-bottom: 10px;
+      text-align: center;
+      margin-bottom: 8px;
     }
 
     .modal-subtitle {
-      color: #aaaac0;
+      text-align: center;
+      color: #9999b5;
+      margin-bottom: 25px;
+      font-size: 14px;
       line-height: 1.7;
-      margin-bottom: 18px;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 7px;
+      color: #d9d9ed;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: #fff;
+      outline: none;
+      font-size: 15px;
+      transition: .25s;
+    }
+
+    .input-group input:focus {
+      border-color: #00d4ff;
+      box-shadow: 0 0 20px rgba(0,212,255,.12);
     }
 
     .modal-actions {
       display: flex;
       gap: 10px;
-      margin-top: 18px;
+      margin-top: 20px;
     }
 
     .modal-actions button {
       flex: 1;
     }
 
-    .close-x {
-      float: left;
-      background: rgba(255,255,255,.08);
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
+    .form-link {
+      display: block;
+      text-align: center;
+      margin-top: 17px;
+      color: #76ddff;
+      cursor: pointer;
+      font-size: 14px;
     }
 
-    /* ===== INSTAGRAM ===== */
+    .form-link:hover {
+      text-decoration: underline;
+    }
+
+    .form-message {
+      text-align: center;
+      margin-top: 15px;
+      color: #c4c5dd;
+      font-size: 14px;
+      min-height: 20px;
+      line-height: 1.7;
+    }
 
     .instagram-box {
       text-align: center;
     }
 
     .instagram-icon {
-      font-size: 65px;
-      margin-bottom: 10px;
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 18px;
+      border-radius: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      background:
+        linear-gradient(
+          135deg,
+          #833ab4,
+          #fd1d1d,
+          #fcb045
+        );
+      box-shadow:
+        0 0 35px rgba(253,29,29,.20),
+        0 0 65px rgba(131,58,180,.15);
+      animation: floating 3s ease-in-out infinite;
     }
 
     .instagram-username {
-      font-size: 24px;
+      display: inline-block;
+      margin: 8px auto 12px;
+      padding: 13px 20px;
+      border-radius: 15px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      color: #fff;
+      font-size: 22px;
       font-weight: 900;
-      margin: 18px 0;
-      color: #ff8de1;
+      direction: ltr;
+      box-shadow: 0 0 25px rgba(131,58,180,.12);
+    }
+
+    .instagram-link {
+      display: block;
+      width: 100%;
+      margin: 0 auto 18px;
+      padding: 12px 14px;
+      border-radius: 13px;
+      background: rgba(131,58,180,.10);
+      border: 1px solid rgba(131,58,180,.22);
+      color: #dcbcff;
+      text-decoration: none;
+      font-size: 13px;
+      direction: ltr;
+      word-break: break-all;
+      transition: .2s;
+    }
+
+    .instagram-link:hover {
+      background: rgba(131,58,180,.18);
+      border-color: rgba(131,58,180,.40);
     }
 
     .instagram-note {
-      background: rgba(255,255,255,.05);
-      padding: 15px;
-      border-radius: 14px;
-      color: #c5c5d5;
-      line-height: 1.7;
+      padding: 13px;
+      border-radius: 15px;
+      background: rgba(98,234,255,.05);
+      border: 1px solid rgba(98,234,255,.12);
+      color: #aaaac0;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-top: 5px;
     }
 
     .instagram-open-btn {
-      background: linear-gradient(135deg,#ff2b91,#7b35ff);
+      background:
+        linear-gradient(
+          135deg,
+          #833ab4,
+          #fd1d1d,
+          #fcb045
+        );
+      box-shadow: 0 8px 28px rgba(131,58,180,.22);
     }
 
-    /* ===== ADMIN ===== */
-
-    #adminPanel {
-      border: 1px solid rgba(255,215,80,.2);
+    .instagram-open-btn:hover {
+      box-shadow: 0 12px 35px rgba(131,58,180,.35);
     }
 
-    #adminPanel h2 {
-      color: #ffd84d;
-    }
-
-    .admin-form {
-      display: grid;
-      grid-template-columns: 1fr 180px;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .admin-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    /* ===== EMPTY ===== */
-
-    .empty {
+    .account-box {
       text-align: center;
-      color: #8d8da4;
-      padding: 30px;
     }
 
-    /* ===== FOOTER ===== */
+    .account-avatar {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 15px;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg,#6957e8,#00d4ff);
+      font-size: 35px;
+      box-shadow: 0 0 40px rgba(0,212,255,.18);
+    }
+
+    .account-username {
+      font-size: 25px;
+      font-weight: 900;
+      color: #7cecff;
+    }
+
+    .account-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .account-stat {
+      padding: 15px 10px;
+      border-radius: 15px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.07);
+    }
+
+    .account-stat-label {
+      color: #777792;
+      font-size: 11px;
+      margin-bottom: 7px;
+    }
+
+    .account-stat-value {
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    .player-profile-box {
+      text-align: center;
+    }
+
+    .player-profile-avatar {
+      width: 105px;
+      height: 105px;
+      margin: 0 auto 18px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: linear-gradient(135deg,#6957e8,#00d4ff);
+      border: 2px solid rgba(98,234,255,.30);
+      box-shadow:
+        0 0 45px rgba(0,212,255,.18),
+        0 0 80px rgba(105,87,232,.12);
+      font-size: 44px;
+    }
+
+    .player-profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .player-profile-username {
+      font-size: 28px;
+      font-weight: 1000;
+      color: #7cecff;
+      word-break: break-word;
+    }
+
+    .player-profile-rank {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 15px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.09);
+      color: #d7d7eb;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .player-profile-status {
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+      color: #9292aa;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .player-profile-loading {
+      padding: 25px 10px;
+      text-align: center;
+      color: #9b9bb6;
+      line-height: 1.8;
+    }
+
+    .player-profile-error {
+      padding: 18px;
+      border-radius: 15px;
+      background: rgba(229,57,105,.08);
+      border: 1px solid rgba(229,57,105,.20);
+      color: #ff9ab7;
+      line-height: 1.8;
+    }
 
     footer {
-      border-top: 1px solid rgba(255,255,255,.08);
       text-align: center;
-      padding: 30px 15px;
-      color: #77778e;
+      padding: 35px 20px;
+      color: #777792;
+      border-top: 1px solid rgba(255,255,255,.08);
+      line-height: 2;
     }
 
-    /* ===== MOBILE ===== */
-
     @media (max-width: 700px) {
-      .nav {
-        flex-direction: column;
+      nav {
+        flex-wrap: wrap;
+        padding: 12px 0;
       }
 
-      .nav-buttons {
+      .nav-links {
+        order: 3;
+        width: 100%;
         justify-content: center;
+        gap: 15px;
+        overflow-x: auto;
+      }
+
+      .username-badge {
+        max-width: 100px;
+      }
+
+      .coins {
+        padding: 8px 9px;
       }
 
       .hero {
-        min-height: 420px;
+        margin-top: 45px;
+        padding: 40px 15px;
       }
 
-      .search-box {
+      .hero h1 {
+        font-size: 45px;
+      }
+
+      .section {
+        margin-bottom: 55px;
+      }
+
+      .modal-box {
+        padding: 24px 18px;
+      }
+
+      .player-search-box {
         flex-direction: column;
       }
 
-      .admin-form {
-        grid-template-columns: 1fr;
+      .player-search-box button {
+        width: 100%;
       }
 
-      .admin-buttons {
-        flex-direction: column;
+      .account-grid {
+        grid-template-columns: 1fr 1fr;
       }
 
-      .modal-actions {
-        flex-direction: column;
+      .player-profile-username {
+        font-size: 23px;
+      }
+
+      .instagram-username {
+        font-size: 20px;
       }
     }
   </style>
@@ -576,2188 +889,3367 @@
 
 <body>
 
-<header>
-  <nav class="nav">
+  <div id="space"></div>
 
-    <div class="logo">
-      🚀 GALAXY ARENA
-    </div>
+  <header>
+    <nav>
 
-    <div class="nav-buttons">
+      <div class="logo">
+        🌌 Galaxy Arena
+      </div>
 
-      <button
-        id="loginBtn"
-        class="primary"
-        type="button">
-        تسجيل الدخول
-      </button>
+      <div class="nav-links">
+        <a href="#home">الرئيسية</a>
+        <a href="#tournaments">البطولات</a>
+        <a href="#games">الألعاب</a>
+        <a href="#players">اللاعبين</a>
+        <a href="#store">المتجر</a>
+        <a href="players.html">🌐 كل اللاعبين</a>
+      </div>
 
-      <button
-        id="buyCoinsBtn"
-        class="secondary"
-        type="button">
-        🪙 شراء Coins
-      </button>
+      <div class="user-area">
 
-    </div>
+        <div id="usernameBadge" class="username-badge">
+          @username
+        </div>
 
-  </nav>
-</header>
+        <div class="coins">
+          🪙 <span id="coins">0</span>
+        </div>
 
-<main>
+        <button id="loginBtn" type="button">
+          تسجيل الدخول
+        </button>
 
-  <!-- HERO -->
+      </div>
 
-  <section class="hero">
+    </nav>
+  </header>
 
-    <div class="hero-content">
+  <main>
 
-      <h1>GALAXY ARENA</h1>
+    <section id="home" class="hero">
 
-      <p>
-        عالم اللاعبين والبطولات والألعاب في مكان واحد.
-        <br>
-        اجمع Galaxy Coins، أضف أصدقاءك وابدأ رحلتك 🚀
+      <p class="welcome">
+        WELCOME TO
       </p>
 
-      <div class="hero-buttons">
+      <h1>
+        GALAXY ARENA
+      </h1>
 
-        <button
-          id="heroLoginBtn"
-          class="primary"
-          type="button">
+      <h2>
+        عالم اللاعبين يبدأ من هنا 🚀
+      </h2>
+
+      <p class="hero-description">
+        شارك بالبطولات، نافس اللاعبين، اجمع Galaxy Coins،
+        وابنِ اسمك داخل عالم Galaxy Arena.
+      </p>
+
+      <button id="heroLoginBtn" type="button">
+        🚀 تسجيل الدخول
+      </button>
+
+      <div id="loggedUserCard" class="logged-user-card">
+
+        <div class="logged-user-card-title">
+          حسابك في Galaxy Arena
+        </div>
+
+        <div id="loggedUsername" class="logged-user-name">
+          @username
+        </div>
+
+        <div class="logged-user-meta">
+
+          <div class="meta-pill">
+            🏅 Rank:
+            <span id="loggedRank">BRONZE</span>
+          </div>
+
+          <div class="meta-pill">
+            🪙 Coins:
+            <span id="loggedCoins">0</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section id="tournaments" class="section">
+
+      <h2 class="section-title">
+        🏆 البطولات
+      </h2>
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>🎯 Call of Duty</h3>
+          <p>
+            تنافس ضد أفضل اللاعبين واربح جوائز Galaxy Arena.
+          </p>
+          <button type="button">
+            قريباً
+          </button>
+        </div>
+
+        <div class="card">
+          <h3>⚽ FC 26</h3>
+          <p>
+            أثبت أنك أفضل لاعب كرة قدم.
+          </p>
+          <button type="button">
+            قريباً
+          </button>
+        </div>
+
+        <div class="card">
+          <h3>🔥 Fortnite</h3>
+          <p>
+            ادخل المنافسة واربح.
+          </p>
+          <button type="button">
+            قريباً
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section id="games" class="section">
+
+      <h2 class="section-title">
+        🎮 الألعاب
+      </h2>
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>🎯 Call of Duty</h3>
+          <p>FPS</p>
+        </div>
+
+        <div class="card">
+          <h3>⚽ FC 26</h3>
+          <p>Football</p>
+        </div>
+
+        <div class="card">
+          <h3>🔥 Fortnite</h3>
+          <p>Battle Royale</p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section id="players" class="section">
+
+      <h2 class="section-title">
+        👥 اللاعبين
+      </h2>
+
+      <p class="section-subtitle">
+        ابحث عن لاعب باستخدام Username وأضفه إلى قائمتك.
+      </p>
+
+      <div class="card">
+
+        <div class="player-search-box">
+
+          <input
+            id="playerSearchInput"
+            class="player-search-input"
+            type="text"
+            placeholder="🔎 اكتب Username اللاعب..."
+            autocomplete="off"
+          >
+
+          <button id="playerSearchBtn" type="button">
+            🔎 بحث
+          </button>
+
+        </div>
+
+        <div id="playerSearchMessage" class="form-message"></div>
+
+        <div id="playerResults" class="player-results">
+
+          <div class="player-empty">
+            اكتب Username للبحث عن لاعب.
+          </div>
+
+        </div>
+
+        <div class="players-actions">
+
+          <button
+            id="viewAllPlayersBtn"
+            type="button"
+            class="secondary"
+          >
+            🌐 عرض كل اللاعبين
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section id="myPlayers" class="section">
+
+      <h2 class="section-title">
+        ⭐ لاعبيّ
+      </h2>
+
+      <p class="section-subtitle">
+        هنا تظهر الحسابات التي أضفتها إلى قائمتك.
+      </p>
+
+      <div class="card">
+
+        <div id="myPlayersList" class="player-results">
+
+          <div class="player-empty">
+            يجب تسجيل الدخول حتى تظهر قائمتك.
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section id="store" class="section">
+
+      <h2 class="section-title">
+        🛒 Galaxy Store
+      </h2>
+
+      <div class="cards">
+
+        <div class="card">
+
+          <h3>
+            🪙 Galaxy Coins
+          </h3>
+
+          <p>
+            اشحن رصيدك وشارك بالبطولات.
+          </p>
+
+          <button id="buyCoinsBtn" type="button">
+            🪙 شراء Galaxy Coins
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section id="adminPanel" class="section">
+
+      <h2 class="section-title">
+        👑 Admin Panel
+      </h2>
+
+      <div class="card">
+
+        <h3>
+          🪙 إدارة Galaxy Coins
+        </h3>
+
+        <input
+          id="adminUsername"
+          class="admin-input"
+          type="text"
+          placeholder="Username"
+        >
+
+        <input
+          id="adminAmount"
+          class="admin-input"
+          type="number"
+          min="1"
+          placeholder="Amount"
+        >
+
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+
+          <button id="addCoinsAdmin" type="button">
+            ➕ إضافة Coins
+          </button>
+
+          <button id="removeCoinsAdmin" type="button">
+            ➖ إزالة Coins
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer>
+
+    <p>
+      © 2026 Galaxy Arena
+    </p>
+
+    <p>
+      Built for gamers 🌌
+    </p>
+
+  </footer>
+
+  <div id="authModal" class="modal">
+
+    <div class="modal-box">
+
+      <div class="modal-icon">
+        🚀
+      </div>
+
+      <h2 id="authTitle">
+        تسجيل الدخول
+      </h2>
+
+      <p id="authSubtitle" class="modal-subtitle">
+        ادخل إلى حسابك في Galaxy Arena
+      </p>
+
+      <div
+        id="usernameGroup"
+        class="input-group"
+        style="display:none;"
+      >
+
+        <label>
+          اسم المستخدم
+        </label>
+
+        <input
+          id="usernameInput"
+          type="text"
+          placeholder="Username"
+          autocomplete="username"
+        >
+
+      </div>
+
+      <div class="input-group">
+
+        <label>
+          الإيميل
+        </label>
+
+        <input
+          id="emailInput"
+          type="email"
+          placeholder="example@email.com"
+          autocomplete="email"
+        >
+
+      </div>
+
+      <div class="input-group">
+
+        <label>
+          كلمة المرور
+        </label>
+
+        <input
+          id="passwordInput"
+          type="password"
+          placeholder="6 أحرف أو أكثر"
+          autocomplete="current-password"
+        >
+
+      </div>
+
+      <div
+        id="confirmGroup"
+        class="input-group"
+        style="display:none;"
+      >
+
+        <label>
+          تأكيد كلمة المرور
+        </label>
+
+        <input
+          id="confirmPasswordInput"
+          type="password"
+          placeholder="أعد كتابة كلمة المرور"
+          autocomplete="new-password"
+        >
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button id="authSubmit" type="button">
           🚀 تسجيل الدخول
         </button>
 
         <button
-          onclick="scrollToSection('playersSection')"
+          id="closeModal"
           class="secondary"
-          type="button">
-          👥 اكتشف اللاعبين
-        </button>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- STATS -->
-
-  <section class="section">
-
-    <div class="stats">
-
-      <div class="card stat">
-        <div class="stat-icon">🪙</div>
-        <div
-          id="coins"
-          class="stat-value">
-          0
-        </div>
-        <div class="stat-label">
-          Galaxy Coins
-        </div>
-      </div>
-
-      <div class="card stat">
-        <div class="stat-icon">🎮</div>
-        <div class="stat-value">
-          24/7
-        </div>
-        <div class="stat-label">
-          Gaming Arena
-        </div>
-      </div>
-
-      <div class="card stat">
-        <div class="stat-icon">🏆</div>
-        <div class="stat-value">
-          OPEN
-        </div>
-        <div class="stat-label">
-          البطولات
-        </div>
-      </div>
-
-      <div class="card stat">
-        <div class="stat-icon">🌎</div>
-        <div class="stat-value">
-          GLOBAL
-        </div>
-        <div class="stat-label">
-          مجتمع عالمي
-        </div>
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- GAMES -->
-
-  <section
-    id="gamesSection"
-    class="section">
-
-    <h2 class="section-title">
-      🎮 الألعاب
-    </h2>
-
-    <p class="section-subtitle">
-      اختر لعبتك واستعد للمنافسة.
-    </p>
-
-    <div class="grid">
-
-      <div class="card game-card">
-        <div class="game-icon">🔫</div>
-        <h3>Call of Duty</h3>
-        <p>FPS • Multiplayer</p>
-      </div>
-
-      <div class="card game-card">
-        <div class="game-icon">⚔️</div>
-        <h3>Fortnite</h3>
-        <p>Battle Royale</p>
-      </div>
-
-      <div class="card game-card">
-        <div class="game-icon">🔥</div>
-        <h3>Free Fire</h3>
-        <p>Battle Royale</p>
-      </div>
-
-      <div class="card game-card">
-        <div class="game-icon">⚽</div>
-        <h3>EA SPORTS FC</h3>
-        <p>Football</p>
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- TOURNAMENTS -->
-
-  <section
-    id="tournamentsSection"
-    class="section">
-
-    <h2 class="section-title">
-      🏆 البطولات
-    </h2>
-
-    <p class="section-subtitle">
-      تنافس مع اللاعبين واثبت نفسك.
-    </p>
-
-    <div class="grid">
-
-      <div class="card tournament-card">
-
-        <span class="badge">
-          🔥 قريبًا
-        </span>
-
-        <h3>
-          Galaxy COD Tournament
-        </h3>
-
-        <p>
-          بطولة Call of Duty للاعبين من جميع أنحاء العالم.
-        </p>
-
-      </div>
-
-      <div class="card tournament-card">
-
-        <span class="badge">
-          🚀 مفتوح
-        </span>
-
-        <h3>
-          Galaxy Arena Championship
-        </h3>
-
-        <p>
-          منافسات كبرى وجوائز Galaxy Coins.
-        </p>
-
-      </div>
-
-      <div class="card tournament-card">
-
-        <span class="badge">
-          🌎 Global
-        </span>
-
-        <h3>
-          Galaxy Global Cup
-        </h3>
-
-        <p>
-          اجتمع مع أفضل اللاعبين في Galaxy Arena.
-        </p>
-
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- PLAYERS -->
-
-  <section
-    id="playersSection"
-    class="section">
-
-    <h2 class="section-title">
-      👥 اللاعبين
-    </h2>
-
-    <p class="section-subtitle">
-      ابحث عن لاعب وأضفه إلى قائمة لاعبيّ.
-    </p>
-
-    <div class="card">
-
-      <div class="search-box">
-
-        <input
-          id="playerSearchInput"
-          type="text"
-          placeholder="🔎 اكتب Username اللاعب">
-
-        <button
-          id="searchPlayersBtn"
-          class="primary"
-          type="button">
-          بحث
+          type="button"
+        >
+          إغلاق
         </button>
 
       </div>
 
       <div
-        id="playersResults"
-        class="grid">
+        id="forgotLink"
+        class="form-link"
+      >
+        نسيت كلمة المرور؟
       </div>
+
+      <div
+        id="switchAuth"
+        class="form-link"
+      >
+        🆕 إنشاء حساب جديد
+      </div>
+
+      <div
+        id="authMessage"
+        class="form-message"
+      ></div>
 
     </div>
 
-  </section>
+  </div>
 
-  <!-- MY PLAYERS -->
+  <div id="accountModal" class="modal">
 
-  <section
-    id="myPlayersSection"
-    class="section">
+    <div class="modal-box account-box">
 
-    <h2 class="section-title">
-      ⭐ لاعبيّ
-    </h2>
-
-    <p class="section-subtitle">
-      اللاعبين الذين أضفتهم.
-    </p>
-
-    <div
-      id="myPlayersList"
-      class="grid">
-
-      <div class="card empty">
-        سجّل الدخول لعرض لاعبيّ.
+      <div class="account-avatar">
+        👤
       </div>
 
-    </div>
+      <h2>
+        حسابك
+      </h2>
 
-  </section>
+      <div id="accountUsername" class="account-username">
+        @username
+      </div>
 
-  <!-- STORE -->
+      <div class="account-grid">
 
-  <section
-    id="storeSection"
-    class="section">
+        <div class="account-stat">
 
-    <h2 class="section-title">
-      🛒 Galaxy Store
-    </h2>
+          <div class="account-stat-label">
+            RANK
+          </div>
 
-    <p class="section-subtitle">
-      اختر باقة Galaxy Coins وتواصل معنا لإتمام الشراء.
-    </p>
+          <div
+            id="accountRank"
+            class="account-stat-value"
+          >
+            BRONZE
+          </div>
 
-    <div class="grid">
-
-      <div class="card coin-card">
-
-        <div class="coin-icon">🪙</div>
-
-        <h3>
-          Starter Pack
-        </h3>
-
-        <div class="coins">
-          1,000 Coins
         </div>
 
-        <div class="price">
-          $1
+        <div class="account-stat">
+
+          <div class="account-stat-label">
+            GALAXY COINS
+          </div>
+
+          <div
+            id="accountCoins"
+            class="account-stat-value"
+          >
+            0
+          </div>
+
         </div>
+
+      </div>
+
+      <div class="modal-actions">
 
         <button
-          class="primary"
-          onclick="buyCoins()"
-          type="button">
-          شراء
+          id="accountPlayersBtn"
+          type="button"
+        >
+          👥 لاعبيّ
         </button>
 
-      </div>
-
-      <div class="card coin-card">
-
-        <div class="coin-icon">💰</div>
-
-        <h3>
-          Gamer Pack
-        </h3>
-
-        <div class="coins">
-          5,000 Coins
-        </div>
-
-        <div class="price">
-          $5
-        </div>
-
         <button
-          class="primary"
-          onclick="buyCoins()"
-          type="button">
-          شراء
-        </button>
-
-      </div>
-
-      <div class="card coin-card">
-
-        <div class="coin-icon">💎</div>
-
-        <h3>
-          Pro Pack
-        </h3>
-
-        <div class="coins">
-          10,000 Coins
-        </div>
-
-        <div class="price">
-          $10
-        </div>
-
-        <button
-          class="primary"
-          onclick="buyCoins()"
-          type="button">
-          شراء
-        </button>
-
-      </div>
-
-      <div class="card coin-card">
-
-        <div class="coin-icon">👑</div>
-
-        <h3>
-          Ultimate Pack
-        </h3>
-
-        <div class="coins">
-          50,000 Coins
-        </div>
-
-        <div class="price">
-          $50
-        </div>
-
-        <button
-          class="primary"
-          onclick="buyCoins()"
-          type="button">
-          شراء
+          id="closeAccount"
+          class="secondary"
+          type="button"
+        >
+          إغلاق
         </button>
 
       </div>
 
     </div>
 
-  </section>
+  </div>
 
-</main>
+  <div id="playerProfileModal" class="modal">
 
-<!-- =========================
-     INSTAGRAM PURCHASE MODAL
-========================= -->
+    <div class="modal-box player-profile-box">
 
-<div
-  id="instagramPurchaseModal"
-  class="modal">
+      <div
+        id="playerProfileAvatar"
+        class="player-profile-avatar"
+      >
+        👤
+      </div>
 
-  <div class="modal-box instagram-box">
+      <h2>
+        ملف اللاعب
+      </h2>
 
-    <button
-      id="closeInstagramPurchaseTop"
-      class="close-x"
-      type="button">
-      ✕
-    </button>
+      <div
+        id="playerProfileContent"
+        class="player-profile-loading"
+      >
+        ⏳ جاري تحميل اللاعب...
+      </div>
 
-    <div class="instagram-icon">
-      📸
-    </div>
+      <div class="modal-actions">
 
-    <h2>
-      شراء Galaxy Coins
-    </h2>
+        <button
+          id="playerProfileAction"
+          type="button"
+        >
+          ➕ إضافة اللاعب
+        </button>
 
-    <p class="modal-subtitle">
-      حاليًا شراء Galaxy Coins يتم بشكل يدوي.
-      <br>
-      تواصل معنا عبر Instagram لإتمام عملية الشراء.
-    </p>
+        <button
+          id="closePlayerProfile"
+          class="secondary"
+          type="button"
+        >
+          إغلاق
+        </button>
 
-    <div class="instagram-username">
-      @itz7yo
-    </div>
-
-    <div class="instagram-note">
-      💬 اضغط على زر فتح Instagram وتواصل معنا،
-      وبعد إتمام الدفع سيتم إضافة Galaxy Coins
-      إلى حسابك.
-    </div>
-
-    <div class="modal-actions">
-
-      <button
-        id="openInstagramBtn"
-        class="instagram-open-btn"
-        type="button">
-        📸 فتح Instagram
-      </button>
-
-      <button
-        id="closeInstagramPurchase"
-        class="secondary"
-        type="button">
-        إغلاق
-      </button>
+      </div>
 
     </div>
 
   </div>
 
-</div>
+  <div id="resetModal" class="modal">
 
-<!-- =========================
-     AUTH MODAL
-========================= -->
+    <div class="modal-box">
 
-<div
-  id="authModal"
-  class="modal">
+      <div class="modal-icon">
+        🔐
+      </div>
 
-  <div class="modal-box">
+      <h2>
+        إعادة تعيين كلمة المرور
+      </h2>
 
-    <button
-      id="closeAuthModal"
-      class="close-x"
-      type="button">
-      ✕
-    </button>
-
-    <h2>
-      🚀 Galaxy Arena
-    </h2>
-
-    <p class="modal-subtitle">
-      سجّل الدخول أو أنشئ حسابًا جديدًا.
-    </p>
-
-    <input
-      id="authUsername"
-      type="text"
-      placeholder="👤 Username">
-
-    <br><br>
-
-    <input
-      id="authEmail"
-      type="email"
-      placeholder="📧 Email">
-
-    <br><br>
-
-    <input
-      id="authPassword"
-      type="password"
-      placeholder="🔐 Password">
-
-    <div class="modal-actions">
-
-      <button
-        id="loginSubmitBtn"
-        class="primary"
-        type="button">
-        تسجيل الدخول
-      </button>
-
-      <button
-        id="registerSubmitBtn"
-        class="secondary"
-        type="button">
-        إنشاء حساب
-      </button>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- =========================
-     ACCOUNT MODAL
-========================= -->
-
-<div
-  id="accountModal"
-  class="modal">
-
-  <div class="modal-box">
-
-    <button
-      id="closeAccountModal"
-      class="close-x"
-      type="button">
-      ✕
-    </button>
-
-    <h2>
-      👤 حسابي
-    </h2>
-
-    <br>
-
-    <div class="card">
-
-      <p>
-        📧 الإيميل
+      <p class="modal-subtitle">
+        اكتب إيميل حسابك وسنرسل لك رابط إعادة التعيين.
       </p>
 
-      <strong id="accountEmail">
-        -
-      </strong>
+      <div class="input-group">
 
-      <br><br>
+        <label>
+          الإيميل
+        </label>
 
-      <p>
-        👤 Username
-      </p>
+        <input
+          id="resetEmail"
+          type="email"
+          placeholder="example@email.com"
+        >
 
-      <strong id="accountUsername">
-        -
-      </strong>
+      </div>
 
-      <br><br>
+      <div class="modal-actions">
 
-      <p>
-        🪙 Galaxy Coins
-      </p>
+        <button id="sendReset" type="button">
+          📨 إرسال الرابط
+        </button>
 
-      <strong
-        id="accountCoins"
-        style="color:#ffd84d;font-size:24px;">
-        0
-      </strong>
+        <button
+          id="closeReset"
+          class="secondary"
+          type="button"
+        >
+          إغلاق
+        </button>
 
-      <br><br>
+      </div>
 
-      <p>
-        🏅 Rank
-      </p>
-
-      <strong id="accountRank">
-        Player
-      </strong>
-
-    </div>
-
-    <div class="modal-actions">
-
-      <button
-        id="logoutBtn"
-        class="danger"
-        type="button">
-        تسجيل الخروج
-      </button>
-
-      <button
-        id="closeAccountBtn"
-        class="secondary"
-        type="button">
-        إغلاق
-      </button>
+      <div
+        id="resetMessage"
+        class="form-message"
+      ></div>
 
     </div>
 
   </div>
 
-</div>
+  <div id="newPasswordModal" class="modal">
 
-<!-- =========================
-     PLAYER PROFILE MODAL
-========================= -->
+    <div class="modal-box">
 
-<div
-  id="playerProfileModal"
-  class="modal">
+      <div class="modal-icon">
+        🔑
+      </div>
 
-  <div class="modal-box">
+      <h2>
+        كلمة مرور جديدة
+      </h2>
 
-    <button
-      id="closePlayerProfile"
-      class="close-x"
-      type="button">
-      ✕
-    </button>
+      <p class="modal-subtitle">
+        اختر كلمة مرور جديدة لحسابك.
+      </p>
 
-    <h2>
-      👤 ملف اللاعب
-    </h2>
+      <div class="input-group">
 
-    <br>
+        <label>
+          كلمة المرور الجديدة
+        </label>
 
-    <div
-      id="playerProfileContent">
-    </div>
+        <input
+          id="newPassword"
+          type="password"
+          placeholder="6 أحرف أو أكثر"
+          autocomplete="new-password"
+        >
 
-  </div>
+      </div>
 
-</div>
+      <div class="input-group">
 
-<!-- =========================
-     ADMIN PANEL
-========================= -->
+        <label>
+          تأكيد كلمة المرور
+        </label>
 
-<section
-  id="adminPanel"
-  class="section"
-  style="max-width:1200px;margin:0 auto 60px;padding:20px;display:none;">
+        <input
+          id="newPasswordConfirm"
+          type="password"
+          placeholder="أعد كتابة كلمة المرور"
+          autocomplete="new-password"
+        >
 
-  <div class="card">
+      </div>
 
-    <h2>
-      👑 Admin Panel
-    </h2>
+      <div class="modal-actions">
 
-    <p class="section-subtitle">
-      إدارة Galaxy Coins للاعبين.
-    </p>
+        <button
+          id="saveNewPassword"
+          type="button"
+        >
+          🔐 حفظ
+        </button>
 
-    <div class="admin-form">
+      </div>
 
-      <input
-        id="adminUsername"
-        type="text"
-        placeholder="👤 Username اللاعب">
-
-      <input
-        id="adminAmount"
-        type="number"
-        min="1"
-        placeholder="🪙 كمية Coins">
-
-    </div>
-
-    <div class="admin-buttons">
-
-      <button
-        id="addCoinsAdmin"
-        class="success"
-        type="button">
-        ➕ إضافة Coins
-      </button>
-
-      <button
-        id="removeCoinsAdmin"
-        class="danger"
-        type="button">
-        ➖ إزالة Coins
-      </button>
+      <div
+        id="newPasswordMessage"
+        class="form-message"
+      ></div>
 
     </div>
 
   </div>
 
-</section>
+  <!-- INSTAGRAM PURCHASE MODAL -->
+  <div id="instagramPurchaseModal" class="modal">
+
+    <div class="modal-box instagram-box">
+
+      <div class="instagram-icon">
+        📸
+      </div>
+
+      <h2>
+        شراء Galaxy Coins
+      </h2>
+
+      <p class="modal-subtitle">
+        حاليًا شراء Galaxy Coins يتم بشكل يدوي.
+        <br>
+        تواصل معنا عبر Instagram لإتمام عملية الشراء.
+      </p>
+
+      <div class="instagram-username">
+        @itz7yo
+      </div>
+
+      <a
+        class="instagram-link"
+        href="https://www.instagram.com/itz7yo/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        instagram.com/itz7yo
+      </a>
+
+      <div class="instagram-note">
+        💬 اضغط على زر فتح Instagram وتواصل معنا،
+        وبعد إتمام الدفع سيتم إضافة Galaxy Coins إلى حسابك.
+      </div>
+
+      <div class="modal-actions">
+
+        <button
+          id="openInstagramBtn"
+          class="instagram-open-btn"
+          type="button"
+        >
+          📸 فتح Instagram
+        </button>
+
+        <button
+          id="closeInstagramPurchase"
+          class="secondary"
+          type="button"
+        >
+          إغلاق
+        </button>
+
+      </div>
 
-<footer>
-  <p>
-    🚀 Galaxy Arena
-  </p>
-
-  <br>
-
-  <p>
-    © 2026 Galaxy Arena. All Rights Reserved.
-  </p>
-</footer>
-
-<script>
-
-"use strict";
-
-/* =====================================================
-   GALAXY ARENA
-   INDEX.HTML
-   SUPABASE + AUTH + PLAYERS + ADMIN
-   MANUAL INSTAGRAM PURCHASE
-===================================================== */
-
-const SUPABASE_URL =
-  "https://nubkrxxreuiqefvjbloj.supabase.co";
-
-const SUPABASE_KEY =
-  "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
-
-let supabaseClient = null;
-let currentUser = null;
-let currentProfile = null;
-
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
-function $(selector) {
-  return document.querySelector(selector);
-}
-
-function showMessage(message) {
-  alert(message);
-}
-
-function scrollToSection(id) {
-  const element = document.getElementById(id);
-
-  if (element) {
-    element.scrollIntoView({
-      behavior: "smooth"
-    });
-  }
-}
-
-
-/* =====================================================
-   SUPABASE
-===================================================== */
-
-function initSupabase() {
-
-  if (!window.supabase) {
-
-    showMessage(
-      "❌ Supabase library لم يتم تحميلها."
-    );
-
-    return false;
-  }
-
-  supabaseClient =
-    window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-  return true;
-}
-
-
-/* =====================================================
-   AUTH MODAL
-===================================================== */
-
-function openAuthModal() {
-
-  $("#authModal")?.classList.add("show");
-}
-
-function closeAuthModal() {
-
-  $("#authModal")?.classList.remove("show");
-}
-
-
-/* =====================================================
-   LOGIN
-===================================================== */
-
-async function login() {
-
-  if (!supabaseClient) {
-
-    showMessage(
-      "❌ Supabase غير متصل."
-    );
-
-    return;
-  }
-
-  openAuthModal();
-}
-
-
-/* =====================================================
-   LOGIN REQUEST
-===================================================== */
-
-async function performLogin() {
-
-  const email =
-    $("#authEmail")?.value.trim();
-
-  const password =
-    $("#authPassword")?.value;
-
-  if (!email) {
-
-    showMessage(
-      "❌ اكتب الإيميل."
-    );
-
-    return;
-  }
-
-  if (!password) {
-
-    showMessage(
-      "❌ اكتب كلمة المرور."
-    );
-
-    return;
-  }
-
-  try {
-
-    showMessage(
-      "⏳ جاري تسجيل الدخول..."
-    );
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
-
-    if (error) {
-
-      showMessage(
-        "❌ فشل تسجيل الدخول\n\n" +
-        error.message
-      );
-
-      return;
-    }
-
-    currentUser =
-      data.user;
-
-    await loadProfile();
-
-    closeAuthModal();
-
-    showMessage(
-      "✅ تم تسجيل الدخول بنجاح!"
-    );
-
-    updateUI();
-
-    await createAdminPanel();
-
-  } catch (error) {
-
-    console.error(
-      "LOGIN ERROR:",
-      error
-    );
-
-    showMessage(
-      "❌ حدث خطأ:\n\n" +
-      (error.message || error)
-    );
-  }
-}
-
-
-/* =====================================================
-   REGISTER
-===================================================== */
-
-async function register() {
-
-  const username =
-    $("#authUsername")?.value.trim();
-
-  const email =
-    $("#authEmail")?.value.trim();
-
-  const password =
-    $("#authPassword")?.value;
-
-  if (!username) {
-
-    showMessage(
-      "❌ اكتب Username."
-    );
-
-    return;
-  }
-
-  if (!email) {
-
-    showMessage(
-      "❌ اكتب Email."
-    );
-
-    return;
-  }
-
-  if (!password) {
-
-    showMessage(
-      "❌ اكتب Password."
-    );
-
-    return;
-  }
-
-  if (password.length < 6) {
-
-    showMessage(
-      "❌ كلمة المرور يجب أن تكون 6 أحرف أو أكثر."
-    );
-
-    return;
-  }
-
-  try {
-
-    showMessage(
-      "⏳ جاري إنشاء الحساب..."
-    );
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.signUp({
-
-        email,
-
-        password,
-
-        options: {
-
-          data: {
-            username
-          }
-
-        }
-
-      });
-
-    if (error) {
-
-      showMessage(
-        "❌ فشل إنشاء الحساب\n\n" +
-        error.message
-      );
-
-      return;
-    }
-
-    currentUser =
-      data.user;
-
-    if (currentUser) {
-
-      await loadProfile();
-
-    }
-
-    closeAuthModal();
-
-    showMessage(
-      "🎉 تم إنشاء الحساب بنجاح!\n\n" +
-      "أهلاً بك في Galaxy Arena 🚀"
-    );
-
-    updateUI();
-
-    await createAdminPanel();
-
-  } catch (error) {
-
-    console.error(
-      "REGISTER ERROR:",
-      error
-    );
-
-    showMessage(
-      "❌ حدث خطأ:\n\n" +
-      (error.message || error)
-    );
-  }
-}
-
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-async function logout() {
-
-  if (!supabaseClient) {
-    return;
-  }
-
-  const {
-    error
-  } =
-    await supabaseClient.auth.signOut();
-
-  if (error) {
-
-    showMessage(
-      "❌ تعذر تسجيل الخروج:\n\n" +
-      error.message
-    );
-
-    return;
-  }
-
-  currentUser = null;
-
-  currentProfile = null;
-
-  $("#adminPanel").style.display =
-    "none";
-
-  updateUI();
-
-  loadMyPlayers();
-
-  showMessage(
-    "👋 تم تسجيل الخروج."
-  );
-}
-
-
-/* =====================================================
-   SESSION
-===================================================== */
-
-async function loadSession() {
-
-  if (!supabaseClient) {
-    return;
-  }
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient.auth.getSession();
-
-  if (error) {
-
-    console.error(
-      "SESSION ERROR:",
-      error
-    );
-
-    return;
-  }
-
-  currentUser =
-    data.session
-      ? data.session.user
-      : null;
-
-  if (currentUser) {
-
-    await loadProfile();
-
-  }
-
-  updateUI();
-
-  await loadMyPlayers();
-}
-
-
-/* =====================================================
-   PROFILE
-===================================================== */
-
-async function loadProfile() {
-
-  if (
-    !supabaseClient ||
-    !currentUser
-  ) {
-    return;
-  }
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient.rpc(
-      "get_my_profile"
-    );
-
-  if (error) {
-
-    console.error(
-      "PROFILE ERROR:",
-      error
-    );
-
-    return;
-  }
-
-  if (data) {
-
-    currentProfile =
-      Array.isArray(data)
-        ? data[0]
-        : data;
-
-  }
-
-  updateCoins();
-}
-
-
-/* =====================================================
-   COINS
-===================================================== */
-
-function updateCoins() {
-
-  const coinsElement =
-    $("#coins");
-
-  const coins =
-    currentProfile?.galaxy_coins ?? 0;
-
-  if (coinsElement) {
-
-    coinsElement.textContent =
-      Number(coins).toLocaleString();
-
-  }
-
-  const accountCoins =
-    $("#accountCoins");
-
-  if (accountCoins) {
-
-    accountCoins.textContent =
-      Number(coins).toLocaleString();
-
-  }
-}
-
-
-/* =====================================================
-   UI
-===================================================== */
-
-function updateUI() {
-
-  updateCoins();
-
-  const loginBtn =
-    $("#loginBtn");
-
-  const heroLoginBtn =
-    $("#heroLoginBtn");
-
-  if (currentUser) {
-
-    if (loginBtn) {
-
-      loginBtn.textContent =
-        "👤 حسابي";
-
-      loginBtn.onclick =
-        openAccountModal;
-
-    }
-
-    if (heroLoginBtn) {
-
-      heroLoginBtn.textContent =
-        "👤 حسابي";
-
-      heroLoginBtn.onclick =
-        openAccountModal;
-
-    }
-
-  } else {
-
-    if (loginBtn) {
-
-      loginBtn.textContent =
-        "تسجيل الدخول";
-
-      loginBtn.onclick =
-        login;
-
-    }
-
-    if (heroLoginBtn) {
-
-      heroLoginBtn.textContent =
-        "🚀 تسجيل الدخول";
-
-      heroLoginBtn.onclick =
-        login;
-
-    }
-
-  }
-
-}
-
-
-/* =====================================================
-   ACCOUNT
-===================================================== */
-
-function openAccountModal() {
-
-  if (!currentUser) {
-
-    login();
-
-    return;
-  }
-
-  $("#accountEmail").textContent =
-    currentUser.email || "-";
-
-  $("#accountUsername").textContent =
-    currentProfile?.username || "-";
-
-  $("#accountCoins").textContent =
-    Number(
-      currentProfile?.galaxy_coins ?? 0
-    ).toLocaleString();
-
-  $("#accountRank").textContent =
-    currentProfile?.rank || "Player";
-
-  $("#accountModal")
-    .classList.add("show");
-}
-
-
-/* =====================================================
-   INSTAGRAM PURCHASE
-===================================================== */
-
-function buyCoins() {
-
-  if (!currentUser) {
-
-    showMessage(
-      "🔐 لازم تسجل دخول أولاً حتى تشتري Galaxy Coins."
-    );
-
-    login();
-
-    return;
-  }
-
-  const modal =
-    $("#instagramPurchaseModal");
-
-  if (!modal) {
-
-    showMessage(
-      "❌ نافذة شراء Instagram غير موجودة."
-    );
-
-    return;
-  }
-
-  modal.classList.add("show");
-}
-
-
-function openInstagram() {
-
-  const instagramUrl =
-    "https://www.instagram.com/itz7yo/";
-
-  window.open(
-    instagramUrl,
-    "_blank",
-    "noopener,noreferrer"
-  );
-}
-
-
-function closeInstagramPurchase() {
-
-  $("#instagramPurchaseModal")
-    ?.classList.remove("show");
-}
-
-
-/* =====================================================
-   PLAYERS
-===================================================== */
-
-async function searchPlayers() {
-
-  if (!currentUser) {
-
-    showMessage(
-      "🔐 لازم تسجل دخول حتى تبحث عن اللاعبين."
-    );
-
-    login();
-
-    return;
-  }
-
-  const query =
-    $("#playerSearchInput")
-      ?.value
-      .trim();
-
-  if (!query) {
-
-    showMessage(
-      "❌ اكتب Username للبحث."
-    );
-
-    return;
-  }
-
-  const container =
-    $("#playersResults");
-
-  container.innerHTML = `
-    <div class="card empty">
-      ⏳ جاري البحث...
     </div>
-  `;
 
-  try {
+  </div>
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.rpc(
-        "search_players",
-        {
-          search_username: query
-        }
-      );
+  <script>
 
-    if (error) {
+    /* ==========================================
+       SUPABASE
+    ========================================== */
+
+    const SUPABASE_URL =
+      "https://nubkrxxreuiqefvjbloj.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
+
+    let supabaseClient = null;
+
+    try {
+
+      if (
+        !window.supabase ||
+        !window.supabase.createClient
+      ) {
+
+        throw new Error(
+          "Supabase library did not load."
+        );
+
+      }
+
+      supabaseClient =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+    } catch (error) {
 
       console.error(
-        "SEARCH PLAYERS ERROR:",
+        "Supabase initialization error:",
         error
       );
 
-      container.innerHTML = `
-        <div class="card empty">
-          ❌ فشل البحث.
-        </div>
-      `;
-
-      return;
     }
 
-    if (!data || data.length === 0) {
+    /* ==========================================
+       GLOBAL STATE
+    ========================================== */
 
-      container.innerHTML = `
-        <div class="card empty">
-          🔎 لم يتم العثور على لاعب.
-        </div>
-      `;
+    let currentUser = null;
+    let currentProfile = null;
+    let authMode = "login";
+    let currentViewedPlayer = null;
 
-      return;
+    /* ==========================================
+       HELPERS
+    ========================================== */
+
+    function $(selector) {
+      return document.querySelector(selector);
     }
 
-    const {
-      data: connections,
-      error: connectionError
-    } =
-      await supabaseClient
-        .from("player_connections")
-        .select("player_id")
-        .eq(
-          "user_id",
-          currentUser.id
-        );
+    function showError(message) {
 
-    if (connectionError) {
+      console.error(message);
 
-      console.error(
-        connectionError
+      alert("❌ " + message);
+
+    }
+
+    /* ==========================================
+       STARS
+    ========================================== */
+
+    function createStars() {
+
+      const space = $("#space");
+
+      if (!space) return;
+
+      space.innerHTML = "";
+
+      for (let i = 0; i < 120; i++) {
+
+        const star =
+          document.createElement("div");
+
+        star.className = "star";
+
+        star.style.left =
+          Math.random() * 100 + "%";
+
+        star.style.top =
+          Math.random() * 100 + "%";
+
+        star.style.animationDuration =
+          (5 + Math.random() * 15) + "s";
+
+        star.style.animationDelay =
+          (-Math.random() * 15) + "s";
+
+        space.appendChild(star);
+
+      }
+
+    }
+
+    /* ==========================================
+       MODALS
+    ========================================== */
+
+    function openLogin() {
+
+      authMode = "login";
+
+      $("#authTitle").textContent =
+        "تسجيل الدخول";
+
+      $("#authSubtitle").textContent =
+        "ادخل إلى حسابك في Galaxy Arena";
+
+      $("#usernameGroup").style.display =
+        "none";
+
+      $("#confirmGroup").style.display =
+        "none";
+
+      $("#authSubmit").textContent =
+        "🚀 تسجيل الدخول";
+
+      $("#authMessage").textContent =
+        "";
+
+      $("#authModal").classList.add("show");
+
+    }
+
+    function openRegister() {
+
+      authMode = "register";
+
+      $("#authTitle").textContent =
+        "إنشاء حساب";
+
+      $("#authSubtitle").textContent =
+        "انضم إلى عالم Galaxy Arena 🌌";
+
+      $("#usernameGroup").style.display =
+        "block";
+
+      $("#confirmGroup").style.display =
+        "block";
+
+      $("#authSubmit").textContent =
+        "✨ إنشاء الحساب";
+
+      $("#authMessage").textContent =
+        "";
+
+      $("#authModal").classList.add("show");
+
+    }
+
+    function closeAuth() {
+
+      $("#authModal")
+        .classList
+        .remove("show");
+
+    }
+
+    function closeReset() {
+
+      $("#resetModal")
+        .classList
+        .remove("show");
+
+    }
+
+    function closeAccount() {
+
+      $("#accountModal")
+        .classList
+        .remove("show");
+
+    }
+
+    function closePlayerProfile() {
+
+      $("#playerProfileModal")
+        .classList
+        .remove("show");
+
+      currentViewedPlayer = null;
+
+    }
+
+    /* ==========================================
+       INSTAGRAM PURCHASE
+    ========================================== */
+
+    function openInstagramPurchase() {
+
+      $("#instagramPurchaseModal")
+        .classList
+        .add("show");
+
+    }
+
+    function closeInstagramPurchase() {
+
+      $("#instagramPurchaseModal")
+        .classList
+        .remove("show");
+
+    }
+
+    function openInstagram() {
+
+      const instagramUrl =
+        "https://www.instagram.com/itz7yo/";
+
+      window.open(
+        instagramUrl,
+        "_blank",
+        "noopener,noreferrer"
       );
+
     }
 
-    const addedIds =
-      new Set(
-        (connections || [])
-          .map(row => row.player_id)
-      );
+    /* ==========================================
+       PROFILE
+    ========================================== */
 
-    container.innerHTML =
-      data
-        .map(player => {
+    async function loadProfile() {
 
-          const isAdded =
-            addedIds.has(player.id);
+      if (!supabaseClient || !currentUser) {
+        return;
+      }
 
-          return createPlayerCard(
-            player,
-            isAdded
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            "get_my_profile"
           );
 
-        })
-        .join("");
+        if (result.error) {
 
-  } catch (error) {
+          console.error(
+            "Profile error:",
+            result.error
+          );
 
-    console.error(error);
+          return;
 
-    container.innerHTML = `
-      <div class="card empty">
-        ❌ حدث خطأ أثناء البحث.
-      </div>
-    `;
-  }
-}
+        }
 
+        let data = result.data;
 
-/* =====================================================
-   PLAYER CARD
-===================================================== */
+        if (Array.isArray(data)) {
+          data = data[0] || null;
+        }
 
-function createPlayerCard(
-  player,
-  isAdded = false
-) {
+        currentProfile = data;
 
-  const avatar =
-    player.avatar_url ||
-    "";
+        updateCoins();
+        updateUserProfileUI();
 
-  const username =
-    player.username ||
-    "Player";
+      } catch (error) {
 
-  const rank =
-    player.rank ||
-    "Player";
+        console.error(
+          "loadProfile error:",
+          error
+        );
 
-  const avatarHtml =
-    avatar
-      ? `<img
-           class="avatar"
-           src="${avatar}"
-           alt="avatar">`
-      : `
-        <div class="avatar">
-          👤
-        </div>
-      `;
+      }
 
-  const buttonHtml =
-    isAdded
-      ? `
-        <button
-          class="success"
-          disabled
-          type="button">
-          ✅ مضاف
-        </button>
-      `
-      : `
-        <button
-          class="primary"
-          type="button"
-          onclick="addPlayer('${player.id}', this)">
-          ➕ إضافة
-        </button>
-      `;
+    }
 
-  return `
-    <div class="card player-card">
+    /* ==========================================
+       USERNAME
+    ========================================== */
 
-      ${avatarHtml}
+    function getUsername() {
 
-      <div class="player-info">
+      return (
+        currentProfile?.username ||
+        currentUser?.user_metadata?.username ||
+        "Player"
+      );
 
-        <strong>
-          ${escapeHtml(username)}
-        </strong>
+    }
 
-        <span>
-          🏅 ${escapeHtml(rank)}
-        </span>
+    function getRank() {
 
-      </div>
+      return (
+        currentProfile?.rank ||
+        "BRONZE"
+      );
 
-      ${buttonHtml}
+    }
 
-    </div>
-  `;
-}
+    function updateUserProfileUI() {
 
+      const username =
+        getUsername();
 
-/* =====================================================
-   ADD PLAYER
-===================================================== */
+      const rank =
+        getRank();
 
-async function addPlayer(
-  playerId,
-  button
-) {
+      const coins =
+        Number(
+          currentProfile?.galaxy_coins || 0
+        ).toLocaleString();
 
-  if (!currentUser) {
+      const badge =
+        $("#usernameBadge");
 
-    showMessage(
-      "🔐 لازم تسجل دخول."
-    );
+      if (badge) {
 
-    return;
-  }
+        if (currentUser) {
 
-  if (!playerId) {
-    return;
-  }
+          badge.textContent =
+            "@" + username;
 
-  if (button) {
+          badge.classList.add("show");
 
-    button.disabled = true;
+        } else {
 
-    button.textContent =
-      "⏳ جاري...";
-  }
+          badge.textContent =
+            "@username";
 
-  try {
+          badge.classList.remove("show");
 
-    const {
-      error
-    } =
-      await supabaseClient
-        .from("player_connections")
-        .insert({
-          user_id: currentUser.id,
-          player_id: playerId
-        });
+        }
 
-    if (error) {
+      }
+
+      const heroCard =
+        $("#loggedUserCard");
+
+      if (heroCard) {
+
+        if (currentUser) {
+
+          heroCard.classList.add("show");
+
+          $("#loggedUsername")
+            .textContent =
+            "@" + username;
+
+          $("#loggedRank")
+            .textContent =
+            rank;
+
+          $("#loggedCoins")
+            .textContent =
+            coins;
+
+        } else {
+
+          heroCard.classList.remove("show");
+
+        }
+
+      }
+
+      if ($("#accountUsername")) {
+
+        $("#accountUsername")
+          .textContent =
+          "@" + username;
+
+      }
+
+      if ($("#accountRank")) {
+
+        $("#accountRank")
+          .textContent =
+          rank;
+
+      }
+
+      if ($("#accountCoins")) {
+
+        $("#accountCoins")
+          .textContent =
+          coins;
+
+      }
+
+    }
+
+    /* ==========================================
+       COINS
+    ========================================== */
+
+    function updateCoins() {
+
+      const element =
+        $("#coins");
+
+      if (!element) return;
+
+      const coins =
+        Number(
+          currentProfile?.galaxy_coins || 0
+        );
+
+      element.textContent =
+        coins.toLocaleString();
+
+      updateUserProfileUI();
+
+    }
+
+    /* ==========================================
+       UI
+    ========================================== */
+
+    function updateUI() {
+
+      updateCoins();
+      updateUserProfileUI();
+
+      const loginBtn =
+        $("#loginBtn");
+
+      const heroBtn =
+        $("#heroLoginBtn");
+
+      if (currentUser) {
+
+        loginBtn.textContent =
+          "تسجيل الخروج";
+
+        loginBtn.onclick =
+          logout;
+
+        heroBtn.textContent =
+          "👤 حسابي";
+
+        heroBtn.onclick =
+          showAccount;
+
+      } else {
+
+        loginBtn.textContent =
+          "تسجيل الدخول";
+
+        loginBtn.onclick =
+          openLogin;
+
+        heroBtn.textContent =
+          "🚀 تسجيل الدخول";
+
+        heroBtn.onclick =
+          openLogin;
+
+      }
+
+    }
+
+    /* ==========================================
+       ACCOUNT
+    ========================================== */
+
+    function showAccount() {
+
+      if (!currentUser) {
+
+        openLogin();
+
+        return;
+
+      }
+
+      updateUserProfileUI();
+
+      $("#accountModal")
+        .classList
+        .add("show");
+
+    }
+
+    /* ==========================================
+       LOGOUT
+    ========================================== */
+
+    async function logout() {
+
+      if (!supabaseClient) return;
+
+      try {
+
+        await supabaseClient.auth.signOut();
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+
+      currentUser = null;
+      currentProfile = null;
+
+      $("#adminPanel").style.display =
+        "none";
+
+      updateUI();
+
+      renderMyPlayers([]);
+
+      alert(
+        "👋 تم تسجيل الخروج."
+      );
+
+    }
+
+    /* ==========================================
+       ADMIN
+    ========================================== */
+
+    async function checkAdmin() {
+
+      if (!supabaseClient || !currentUser) {
+        return false;
+      }
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            "is_admin"
+          );
+
+        if (result.error) {
+
+          console.error(
+            "Admin check error:",
+            result.error
+          );
+
+          return false;
+
+        }
+
+        return result.data === true;
+
+      } catch (error) {
+
+        console.error(error);
+
+        return false;
+
+      }
+
+    }
+
+    async function createAdminPanel() {
+
+      const panel =
+        $("#adminPanel");
+
+      if (!panel) return;
+
+      const admin =
+        await checkAdmin();
+
+      panel.style.display =
+        admin
+          ? "block"
+          : "none";
+
+    }
+
+    /* ==========================================
+       CHANGE COINS
+    ========================================== */
+
+    async function changeCoins(action) {
+
+      if (!supabaseClient || !currentUser) {
+
+        showError(
+          "يجب تسجيل الدخول أولاً."
+        );
+
+        return;
+
+      }
+
+      const username =
+        $("#adminUsername")
+          .value
+          .trim();
+
+      const amount =
+        Number(
+          $("#adminAmount").value
+        );
+
+      if (!username) {
+
+        showError(
+          "اكتب Username."
+        );
+
+        return;
+
+      }
+
+      if (!amount || amount <= 0) {
+
+        showError(
+          "اكتب كمية صحيحة."
+        );
+
+        return;
+
+      }
+
+      const functionName =
+        action === "add"
+          ? "admin_add_coins"
+          : "admin_remove_coins";
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            functionName,
+            {
+              receiver_username:
+                username,
+              amount:
+                Math.floor(amount)
+            }
+          );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        alert(
+          action === "add"
+            ? "✅ تمت إضافة Coins."
+            : "✅ تمت إزالة Coins."
+        );
+
+        await loadProfile();
+
+      } catch (error) {
+
+        console.error(error);
+
+        showError(
+          error.message ||
+          "فشلت العملية."
+        );
+
+      }
+
+    }
+
+    /* ==========================================
+       BUY COINS → INSTAGRAM
+       لا يوجد دفع إلكتروني هنا
+    ========================================== */
+
+    function buyCoins() {
+
+      openInstagramPurchase();
+
+    }
+
+    /* ==========================================
+       PLAYER SEARCH
+    ========================================== */
+
+    async function searchPlayers() {
+
+      const input =
+        $("#playerSearchInput");
+
+      const results =
+        $("#playerResults");
+
+      const message =
+        $("#playerSearchMessage");
+
+      const query =
+        input.value.trim();
+
+      if (!currentUser) {
+
+        message.textContent =
+          "🔐 سجل الدخول أولاً حتى تبحث وتضيف لاعبين.";
+
+        results.innerHTML =
+          `
+            <div class="player-empty">
+              🔐 يجب تسجيل الدخول أولاً.
+            </div>
+          `;
+
+        return;
+
+      }
+
+      if (!query) {
+
+        message.textContent =
+          "اكتب Username للبحث.";
+
+        results.innerHTML =
+          `
+            <div class="player-empty">
+              اكتب Username للبحث عن لاعب.
+            </div>
+          `;
+
+        return;
+
+      }
+
+      message.textContent =
+        "⏳ جاري البحث...";
+
+      results.innerHTML =
+        `
+          <div class="player-empty">
+            🔎 جاري البحث عن اللاعبين...
+          </div>
+        `;
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            "search_players",
+            {
+              search_username:
+                query
+            }
+          );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        const players =
+          result.data || [];
+
+        const filtered =
+          players.filter(
+            player =>
+              player.id !== currentUser.id
+          );
+
+        const connections =
+          await supabaseClient
+            .from("player_connections")
+            .select("player_id")
+            .eq(
+              "user_id",
+              currentUser.id
+            );
+
+        if (connections.error) {
+
+          throw connections.error;
+
+        }
+
+        const addedPlayerIds =
+          new Set(
+            (connections.data || [])
+              .map(
+                row =>
+                  row.player_id
+              )
+          );
+
+        const playersWithStatus =
+          filtered.map(
+            player => ({
+              ...player,
+              is_added:
+                addedPlayerIds.has(
+                  player.id
+                )
+            })
+          );
+
+        message.textContent =
+          playersWithStatus.length
+            ? `تم العثور على ${playersWithStatus.length} لاعب.`
+            : "لم يتم العثور على لاعب.";
+
+        renderSearchPlayers(
+          playersWithStatus
+        );
+
+      } catch (error) {
+
+        console.error(
+          "PLAYER SEARCH ERROR:",
+          error
+        );
+
+        message.textContent =
+          "❌ تعذر البحث عن اللاعبين.";
+
+        results.innerHTML =
+          `
+            <div class="player-empty">
+              ❌ ${escapeHtml(
+                error.message ||
+                "حدث خطأ أثناء البحث."
+              )}
+            </div>
+          `;
+
+      }
+
+    }
+
+    /* ==========================================
+       RENDER SEARCH RESULTS
+    ========================================== */
+
+    function renderSearchPlayers(players) {
+
+      const container =
+        $("#playerResults");
+
+      if (!players.length) {
+
+        container.innerHTML =
+          `
+            <div class="player-empty">
+              🔎 لا يوجد لاعب بهذا Username.
+            </div>
+          `;
+
+        return;
+
+      }
+
+      container.innerHTML =
+        "";
+
+      players.forEach(
+        player => {
+
+          const card =
+            createPlayerCard(
+              player,
+              "add"
+            );
+
+          container.appendChild(card);
+
+        }
+      );
+
+    }
+
+    /* ==========================================
+       CREATE PLAYER CARD
+    ========================================== */
+
+    function createPlayerCard(
+      player,
+      action
+    ) {
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "player-card";
+
+      card.onclick =
+        (event) => {
+
+          if (
+            event.target.closest("button")
+          ) {
+            return;
+          }
+
+          openPlayerProfile(
+            player.id
+          );
+
+        };
+
+      const avatar =
+        document.createElement("div");
+
+      avatar.className =
+        "player-avatar";
+
+      if (player.avatar_url) {
+
+        const img =
+          document.createElement("img");
+
+        img.src =
+          player.avatar_url;
+
+        img.alt =
+          "Avatar";
+
+        img.onerror =
+          () => {
+
+            avatar.innerHTML =
+              "👤";
+
+          };
+
+        avatar.appendChild(img);
+
+      } else {
+
+        avatar.textContent =
+          "👤";
+
+      }
+
+      const info =
+        document.createElement("div");
+
+      info.className =
+        "player-info";
+
+      const username =
+        document.createElement("div");
+
+      username.className =
+        "player-username";
+
+      username.textContent =
+        "@" +
+        (
+          player.username ||
+          "Player"
+        );
+
+      const rank =
+        document.createElement("div");
+
+      rank.className =
+        "player-rank";
+
+      rank.textContent =
+        "🏅 " +
+        (
+          player.rank ||
+          "BRONZE"
+        );
+
+      info.appendChild(username);
+      info.appendChild(rank);
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "small-btn";
+
+      if (action === "add") {
+
+        if (player.is_added) {
+
+          button.textContent =
+            "✅ مضاف";
+
+          button.disabled =
+            true;
+
+          button.style.opacity =
+            "0.7";
+
+        } else {
+
+          button.textContent =
+            "➕ إضافة";
+
+          button.onclick =
+            (event) => {
+
+              event.stopPropagation();
+
+              addPlayer(
+                player.id,
+                player.username,
+                button
+              );
+
+            };
+
+        }
+
+      } else {
+
+        button.textContent =
+          "🗑️ حذف";
+
+        button.classList.add(
+          "danger"
+        );
+
+        button.onclick =
+          (event) => {
+
+            event.stopPropagation();
+
+            removePlayer(
+              player.id,
+              player.username
+            );
+
+          };
+
+      }
+
+      card.appendChild(avatar);
+      card.appendChild(info);
+      card.appendChild(button);
+
+      return card;
+
+    }
+
+    /* ==========================================
+       OPEN PLAYER PROFILE
+    ========================================== */
+
+    async function openPlayerProfile(
+      playerId
+    ) {
+
+      if (!playerId) {
+
+        showError(
+          "معرف اللاعب غير موجود."
+        );
+
+        return;
+
+      }
+
+      if (!supabaseClient) {
+
+        showError(
+          "تعذر الاتصال بـ Supabase."
+        );
+
+        return;
+
+      }
 
       if (
-        error.code === "23505"
+        currentUser &&
+        playerId === currentUser.id
       ) {
+
+        showAccount();
+
+        return;
+
+      }
+
+      currentViewedPlayer = {
+        id:
+          playerId
+      };
+
+      const modal =
+        $("#playerProfileModal");
+
+      const content =
+        $("#playerProfileContent");
+
+      const avatar =
+        $("#playerProfileAvatar");
+
+      const actionButton =
+        $("#playerProfileAction");
+
+      modal.classList.add("show");
+
+      avatar.innerHTML =
+        "⏳";
+
+      content.className =
+        "player-profile-loading";
+
+      content.innerHTML =
+        "⏳ جاري تحميل اللاعب...";
+
+      actionButton.style.display =
+        currentUser
+          ? "block"
+          : "none";
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            "get_player_profile",
+            {
+              player_uuid:
+                playerId
+            }
+          );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        let player =
+          result.data;
+
+        if (Array.isArray(player)) {
+
+          player =
+            player[0] || null;
+
+        }
+
+        if (!player) {
+
+          throw new Error(
+            "لم يتم العثور على هذا اللاعب."
+          );
+
+        }
+
+        currentViewedPlayer =
+          player;
+
+        avatar.innerHTML =
+          "";
+
+        if (player.avatar_url) {
+
+          const img =
+            document.createElement("img");
+
+          img.src =
+            player.avatar_url;
+
+          img.alt =
+            "Avatar";
+
+          img.onerror =
+            () => {
+
+              avatar.innerHTML =
+                "👤";
+
+            };
+
+          avatar.appendChild(img);
+
+        } else {
+
+          avatar.textContent =
+            "👤";
+
+        }
+
+        content.className =
+          "";
+
+        content.innerHTML =
+          `
+            <div class="player-profile-username">
+              @${escapeHtml(
+                player.username ||
+                "Player"
+              )}
+            </div>
+
+            <div class="player-profile-rank">
+              🏅 Rank:
+              ${escapeHtml(
+                player.rank ||
+                "BRONZE"
+              )}
+            </div>
+
+            <div class="player-profile-status">
+              🌌 لاعب في مجتمع Galaxy Arena
+              <br>
+              🪙 رصيد Galaxy Coins خاص ولا يظهر للاعبين الآخرين.
+            </div>
+          `;
+
+        if (!currentUser) {
+
+          actionButton.style.display =
+            "none";
+
+          return;
+
+        }
+
+        actionButton.style.display =
+          "block";
+
+        actionButton.textContent =
+          "⏳ جاري التحقق...";
+
+        actionButton.disabled =
+          true;
+
+        const existing =
+          await supabaseClient
+            .from("player_connections")
+            .select("id")
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .eq(
+              "player_id",
+              player.id
+            )
+            .maybeSingle();
+
+        if (existing.error) {
+
+          console.error(
+            "PLAYER CONNECTION CHECK ERROR:",
+            existing.error
+          );
+
+          actionButton.textContent =
+            "➕ إضافة اللاعب";
+
+          actionButton.disabled =
+            false;
+
+          return;
+
+        }
+
+        if (existing.data) {
+
+          actionButton.textContent =
+            "🗑️ إزالة اللاعب";
+
+          actionButton.classList.add(
+            "danger"
+          );
+
+        } else {
+
+          actionButton.textContent =
+            "➕ إضافة اللاعب";
+
+          actionButton.classList.remove(
+            "danger"
+          );
+
+        }
+
+        actionButton.disabled =
+          false;
+
+      } catch (error) {
+
+        console.error(
+          "PLAYER PROFILE ERROR:",
+          error
+        );
+
+        avatar.innerHTML =
+          "⚠️";
+
+        content.className =
+          "player-profile-error";
+
+        content.innerHTML =
+          `
+            ❌ تعذر تحميل بيانات اللاعب.
+            <br><br>
+            ${escapeHtml(
+              error.message ||
+              "حدث خطأ غير معروف."
+            )}
+          `;
+
+        actionButton.style.display =
+          "none";
+
+      }
+
+    }
+
+    /* ==========================================
+       PLAYER PROFILE ACTION
+    ========================================== */
+
+    async function handlePlayerProfileAction() {
+
+      if (!currentUser) {
+
+        closePlayerProfile();
+
+        openLogin();
+
+        return;
+
+      }
+
+      if (!currentViewedPlayer?.id) {
+
+        showError(
+          "لم يتم تحديد اللاعب."
+        );
+
+        return;
+
+      }
+
+      const player =
+        currentViewedPlayer;
+
+      if (
+        player.id === currentUser.id
+      ) {
+
+        closePlayerProfile();
+
+        showAccount();
+
+        return;
+
+      }
+
+      const button =
+        $("#playerProfileAction");
+
+      button.disabled =
+        true;
+
+      const originalText =
+        button.textContent;
+
+      button.textContent =
+        "⏳ جاري التنفيذ...";
+
+      try {
+
+        const existing =
+          await supabaseClient
+            .from("player_connections")
+            .select("id")
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .eq(
+              "player_id",
+              player.id
+            )
+            .maybeSingle();
+
+        if (existing.error) {
+
+          throw existing.error;
+
+        }
+
+        if (existing.data) {
+
+          const result =
+            await supabaseClient
+              .from("player_connections")
+              .delete()
+              .eq(
+                "user_id",
+                currentUser.id
+              )
+              .eq(
+                "player_id",
+                player.id
+              );
+
+          if (result.error) {
+
+            throw result.error;
+
+          }
+
+          button.textContent =
+            "➕ إضافة اللاعب";
+
+          button.classList.remove(
+            "danger"
+          );
+
+          await loadMyPlayers();
+
+          alert(
+            "✅ تمت إزالة @" +
+            (
+              player.username ||
+              "Player"
+            ) +
+            " من قائمتك."
+          );
+
+        } else {
+
+          const result =
+            await supabaseClient
+              .from("player_connections")
+              .insert({
+
+                user_id:
+                  currentUser.id,
+
+                player_id:
+                  player.id
+
+              });
+
+          if (result.error) {
+
+            if (
+              result.error.code ===
+              "23505"
+            ) {
+
+              throw new Error(
+                "هذا اللاعب موجود بالفعل في قائمتك."
+              );
+
+            }
+
+            throw result.error;
+
+          }
+
+          button.textContent =
+            "🗑️ إزالة اللاعب";
+
+          button.classList.add(
+            "danger"
+          );
+
+          await loadMyPlayers();
+
+          alert(
+            "✅ تمت إضافة @" +
+            (
+              player.username ||
+              "Player"
+            ) +
+            " إلى لاعبيك."
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "PLAYER PROFILE ACTION ERROR:",
+          error
+        );
+
+        showError(
+          error.message ||
+          "تعذرت العملية."
+        );
+
+        button.textContent =
+          originalText;
+
+      } finally {
+
+        button.disabled =
+          false;
+
+      }
+
+    }
+
+    /* ==========================================
+       ADD PLAYER
+    ========================================== */
+
+    async function addPlayer(
+      playerId,
+      username,
+      button
+    ) {
+
+      if (!currentUser) {
+
+        openLogin();
+
+        return;
+
+      }
+
+      if (
+        !playerId ||
+        playerId === currentUser.id
+      ) {
+
+        showError(
+          "لا يمكنك إضافة نفسك."
+        );
+
+        return;
+
+      }
+
+      if (button) {
+
+        button.disabled =
+          true;
+
+        button.textContent =
+          "⏳";
+
+      }
+
+      try {
+
+        const existing =
+          await supabaseClient
+            .from("player_connections")
+            .select("id")
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .eq(
+              "player_id",
+              playerId
+            )
+            .maybeSingle();
+
+        if (existing.error) {
+
+          throw existing.error;
+
+        }
+
+        if (existing.data) {
+
+          if (button) {
+
+            button.textContent =
+              "✅ مضاف";
+
+            button.disabled =
+              true;
+
+            button.style.opacity =
+              "0.7";
+
+          }
+
+          await loadMyPlayers();
+
+          return;
+
+        }
+
+        const result =
+          await supabaseClient
+            .from("player_connections")
+            .insert({
+
+              user_id:
+                currentUser.id,
+
+              player_id:
+                playerId
+
+            });
+
+        if (result.error) {
+
+          if (
+            result.error.code ===
+            "23505"
+          ) {
+
+            if (button) {
+
+              button.textContent =
+                "✅ مضاف";
+
+              button.disabled =
+                true;
+
+              button.style.opacity =
+                "0.7";
+
+            }
+
+            await loadMyPlayers();
+
+            return;
+
+          }
+
+          throw result.error;
+
+        }
 
         if (button) {
 
           button.textContent =
             "✅ مضاف";
 
-          button.className =
-            "success";
+          button.disabled =
+            true;
+
+          button.style.opacity =
+            "0.7";
 
         }
 
         await loadMyPlayers();
 
-        return;
+        alert(
+          "✅ تمت إضافة @" +
+          username +
+          " إلى لاعبيك."
+        );
+
+      } catch (error) {
+
+        console.error(
+          "ADD PLAYER ERROR:",
+          error
+        );
+
+        showError(
+          error.message ||
+          "تعذرت إضافة اللاعب."
+        );
+
+        if (button) {
+
+          button.disabled =
+            false;
+
+          button.textContent =
+            "➕ إضافة";
+
+          button.style.opacity =
+            "1";
+
+        }
+
       }
 
-      throw error;
     }
 
-    if (button) {
+    /* ==========================================
+       LOAD MY PLAYERS
+    ========================================== */
 
-      button.textContent =
-        "✅ مضاف";
+    async function loadMyPlayers() {
 
-      button.className =
-        "success";
+      const container =
+        $("#myPlayersList");
 
-    }
+      if (!container) return;
 
-    await loadMyPlayers();
+      if (!currentUser) {
 
-    showMessage(
-      "✅ تمت إضافة اللاعب."
-    );
+        renderMyPlayers([]);
 
-  } catch (error) {
+        return;
 
-    console.error(
-      "ADD PLAYER ERROR:",
-      error
-    );
+      }
 
-    if (button) {
+      container.innerHTML =
+        `
+          <div class="player-empty">
+            ⏳ جاري تحميل لاعبيك...
+          </div>
+        `;
 
-      button.disabled = false;
+      try {
 
-      button.textContent =
-        "➕ إضافة";
-    }
+        const connections =
+          await supabaseClient
+            .from("player_connections")
+            .select(
+              "player_id,created_at"
+            )
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .order(
+              "created_at",
+              {
+                ascending:
+                  false
+              }
+            );
 
-    showMessage(
-      "❌ تعذرت إضافة اللاعب:\n\n" +
-      error.message
-    );
-  }
-}
+        if (connections.error) {
 
+          throw connections.error;
 
-/* =====================================================
-   MY PLAYERS
-===================================================== */
+        }
 
-async function loadMyPlayers() {
+        const rows =
+          connections.data || [];
 
-  const container =
-    $("#myPlayersList");
+        if (!rows.length) {
 
-  if (!container) {
-    return;
-  }
+          renderMyPlayers([]);
 
-  if (!currentUser) {
+          return;
 
-    container.innerHTML = `
-      <div class="card empty">
-        🔐 سجّل الدخول لعرض لاعبيّ.
-      </div>
-    `;
+        }
 
-    return;
-  }
+        const playerIds =
+          rows.map(
+            row =>
+              row.player_id
+          );
 
-  try {
+        const players = [];
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("player_connections")
-        .select("player_id")
-        .eq(
-          "user_id",
-          currentUser.id
+        for (
+          const playerId
+          of playerIds
+        ) {
+
+          try {
+
+            const result =
+              await supabaseClient.rpc(
+                "get_player_profile",
+                {
+                  player_uuid:
+                    playerId
+                }
+              );
+
+            if (result.error) {
+
+              console.error(
+                "PLAYER PROFILE LOAD ERROR:",
+                result.error
+              );
+
+              continue;
+
+            }
+
+            let player =
+              result.data;
+
+            if (
+              Array.isArray(
+                player
+              )
+            ) {
+
+              player =
+                player[0] ||
+                null;
+
+            }
+
+            if (player) {
+
+              players.push(
+                player
+              );
+
+            }
+
+          } catch (error) {
+
+            console.error(
+              "PLAYER PROFILE SINGLE ERROR:",
+              error
+            );
+
+          }
+
+        }
+
+        renderMyPlayers(
+          players
         );
 
-    if (error) {
-      throw error;
-    }
+      } catch (error) {
 
-    if (!data || data.length === 0) {
-
-      container.innerHTML = `
-        <div class="card empty">
-          ⭐ لم تضف أي لاعب بعد.
-        </div>
-      `;
-
-      return;
-    }
-
-    const playerIds =
-      data.map(
-        row => row.player_id
-      );
-
-    const {
-      data: players,
-      error: playersError
-    } =
-      await supabaseClient
-        .from("profiles")
-        .select(
-          "id,username,galaxy_coins,rank,avatar_url"
-        )
-        .in(
-          "id",
-          playerIds
+        console.error(
+          "LOAD MY PLAYERS ERROR:",
+          error
         );
 
-    if (playersError) {
-      throw playersError;
+        container.innerHTML =
+          `
+            <div class="player-empty">
+              ❌ تعذر تحميل لاعبيك.
+              <br>
+              ${escapeHtml(
+                error.message ||
+                "حدث خطأ."
+              )}
+            </div>
+          `;
+
+      }
+
     }
 
-    if (!players || players.length === 0) {
+    /* ==========================================
+       RENDER MY PLAYERS
+    ========================================== */
 
-      container.innerHTML = `
-        <div class="card empty">
-          ⭐ لا يوجد لاعبين.
-        </div>
-      `;
+    function renderMyPlayers(players) {
 
-      return;
-    }
+      const container =
+        $("#myPlayersList");
 
-    container.innerHTML =
-      players
-        .map(
-          player =>
+      if (!container) return;
+
+      container.innerHTML =
+        "";
+
+      if (!currentUser) {
+
+        container.innerHTML =
+          `
+            <div class="player-empty">
+              🔐 سجل الدخول حتى تشاهد لاعبيك.
+            </div>
+          `;
+
+        return;
+
+      }
+
+      if (!players.length) {
+
+        container.innerHTML =
+          `
+            <div class="player-empty">
+              👥 لم تضف أي لاعب حتى الآن.
+              <br>
+              استخدم البحث بالأعلى لإضافة لاعبين.
+            </div>
+          `;
+
+        return;
+
+      }
+
+      players.forEach(
+        player => {
+
+          const card =
             createPlayerCard(
               player,
-              true
-            )
-        )
-        .join("");
+              "remove"
+            );
 
-  } catch (error) {
+          container.appendChild(
+            card
+          );
 
-    console.error(
-      "MY PLAYERS ERROR:",
-      error
-    );
-
-    container.innerHTML = `
-      <div class="card empty">
-        ❌ تعذر تحميل لاعبيّ.
-      </div>
-    `;
-  }
-}
-
-
-/* =====================================================
-   ADMIN CHECK
-===================================================== */
-
-async function checkAdmin() {
-
-  if (
-    !supabaseClient ||
-    !currentUser
-  ) {
-    return false;
-  }
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient.rpc(
-      "is_admin"
-    );
-
-  if (error) {
-
-    console.error(
-      "ADMIN CHECK:",
-      error
-    );
-
-    return false;
-  }
-
-  return data === true;
-}
-
-
-/* =====================================================
-   ADMIN PANEL
-===================================================== */
-
-async function createAdminPanel() {
-
-  const panel =
-    $("#adminPanel");
-
-  if (!panel) {
-    return;
-  }
-
-  if (!currentUser) {
-
-    panel.style.display =
-      "none";
-
-    return;
-  }
-
-  const isAdmin =
-    await checkAdmin();
-
-  if (!isAdmin) {
-
-    panel.style.display =
-      "none";
-
-    return;
-  }
-
-  panel.style.display =
-    "block";
-}
-
-
-/* =====================================================
-   ADMIN COINS
-===================================================== */
-
-async function changeCoins(
-  action
-) {
-
-  if (!currentUser) {
-
-    showMessage(
-      "❌ لازم تسجيل الدخول."
-    );
-
-    return;
-  }
-
-  const username =
-    $("#adminUsername")
-      ?.value
-      .trim();
-
-  const amount =
-    Number(
-      $("#adminAmount")
-        ?.value
-    );
-
-  if (!username) {
-
-    showMessage(
-      "❌ اكتب Username."
-    );
-
-    return;
-  }
-
-  if (
-    !amount ||
-    amount <= 0 ||
-    !Number.isInteger(amount)
-  ) {
-
-    showMessage(
-      "❌ اكتب كمية Coins صحيحة."
-    );
-
-    return;
-  }
-
-  const isAdmin =
-    await checkAdmin();
-
-  if (!isAdmin) {
-
-    showMessage(
-      "❌ ليس لديك صلاحية Admin."
-    );
-
-    return;
-  }
-
-  const functionName =
-    action === "add"
-      ? "admin_add_coins"
-      : "admin_remove_coins";
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.rpc(
-        functionName,
-        {
-          receiver_username:
-            username,
-
-          amount:
-            amount
         }
       );
 
-    if (error) {
-
-      showMessage(
-        "❌ فشلت العملية\n\n" +
-        error.message
-      );
-
-      return;
     }
 
-    showMessage(
-      action === "add"
-        ? "✅ تمت إضافة Coins بنجاح."
-        : "✅ تمت إزالة Coins بنجاح."
-    );
+    /* ==========================================
+       REMOVE PLAYER
+    ========================================== */
 
-    $("#adminUsername").value =
-      "";
+    async function removePlayer(
+      playerId,
+      username
+    ) {
 
-    $("#adminAmount").value =
-      "";
+      if (!currentUser) {
 
-  } catch (error) {
+        openLogin();
 
-    console.error(
-      "ADMIN COINS ERROR:",
-      error
-    );
-
-    showMessage(
-      "❌ حدث خطأ:\n\n" +
-      error.message
-    );
-  }
-}
-
-
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
-
-function escapeHtml(
-  value
-) {
-
-  return String(value ?? "")
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-}
-
-
-/* =====================================================
-   AUTH LISTENER
-===================================================== */
-
-function setupAuthListener() {
-
-  if (!supabaseClient) {
-    return;
-  }
-
-  supabaseClient.auth.onAuthStateChange(
-    async (
-      event,
-      session
-    ) => {
-
-      currentUser =
-        session
-          ? session.user
-          : null;
-
-      if (currentUser) {
-
-        await loadProfile();
-
-      } else {
-
-        currentProfile =
-          null;
+        return;
 
       }
+
+      const confirmed =
+        confirm(
+          "هل تريد حذف @" +
+          username +
+          " من لاعبيك؟"
+        );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+
+        const result =
+          await supabaseClient
+            .from("player_connections")
+            .delete()
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .eq(
+              "player_id",
+              playerId
+            );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        await loadMyPlayers();
+
+        alert(
+          "✅ تم حذف @" +
+          username +
+          " من قائمتك."
+        );
+
+      } catch (error) {
+
+        console.error(
+          "REMOVE PLAYER ERROR:",
+          error
+        );
+
+        showError(
+          error.message ||
+          "تعذر حذف اللاعب."
+        );
+
+      }
+
+    }
+
+    /* ==========================================
+       ESCAPE HTML
+    ========================================== */
+
+    function escapeHtml(value) {
+
+      const div =
+        document.createElement(
+          "div"
+        );
+
+      div.textContent =
+        String(
+          value ?? ""
+        );
+
+      return div.innerHTML;
+
+    }
+
+    /* ==========================================
+       FORGOT PASSWORD
+    ========================================== */
+
+    async function sendResetEmail() {
+
+      if (!supabaseClient) {
+
+        $("#resetMessage")
+          .textContent =
+          "❌ تعذر الاتصال بـ Supabase.";
+
+        return;
+
+      }
+
+      const email =
+        $("#resetEmail")
+          .value
+          .trim();
+
+      const message =
+        $("#resetMessage");
+
+      const button =
+        $("#sendReset");
+
+      if (!email) {
+
+        message.textContent =
+          "❌ اكتب الإيميل.";
+
+        return;
+
+      }
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        "⏳ جاري الإرسال...";
+
+      message.textContent =
+        "";
+
+      try {
+
+        const redirectUrl =
+          window.location.origin +
+          window.location.pathname;
+
+        const result =
+          await supabaseClient.auth
+            .resetPasswordForEmail(
+              email,
+              {
+                redirectTo:
+                  redirectUrl
+              }
+            );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        message.textContent =
+          "✅ تم إرسال رابط إعادة التعيين إذا كان الحساب موجوداً.";
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "❌ " +
+          (
+            error.message ||
+            "تعذر إرسال الرابط."
+          );
+
+      } finally {
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          "📨 إرسال الرابط";
+
+      }
+
+    }
+
+    /* ==========================================
+       SAVE NEW PASSWORD
+    ========================================== */
+
+    async function saveNewPassword() {
+
+      if (!supabaseClient) {
+
+        $("#newPasswordMessage")
+          .textContent =
+          "❌ تعذر الاتصال بـ Supabase.";
+
+        return;
+
+      }
+
+      const password =
+        $("#newPassword")
+          .value;
+
+      const confirm =
+        $("#newPasswordConfirm")
+          .value;
+
+      const message =
+        $("#newPasswordMessage");
+
+      const button =
+        $("#saveNewPassword");
+
+      if (password.length < 6) {
+
+        message.textContent =
+          "❌ كلمة المرور يجب أن تكون 6 أحرف أو أكثر.";
+
+        return;
+
+      }
+
+      if (
+        password !==
+        confirm
+      ) {
+
+        message.textContent =
+          "❌ كلمتا المرور غير متطابقتين.";
+
+        return;
+
+      }
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        "⏳ جاري الحفظ...";
+
+      try {
+
+        const result =
+          await supabaseClient.auth
+            .updateUser({
+              password:
+                password
+            });
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        message.textContent =
+          "✅ تم تغيير كلمة المرور بنجاح!";
+
+        button.textContent =
+          "✅ تم الحفظ";
+
+        setTimeout(
+          () => {
+
+            $("#newPasswordModal")
+              .classList
+              .remove("show");
+
+          },
+          1500
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "❌ " +
+          (
+            error.message ||
+            "تعذر تغيير كلمة المرور."
+          );
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          "🔐 حفظ";
+
+      }
+
+    }
+
+    /* ==========================================
+       AUTH STATE
+    ========================================== */
+
+    function setupAuthListener() {
+
+      if (!supabaseClient) {
+        return;
+      }
+
+      supabaseClient.auth
+        .onAuthStateChange(
+          (event, session) => {
+
+            setTimeout(
+              async () => {
+
+                try {
+
+                  if (
+                    event ===
+                    "PASSWORD_RECOVERY"
+                  ) {
+
+                    $("#newPasswordModal")
+                      .classList
+                      .add("show");
+
+                  }
+
+                  if (session) {
+
+                    currentUser =
+                      session.user;
+
+                    await loadProfile();
+
+                    updateUI();
+
+                    await createAdminPanel();
+
+                    await loadMyPlayers();
+
+                  } else {
+
+                    currentUser =
+                      null;
+
+                    currentProfile =
+                      null;
+
+                    $("#adminPanel")
+                      .style
+                      .display =
+                      "none";
+
+                    updateUI();
+
+                    renderMyPlayers([]);
+
+                  }
+
+                } catch (error) {
+
+                  console.error(
+                    "Auth state error:",
+                    error
+                  );
+
+                }
+
+              },
+              0
+            );
+
+          }
+        );
+
+    }
+
+    /* ==========================================
+       BUTTONS
+    ========================================== */
+
+    function setupButtons() {
+
+      $("#loginBtn").onclick =
+        openLogin;
+
+      $("#heroLoginBtn").onclick =
+        openLogin;
+
+      $("#closeModal").onclick =
+        closeAuth;
+
+      $("#closeReset").onclick =
+        closeReset;
+
+      $("#closeAccount").onclick =
+        closeAccount;
+
+      $("#closePlayerProfile").onclick =
+        closePlayerProfile;
+
+      $("#authSubmit").onclick =
+        submitAuth;
+
+      $("#playerProfileAction").onclick =
+        handlePlayerProfileAction;
+
+      $("#switchAuth").onclick =
+        () => {
+
+          if (
+            authMode ===
+            "login"
+          ) {
+
+            openRegister();
+
+          } else {
+
+            openLogin();
+
+          }
+
+        };
+
+      $("#forgotLink").onclick =
+        () => {
+
+          const currentEmail =
+            $("#emailInput")
+              .value
+              .trim();
+
+          $("#resetEmail")
+            .value =
+            currentEmail;
+
+          $("#resetMessage")
+            .textContent =
+            "";
+
+          closeAuth();
+
+          $("#resetModal")
+            .classList
+            .add("show");
+
+        };
+
+      $("#sendReset").onclick =
+        sendResetEmail;
+
+      $("#saveNewPassword").onclick =
+        saveNewPassword;
+
+      /* BUY COINS → INSTAGRAM */
+
+      $("#buyCoinsBtn").onclick =
+        buyCoins;
+
+      $("#openInstagramBtn").onclick =
+        openInstagram;
+
+      $("#closeInstagramPurchase")
+        .onclick =
+        closeInstagramPurchase;
+
+      /* ADMIN */
+
+      $("#addCoinsAdmin").onclick =
+        () =>
+          changeCoins("add");
+
+      $("#removeCoinsAdmin").onclick =
+        () =>
+          changeCoins("remove");
+
+      /* SEARCH */
+
+      $("#playerSearchBtn").onclick =
+        searchPlayers;
+
+      $("#playerSearchInput")
+        .addEventListener(
+          "keydown",
+          event => {
+
+            if (
+              event.key ===
+              "Enter"
+            ) {
+
+              searchPlayers();
+
+            }
+
+          }
+        );
+
+      /* ALL PLAYERS */
+
+      $("#viewAllPlayersBtn")
+        .onclick =
+        () => {
+
+          window.location.href =
+            "players.html";
+
+        };
+
+      /* MY PLAYERS */
+
+      $("#accountPlayersBtn")
+        .onclick =
+        () => {
+
+          closeAccount();
+
+          document
+            .getElementById(
+              "myPlayers"
+            )
+            ?.scrollIntoView({
+              behavior:
+                "smooth"
+            });
+
+        };
+
+      /* CLOSE AUTH */
+
+      $("#authModal")
+        .addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              $("#authModal")
+            ) {
+
+              closeAuth();
+
+            }
+
+          }
+        );
+
+      /* CLOSE RESET */
+
+      $("#resetModal")
+        .addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              $("#resetModal")
+            ) {
+
+              closeReset();
+
+            }
+
+          }
+        );
+
+      /* CLOSE ACCOUNT */
+
+      $("#accountModal")
+        .addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              $("#accountModal")
+            ) {
+
+              closeAccount();
+
+            }
+
+          }
+        );
+
+      /* CLOSE PLAYER PROFILE */
+
+      $("#playerProfileModal")
+        .addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              $("#playerProfileModal")
+            ) {
+
+              closePlayerProfile();
+
+            }
+
+          }
+        );
+
+      /* CLOSE INSTAGRAM */
+
+      $("#instagramPurchaseModal")
+        .addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              $("#instagramPurchaseModal")
+            ) {
+
+              closeInstagramPurchase();
+
+            }
+
+          }
+        );
+
+    }
+
+    /* ==========================================
+       START APP
+    ========================================== */
+
+    async function startApp() {
+
+      createStars();
 
       updateUI();
 
-      await loadMyPlayers();
+      setupButtons();
 
-      await createAdminPanel();
+      setupAuthListener();
 
-    }
-  );
-}
+      if (!supabaseClient) {
 
+        console.error(
+          "Supabase client unavailable."
+        );
 
-/* =====================================================
-   BUTTONS
-===================================================== */
+        return;
 
-function setupButtons() {
+      }
 
-  $("#loginBtn").onclick =
-    login;
+      try {
 
-  $("#heroLoginBtn").onclick =
-    login;
+        const result =
+          await supabaseClient.auth
+            .getSession();
 
-  $("#buyCoinsBtn").onclick =
-    buyCoins;
+        if (result.error) {
 
-  $("#loginSubmitBtn").onclick =
-    performLogin;
+          console.error(
+            "Session error:",
+            result.error
+          );
 
-  $("#registerSubmitBtn").onclick =
-    register;
+          return;
 
-  $("#closeAuthModal").onclick =
-    closeAuthModal;
+        }
 
-  $("#logoutBtn").onclick =
-    logout;
+        const session =
+          result.data?.session;
 
-  $("#closeAccountModal").onclick =
-    () =>
-      $("#accountModal")
-        .classList.remove("show");
+        if (session) {
 
-  $("#closeAccountBtn").onclick =
-    () =>
-      $("#accountModal")
-        .classList.remove("show");
+          currentUser =
+            session.user;
 
-  $("#openInstagramBtn").onclick =
-    openInstagram;
+          await loadProfile();
 
-  $("#closeInstagramPurchase").onclick =
-    closeInstagramPurchase;
+          await createAdminPanel();
 
-  $("#closeInstagramPurchaseTop").onclick =
-    closeInstagramPurchase;
+          await loadMyPlayers();
 
-  $("#searchPlayersBtn").onclick =
-    searchPlayers;
+        } else {
 
-  $("#playerSearchInput").addEventListener(
-    "keydown",
-    event => {
+          renderMyPlayers([]);
 
-      if (
-        event.key === "Enter"
-      ) {
+        }
 
-        searchPlayers();
+        updateUI();
+
+      } catch (error) {
+
+        console.error(
+          "START ERROR:",
+          error
+        );
 
       }
 
     }
-  );
 
-  $("#addCoinsAdmin").onclick =
-    () =>
-      changeCoins("add");
-
-  $("#removeCoinsAdmin").onclick =
-    () =>
-      changeCoins("remove");
-
-}
-
-
-/* =====================================================
-   CLOSE MODAL ON BACKGROUND CLICK
-===================================================== */
-
-document.addEventListener(
-  "click",
-  event => {
+    /* ==========================================
+       RUN
+    ========================================== */
 
     if (
-      event.target.classList.contains(
-        "modal"
-      )
+      document.readyState ===
+      "loading"
     ) {
 
-      event.target.classList.remove(
-        "show"
+      document.addEventListener(
+        "DOMContentLoaded",
+        startApp
       );
+
+    } else {
+
+      startApp();
 
     }
 
-  }
-);
-
-
-/* =====================================================
-   START APP
-===================================================== */
-
-async function startApp() {
-
-  if (!initSupabase()) {
-    return;
-  }
-
-  setupButtons();
-
-  setupAuthListener();
-
-  await loadSession();
-
-  await createAdminPanel();
-
-  updateUI();
-
-  console.log(
-    "🚀 Galaxy Arena started successfully."
-  );
-}
-
-
-document.addEventListener(
-  "DOMContentLoaded",
-  startApp
-);
-
-</script>
+  </script>
 
 </body>
 </html>
