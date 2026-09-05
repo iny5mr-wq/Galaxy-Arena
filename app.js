@@ -894,177 +894,109 @@ async function changeCoins(
 
 
 /* =====================================================
-   BUY COINS
+   BUY COINS - INSTAGRAM
 ===================================================== */
 
-async function buyCoins() {
+function buyCoins() {
 
   if (!currentUser) {
 
     showMessage(
-
-      "🔐 لازم تسجل دخول أولاً " +
-      "حتى تشتري Galaxy Coins."
-
+      "🔐 لازم تسجل دخول أولاً حتى تشتري Galaxy Coins."
     );
 
     return;
   }
 
 
-  const { data, error } =
-    await supabaseClient.rpc(
-      "get_coin_packages"
+  const modal =
+    document.getElementById(
+      "instagramPurchaseModal"
     );
 
 
-  if (error) {
+  if (!modal) {
 
     showMessage(
-
-      "❌ تعذر تحميل باقات Coins\n\n" +
-
-      error.message
-
+      "❌ نافذة شراء Instagram غير موجودة في index.html."
     );
 
     return;
   }
 
 
-  if (
-    !data ||
-    data.length === 0
-  ) {
-
-    showMessage(
-
-      "⚠️ لا توجد باقات Coins حالياً."
-
-    );
-
-    return;
-  }
-
-
-  let text =
-    "🪙 Galaxy Coins\n\n";
-
-
-  data.forEach(
-    (pkg, index) => {
-
-      text +=
-
-        `${index + 1}. ${pkg.name}\n` +
-
-        `🪙 ${Number(pkg.coins).toLocaleString()} Coins\n` +
-
-        `💵 $${pkg.price_usd}\n\n`;
-
-    }
-  );
-
-
-  const choice =
-    prompt(
-
-      text +
-
-      "اكتب رقم الباقة:"
-
-    );
-
-
-  const index =
-    Number(choice) - 1;
-
-
-  if (
-    Number.isNaN(index) ||
-    !data[index]
-  ) {
-
-    return;
-
-  }
-
-
-  await startPayment(
-    data[index]
-  );
+  modal.classList.add("show");
 }
 
 
 /* =====================================================
-   START PAYMENT
+   INSTAGRAM PURCHASE
 ===================================================== */
 
-async function startPayment(
-  pkg
-) {
+function openInstagram() {
 
-  showMessage(
-    "⏳ جاري تجهيز عملية الدفع..."
+  const instagramUrl =
+    "https://www.instagram.com/itz7yo/";
+
+
+  window.open(
+    instagramUrl,
+    "_blank",
+    "noopener,noreferrer"
   );
+}
 
 
-  const { data, error } =
-    await supabaseClient.functions.invoke(
+function closeInstagramPurchase() {
 
-      "quick-service",
-
-      {
-
-        body: {
-
-          package_id:
-            pkg.id
-
-        }
-
-      }
-
+  const modal =
+    document.getElementById(
+      "instagramPurchaseModal"
     );
 
 
-  if (error) {
+  if (modal) {
 
-    showMessage(
-
-      "❌ خطأ بالدفع\n\n" +
-
-      error.message
-
+    modal.classList.remove(
+      "show"
     );
 
-    return;
+  }
+}
+
+
+/* =====================================================
+   SETUP INSTAGRAM BUTTONS
+===================================================== */
+
+function setupInstagramButtons() {
+
+  const openInstagramBtn =
+    document.getElementById(
+      "openInstagramBtn"
+    );
+
+
+  if (openInstagramBtn) {
+
+    openInstagramBtn.onclick =
+      openInstagram;
+
   }
 
 
-  console.log(
-    "Payment:",
-    data
-  );
+  const closeInstagramBtn =
+    document.getElementById(
+      "closeInstagramPurchase"
+    );
 
 
-  if (
-    data?.redirect_url
-  ) {
+  if (closeInstagramBtn) {
 
-    window.location.href =
-      data.redirect_url;
+    closeInstagramBtn.onclick =
+      closeInstagramPurchase;
 
-    return;
   }
-
-
-  showMessage(
-
-    "⚠️ تم إرسال الطلب، " +
-    "لكن لم يتم استلام رابط الدفع."
-
-  );
 }
 
 
@@ -1112,6 +1044,7 @@ function setupAuthListener() {
     }
 
   );
+
 }
 
 
@@ -1162,6 +1095,9 @@ function setupButtons() {
 
   }
 
+
+  setupInstagramButtons();
+
 }
 
 
@@ -1172,7 +1108,9 @@ function setupButtons() {
 async function startApp() {
 
   if (!initSupabase()) {
+
     return;
+
   }
 
 
@@ -1198,6 +1136,7 @@ async function startApp() {
   console.log(
     "🚀 Galaxy Arena started successfully."
   );
+
 }
 
 
