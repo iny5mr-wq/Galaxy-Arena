@@ -1,1333 +1,2426 @@
-<script>
-
-/* =====================================================
-   SUPABASE
-===================================================== */
-
-const SUPABASE_URL =
-"https://nubkrxxreuiqefvjbloj.supabase.co";
-
-const SUPABASE_KEY =
-"sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
-
-const supabaseClient =
-window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-
-let currentUser = null;
-let currentProfile = null;
-let authMode = "login";
-
-
-/* =====================================================
-   ELEMENTS
-===================================================== */
-
-const authModal =
-document.querySelector("#authModal");
-
-const resetModal =
-document.querySelector("#resetModal");
-
-const newPasswordModal =
-document.querySelector("#newPasswordModal");
-
-const authTitle =
-document.querySelector("#authTitle");
-
-const authSubtitle =
-document.querySelector("#authSubtitle");
-
-const usernameGroup =
-document.querySelector("#usernameGroup");
-
-const confirmGroup =
-document.querySelector("#confirmGroup");
-
-const authSubmit =
-document.querySelector("#authSubmit");
-
-const authMessage =
-document.querySelector("#authMessage");
-
-
-/* =====================================================
-   SPACE STARS
-===================================================== */
-
-function createStars(){
-
-  const space =
-  document.querySelector("#space");
-
-  for(
-    let i=0;
-    i<100;
-    i++
-  ){
-
-    const star =
-    document.createElement("div");
-
-    star.className =
-    "star";
-
-    star.style.left =
-    Math.random()*100 + "%";
-
-    star.style.top =
-    Math.random()*100 + "%";
-
-    star.style.animationDuration =
-    (5 + Math.random()*15) + "s";
-
-    star.style.animationDelay =
-    (-Math.random()*15) + "s";
-
-    space.appendChild(star);
-
-  }
-
-}
-
-
-/* =====================================================
-   OPEN LOGIN
-===================================================== */
-
-function openLogin(){
-
-  authMode =
-  "login";
-
-  authTitle.textContent =
-  "تسجيل الدخول";
-
-  authSubtitle.textContent =
-  "ادخل إلى حسابك في Galaxy Arena";
-
-  usernameGroup.style.display =
-  "none";
-
-  confirmGroup.style.display =
-  "none";
-
-  authSubmit.textContent =
-  "🚀 تسجيل الدخول";
-
-  authMessage.textContent =
-  "";
-
-  document
-  .querySelector("#passwordInput")
-  .setAttribute(
-    "autocomplete",
-    "current-password"
-  );
-
-  authModal.classList.add("show");
-
-}
-
-
-/* =====================================================
-   OPEN REGISTER
-===================================================== */
-
-function openRegister(){
-
-  authMode =
-  "register";
-
-  authTitle.textContent =
-  "إنشاء حساب";
-
-  authSubtitle.textContent =
-  "انضم إلى عالم Galaxy Arena 🌌";
-
-  usernameGroup.style.display =
-  "block";
-
-  confirmGroup.style.display =
-  "block";
-
-  authSubmit.textContent =
-  "✨ إنشاء الحساب";
-
-  authMessage.textContent =
-  "";
-
-  document
-  .querySelector("#passwordInput")
-  .setAttribute(
-    "autocomplete",
-    "new-password"
-  );
-
-  authModal.classList.add("show");
-
-}
-
-
-/* =====================================================
-   CLOSE MODALS
-===================================================== */
-
-function closeAuth(){
-
-  authModal.classList.remove(
-    "show"
-  );
-
-}
-
-function closeReset(){
-
-  resetModal.classList.remove(
-    "show"
-  );
-
-}
-
-
-/* =====================================================
-   AUTH SUBMIT
-===================================================== */
-
-authSubmit.addEventListener(
-"click",
-async function(){
-
-  const email =
-  document
-  .querySelector("#emailInput")
-  .value
-  .trim();
-
-  const password =
-  document
-  .querySelector("#passwordInput")
-  .value;
-
-  if(!email){
-
-    authMessage.textContent =
-    "❌ اكتب الإيميل.";
-
-    return;
-
-  }
-
-  if(!password){
-
-    authMessage.textContent =
-    "❌ اكتب كلمة المرور.";
-
-    return;
-
-  }
-
-
-  authSubmit.disabled =
-  true;
-
-  authSubmit.textContent =
-  "⏳ جاري المعالجة...";
-
-
-  try{
-
-
-    if(authMode === "login"){
-
-      const {
-        data,
-        error
-      } =
-      await supabaseClient.auth
-      .signInWithPassword({
-
-        email:email,
-
-        password:password
-
-      });
-
-
-      if(error)
-      throw error;
-
-
-      currentUser =
-      data.user;
-
-      await loadProfile();
-
-      closeAuth();
-
-      updateUI();
-
-      await createAdminPanel();
-
-
-      alert(
-        "✅ تم تسجيل الدخول بنجاح!"
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galaxy Arena</title>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Tahoma, sans-serif;
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(106, 76, 255, .20), transparent 30%),
+        radial-gradient(circle at 85% 25%, rgba(0, 200, 255, .15), transparent 30%),
+        radial-gradient(circle at 50% 90%, rgba(170, 0, 255, .12), transparent 35%),
+        linear-gradient(180deg, #03030d 0%, #08081a 45%, #020208 100%);
+    }
+
+    /* =========================
+       SPACE BACKGROUND
+    ========================== */
+
+    #space {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: .7;
+      animation: starMove linear infinite;
+    }
+
+    @keyframes starMove {
+      0% {
+        transform: translateY(-20px);
+        opacity: .1;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(110vh);
+        opacity: .1;
+      }
+    }
+
+    /* =========================
+       HEADER
+    ========================== */
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(3, 3, 15, .78);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    nav {
+      width: min(1200px, 94%);
+      min-height: 72px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .logo {
+      font-size: 21px;
+      font-weight: 900;
+      white-space: nowrap;
+      background: linear-gradient(90deg, #fff, #62eaff, #967aff, #fff);
+      background-size: 250%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: logoGlow 5s ease infinite;
+    }
+
+    @keyframes logoGlow {
+      0%,100% {
+        background-position: 0%;
+      }
+      50% {
+        background-position: 100%;
+      }
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 22px;
+    }
+
+    .nav-links a {
+      color: #d9d9ed;
+      text-decoration: none;
+      font-size: 14px;
+      transition: .25s;
+    }
+
+    .nav-links a:hover {
+      color: #62eaff;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .coins {
+      padding: 9px 12px;
+      border-radius: 13px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    /* =========================
+       BUTTONS
+    ========================== */
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 11px 16px;
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6957e8, #00bfff);
+      box-shadow: 0 8px 28px rgba(0, 190, 255, .14);
+      transition: .22s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 190, 255, .24);
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .secondary {
+      background: rgba(255,255,255,.07);
+      box-shadow: none;
+    }
+
+    /* =========================
+       HERO
+    ========================== */
+
+    .hero {
+      width: min(1100px, 92%);
+      margin: 90px auto 80px;
+      padding: 65px 25px;
+      text-align: center;
+      border-radius: 35px;
+      background:
+        radial-gradient(circle at center,
+        rgba(100,70,220,.20),
+        rgba(0,0,0,.05));
+    }
+
+    .welcome {
+      color: #71eaff;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 5px;
+    }
+
+    .hero h1 {
+      margin: 16px 0;
+      font-size: clamp(45px, 9vw, 100px);
+      font-weight: 1000;
+      letter-spacing: 2px;
+      background: linear-gradient(
+        90deg,
+        #fff,
+        #62eaff,
+        #9278ff,
+        #fff
       );
+      background-size: 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: galaxyText 5s ease infinite;
+    }
 
+    @keyframes galaxyText {
+      0%,100% {
+        background-position: 0%;
+      }
+
+      50% {
+        background-position: 100%;
+      }
+    }
+
+    .hero h2 {
+      font-size: clamp(20px, 4vw, 32px);
+      margin-bottom: 18px;
+    }
+
+    .hero-description {
+      max-width: 700px;
+      margin: 0 auto 30px;
+      color: #b9b9d0;
+      line-height: 1.9;
+    }
+
+    /* =========================
+       SECTIONS
+    ========================== */
+
+    .section {
+      width: min(1100px, 92%);
+      margin: 0 auto 80px;
+    }
+
+    .section-title {
+      margin-bottom: 25px;
+      font-size: 30px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      padding: 25px;
+      border-radius: 22px;
+      background: rgba(13,13,38,.72);
+      border: 1px solid rgba(255,255,255,.09);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      transition: .25s;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(80,220,255,.35);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 21px;
+    }
+
+    .card p {
+      color: #aaaac0;
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    /* =========================
+       ADMIN
+    ========================== */
+
+    #adminPanel {
+      display: none;
+    }
+
+    .admin-input {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      outline: none;
+      background: rgba(255,255,255,.05);
+      color: #fff;
+      font-size: 15px;
+    }
+
+    .admin-input:focus {
+      border-color: #00d4ff;
+    }
+
+    /* =========================
+       MODALS
+    ========================== */
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0,0,0,.80);
+      backdrop-filter: blur(12px);
+    }
+
+    .modal.show {
+      display: flex;
+      animation: fadeIn .25s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal-box {
+      width: min(430px, 100%);
+      padding: 30px;
+      border-radius: 28px;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(25,25,65,.98),
+          rgba(7,7,25,.98)
+        );
+      border: 1px solid rgba(255,255,255,.13);
+      box-shadow: 0 30px 100px rgba(0,0,0,.65);
+      animation: modalIn .45s cubic-bezier(.2,.8,.2,1);
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(40px) scale(.90);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 18px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: linear-gradient(135deg,#6957e8,#00d4ff);
+      box-shadow: 0 0 35px rgba(0,212,255,.20);
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+      0%,100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-7px);
+      }
+    }
+
+    .modal-box h2 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .modal-subtitle {
+      text-align: center;
+      color: #9999b5;
+      margin-bottom: 25px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 7px;
+      color: #d9d9ed;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: #fff;
+      outline: none;
+      font-size: 15px;
+      transition: .25s;
+    }
+
+    .input-group input:focus {
+      border-color: #00d4ff;
+      box-shadow: 0 0 20px rgba(0,212,255,.12);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+    }
+
+    .form-link {
+      display: block;
+      text-align: center;
+      margin-top: 17px;
+      color: #76ddff;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .form-link:hover {
+      text-decoration: underline;
+    }
+
+    .form-message {
+      text-align: center;
+      margin-top: 15px;
+      color: #c4c5dd;
+      font-size: 14px;
+      min-height: 20px;
+      line-height: 1.7;
+    }
+
+    /* =========================
+       FOOTER
+    ========================== */
+
+    footer {
+      text-align: center;
+      padding: 35px 20px;
+      color: #777792;
+      border-top: 1px solid rgba(255,255,255,.08);
+      line-height: 2;
+    }
+
+    /* =========================
+       MOBILE
+    ========================== */
+
+    @media (max-width: 700px) {
+
+      nav {
+        flex-wrap: wrap;
+        padding: 12px 0;
+      }
+
+      .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      .hero {
+        margin-top: 45px;
+        padding: 40px 15px;
+      }
+
+      .hero h1 {
+        font-size: 45px;
+      }
+
+      .section {
+        margin-bottom: 55px;
+      }
+
+      .modal-box {
+        padding: 24px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- خلفية الفضاء -->
+  <div id="space"></div>
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header>
+    <nav>
+
+      <div class="logo">
+        🌌 Galaxy Arena
+      </div>
+
+      <div class="nav-links">
+        <a href="#home">الرئيسية</a>
+        <a href="#tournaments">البطولات</a>
+        <a href="#games">الألعاب</a>
+        <a href="#store">المتجر</a>
+      </div>
+
+      <div class="user-area">
+
+        <div class="coins">
+          🪙 <span id="coins">0</span>
+        </div>
+
+        <button id="loginBtn" type="button">
+          تسجيل الدخول
+        </button>
+
+      </div>
+
+    </nav>
+  </header>
+
+  <!-- =========================
+       MAIN
+  ========================== -->
+
+  <main>
+
+    <!-- HERO -->
+
+    <section id="home" class="hero">
+
+      <p class="welcome">
+        WELCOME TO
+      </p>
+
+      <h1>
+        GALAXY ARENA
+      </h1>
+
+      <h2>
+        عالم اللاعبين يبدأ من هنا 🚀
+      </h2>
+
+      <p class="hero-description">
+        شارك بالبطولات، نافس اللاعبين، اجمع Galaxy Coins،
+        وابنِ اسمك داخل عالم Galaxy Arena.
+      </p>
+
+      <button id="heroLoginBtn" type="button">
+        🚀 تسجيل الدخول
+      </button>
+
+    </section>
+
+    <!-- TOURNAMENTS -->
+
+    <section id="tournaments" class="section">
+
+      <h2 class="section-title">
+        🏆 البطولات
+      </h2>
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>🎯 Call of Duty</h3>
+          <p>
+            تنافس ضد أفضل اللاعبين واربح جوائز Galaxy Arena.
+          </p>
+          <button type="button">
+            قريباً
+          </button>
+        </div>
+
+        <div class="card">
+          <h3>⚽ FC 26</h3>
+          <p>
+            أثبت أنك أفضل لاعب كرة قدم.
+          </p>
+          <button type="button">
+            قريباً
+          </button>
+        </div>
+
+        <div class="card">
+          <h3>🔥 Fortnite</h3>
+          <p>
+            ادخل المنافسة واربح.
+          </p>
+          <button type="button">
+            قريباً
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- GAMES -->
+
+    <section id="games" class="section">
+
+      <h2 class="section-title">
+        🎮 الألعاب
+      </h2>
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>🎯 Call of Duty</h3>
+          <p>FPS</p>
+        </div>
+
+        <div class="card">
+          <h3>⚽ FC 26</h3>
+          <p>Football</p>
+        </div>
+
+        <div class="card">
+          <h3>🔥 Fortnite</h3>
+          <p>Battle Royale</p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- STORE -->
+
+    <section id="store" class="section">
+
+      <h2 class="section-title">
+        🛒 Galaxy Store
+      </h2>
+
+      <div class="cards">
+
+        <div class="card">
+
+          <h3>
+            🪙 Galaxy Coins
+          </h3>
+
+          <p>
+            اشحن رصيدك وشارك بالبطولات.
+          </p>
+
+          <button id="buyCoinsBtn" type="button">
+            شراء Galaxy Coins
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ADMIN -->
+
+    <section id="adminPanel" class="section">
+
+      <h2 class="section-title">
+        👑 Admin Panel
+      </h2>
+
+      <div class="card">
+
+        <h3>
+          🪙 إدارة Galaxy Coins
+        </h3>
+
+        <input
+          id="adminUsername"
+          class="admin-input"
+          type="text"
+          placeholder="Username"
+        >
+
+        <input
+          id="adminAmount"
+          class="admin-input"
+          type="number"
+          min="1"
+          placeholder="Amount"
+        >
+
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">
+
+          <button id="addCoinsAdmin" type="button">
+            ➕ إضافة Coins
+          </button>
+
+          <button id="removeCoinsAdmin" type="button">
+            ➖ إزالة Coins
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer>
+
+    <p>
+      © 2026 Galaxy Arena
+    </p>
+
+    <p>
+      Built for gamers 🌌
+    </p>
+
+  </footer>
+
+
+  <!-- =========================
+       LOGIN / REGISTER MODAL
+  ========================== -->
+
+  <div id="authModal" class="modal">
+
+    <div class="modal-box">
+
+      <div class="modal-icon">
+        🚀
+      </div>
+
+      <h2 id="authTitle">
+        تسجيل الدخول
+      </h2>
+
+      <p id="authSubtitle" class="modal-subtitle">
+        ادخل إلى حسابك في Galaxy Arena
+      </p>
+
+      <!-- USERNAME -->
+
+      <div
+        id="usernameGroup"
+        class="input-group"
+        style="display:none;"
+      >
+
+        <label>
+          اسم المستخدم
+        </label>
+
+        <input
+          id="usernameInput"
+          type="text"
+          placeholder="Username"
+          autocomplete="username"
+        >
+
+      </div>
+
+      <!-- EMAIL -->
+
+      <div class="input-group">
+
+        <label>
+          الإيميل
+        </label>
+
+        <input
+          id="emailInput"
+          type="email"
+          placeholder="example@email.com"
+          autocomplete="email"
+        >
+
+      </div>
+
+      <!-- PASSWORD -->
+
+      <div class="input-group">
+
+        <label>
+          كلمة المرور
+        </label>
+
+        <input
+          id="passwordInput"
+          type="password"
+          placeholder="6 أحرف أو أكثر"
+          autocomplete="current-password"
+        >
+
+      </div>
+
+      <!-- CONFIRM -->
+
+      <div
+        id="confirmGroup"
+        class="input-group"
+        style="display:none;"
+      >
+
+        <label>
+          تأكيد كلمة المرور
+        </label>
+
+        <input
+          id="confirmPasswordInput"
+          type="password"
+          placeholder="أعد كتابة كلمة المرور"
+          autocomplete="new-password"
+        >
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button id="authSubmit" type="button">
+          🚀 تسجيل الدخول
+        </button>
+
+        <button
+          id="closeModal"
+          class="secondary"
+          type="button"
+        >
+          إغلاق
+        </button>
+
+      </div>
+
+      <div
+        id="forgotLink"
+        class="form-link"
+      >
+        نسيت كلمة المرور؟
+      </div>
+
+      <div
+        id="switchAuth"
+        class="form-link"
+      >
+        🆕 إنشاء حساب جديد
+      </div>
+
+      <div
+        id="authMessage"
+        class="form-message"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       RESET PASSWORD
+  ========================== -->
+
+  <div id="resetModal" class="modal">
+
+    <div class="modal-box">
+
+      <div class="modal-icon">
+        🔐
+      </div>
+
+      <h2>
+        إعادة تعيين كلمة المرور
+      </h2>
+
+      <p class="modal-subtitle">
+        اكتب إيميل حسابك وسنرسل لك رابط إعادة التعيين.
+      </p>
+
+      <div class="input-group">
+
+        <label>
+          الإيميل
+        </label>
+
+        <input
+          id="resetEmail"
+          type="email"
+          placeholder="example@email.com"
+        >
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button id="sendReset" type="button">
+          📨 إرسال الرابط
+        </button>
+
+        <button
+          id="closeReset"
+          class="secondary"
+          type="button"
+        >
+          إغلاق
+        </button>
+
+      </div>
+
+      <div
+        id="resetMessage"
+        class="form-message"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       NEW PASSWORD
+  ========================== -->
+
+  <div id="newPasswordModal" class="modal">
+
+    <div class="modal-box">
+
+      <div class="modal-icon">
+        🔑
+      </div>
+
+      <h2>
+        كلمة مرور جديدة
+      </h2>
+
+      <p class="modal-subtitle">
+        اختر كلمة مرور جديدة لحسابك.
+      </p>
+
+      <div class="input-group">
+
+        <label>
+          كلمة المرور الجديدة
+        </label>
+
+        <input
+          id="newPassword"
+          type="password"
+          placeholder="6 أحرف أو أكثر"
+          autocomplete="new-password"
+        >
+
+      </div>
+
+      <div class="input-group">
+
+        <label>
+          تأكيد كلمة المرور
+        </label>
+
+        <input
+          id="newPasswordConfirm"
+          type="password"
+          placeholder="أعد كتابة كلمة المرور"
+          autocomplete="new-password"
+        >
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button
+          id="saveNewPassword"
+          type="button"
+        >
+          🔐 حفظ
+        </button>
+
+      </div>
+
+      <div
+        id="newPasswordMessage"
+        class="form-message"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
+
+  <script>
+
+    /* ==========================================
+       SUPABASE
+    ========================================== */
+
+    const SUPABASE_URL =
+      "https://nubkrxxreuiqefvjbloj.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
+
+    let supabaseClient = null;
+
+    try {
+
+      if (
+        !window.supabase ||
+        !window.supabase.createClient
+      ) {
+
+        throw new Error(
+          "Supabase library did not load."
+        );
+
+      }
+
+      supabaseClient =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+    } catch (error) {
+
+      console.error(
+        "Supabase initialization error:",
+        error
+      );
 
     }
 
 
-    else{
+    /* ==========================================
+       GLOBAL STATE
+    ========================================== */
 
+    let currentUser = null;
+    let currentProfile = null;
+    let authMode = "login";
+
+
+    /* ==========================================
+       HELPERS
+    ========================================== */
+
+    function $(selector) {
+      return document.querySelector(selector);
+    }
+
+    function showError(message) {
+
+      console.error(message);
+
+      alert("❌ " + message);
+
+    }
+
+
+    /* ==========================================
+       STARS
+    ========================================== */
+
+    function createStars() {
+
+      const space = $("#space");
+
+      if (!space) return;
+
+      space.innerHTML = "";
+
+      for (let i = 0; i < 120; i++) {
+
+        const star =
+          document.createElement("div");
+
+        star.className = "star";
+
+        star.style.left =
+          Math.random() * 100 + "%";
+
+        star.style.top =
+          Math.random() * 100 + "%";
+
+        star.style.animationDuration =
+          (5 + Math.random() * 15) + "s";
+
+        star.style.animationDelay =
+          (-Math.random() * 15) + "s";
+
+        space.appendChild(star);
+
+      }
+
+    }
+
+
+    /* ==========================================
+       MODAL FUNCTIONS
+    ========================================== */
+
+    function openLogin() {
+
+      authMode = "login";
+
+      $("#authTitle").textContent =
+        "تسجيل الدخول";
+
+      $("#authSubtitle").textContent =
+        "ادخل إلى حسابك في Galaxy Arena";
+
+      $("#usernameGroup").style.display =
+        "none";
+
+      $("#confirmGroup").style.display =
+        "none";
+
+      $("#authSubmit").textContent =
+        "🚀 تسجيل الدخول";
+
+      $("#authMessage").textContent = "";
+
+      $("#authModal").classList.add("show");
+
+    }
+
+
+    function openRegister() {
+
+      authMode = "register";
+
+      $("#authTitle").textContent =
+        "إنشاء حساب";
+
+      $("#authSubtitle").textContent =
+        "انضم إلى عالم Galaxy Arena 🌌";
+
+      $("#usernameGroup").style.display =
+        "block";
+
+      $("#confirmGroup").style.display =
+        "block";
+
+      $("#authSubmit").textContent =
+        "✨ إنشاء الحساب";
+
+      $("#authMessage").textContent = "";
+
+      $("#authModal").classList.add("show");
+
+    }
+
+
+    function closeAuth() {
+
+      $("#authModal")
+        .classList
+        .remove("show");
+
+    }
+
+
+    function closeReset() {
+
+      $("#resetModal")
+        .classList
+        .remove("show");
+
+    }
+
+
+    /* ==========================================
+       PROFILE
+    ========================================== */
+
+    async function loadProfile() {
+
+      if (!supabaseClient || !currentUser) {
+        return;
+      }
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            "get_my_profile"
+          );
+
+        if (result.error) {
+
+          console.error(
+            "Profile error:",
+            result.error
+          );
+
+          return;
+
+        }
+
+        let data = result.data;
+
+        if (Array.isArray(data)) {
+          data = data[0] || null;
+        }
+
+        currentProfile = data;
+
+        updateCoins();
+
+      } catch (error) {
+
+        console.error(
+          "loadProfile error:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* ==========================================
+       COINS
+    ========================================== */
+
+    function updateCoins() {
+
+      const element = $("#coins");
+
+      if (!element) return;
+
+      const coins =
+        Number(
+          currentProfile?.galaxy_coins || 0
+        );
+
+      element.textContent =
+        coins.toLocaleString();
+
+    }
+
+
+    /* ==========================================
+       UI
+    ========================================== */
+
+    function updateUI() {
+
+      updateCoins();
+
+      const loginBtn =
+        $("#loginBtn");
+
+      const heroBtn =
+        $("#heroLoginBtn");
+
+      if (currentUser) {
+
+        loginBtn.textContent =
+          "تسجيل الخروج";
+
+        loginBtn.onclick =
+          logout;
+
+        heroBtn.textContent =
+          "👤 حسابي";
+
+        heroBtn.onclick =
+          showAccount;
+
+      } else {
+
+        loginBtn.textContent =
+          "تسجيل الدخول";
+
+        loginBtn.onclick =
+          openLogin;
+
+        heroBtn.textContent =
+          "🚀 تسجيل الدخول";
+
+        heroBtn.onclick =
+          openLogin;
+
+      }
+
+    }
+
+
+    /* ==========================================
+       ACCOUNT
+    ========================================== */
+
+    function showAccount() {
+
+      const email =
+        currentUser?.email || "";
+
+      const coins =
+        Number(
+          currentProfile?.galaxy_coins || 0
+        ).toLocaleString();
+
+      alert(
+        "👤 حساب Galaxy Arena\n\n" +
+        "📧 الإيميل:\n" +
+        email +
+        "\n\n" +
+        "🪙 Galaxy Coins:\n" +
+        coins
+      );
+
+    }
+
+
+    /* ==========================================
+       LOGOUT
+    ========================================== */
+
+    async function logout() {
+
+      if (!supabaseClient) return;
+
+      try {
+
+        await supabaseClient.auth.signOut();
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+
+      currentUser = null;
+      currentProfile = null;
+
+      $("#adminPanel").style.display =
+        "none";
+
+      updateUI();
+
+      alert(
+        "👋 تم تسجيل الخروج."
+      );
+
+    }
+
+
+    /* ==========================================
+       ADMIN
+    ========================================== */
+
+    async function checkAdmin() {
+
+      if (!supabaseClient || !currentUser) {
+        return false;
+      }
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            "is_admin"
+          );
+
+        if (result.error) {
+
+          console.error(
+            "Admin check error:",
+            result.error
+          );
+
+          return false;
+
+        }
+
+        return result.data === true;
+
+      } catch (error) {
+
+        console.error(error);
+
+        return false;
+
+      }
+
+    }
+
+
+    async function createAdminPanel() {
+
+      const panel =
+        $("#adminPanel");
+
+      if (!panel) return;
+
+      const admin =
+        await checkAdmin();
+
+      panel.style.display =
+        admin
+          ? "block"
+          : "none";
+
+    }
+
+
+    /* ==========================================
+       CHANGE COINS
+    ========================================== */
+
+    async function changeCoins(action) {
+
+      if (!supabaseClient || !currentUser) {
+
+        showError(
+          "يجب تسجيل الدخول أولاً."
+        );
+
+        return;
+
+      }
 
       const username =
-      document
-      .querySelector("#usernameInput")
-      .value
-      .trim();
+        $("#adminUsername")
+          .value
+          .trim();
 
-      const confirmPassword =
-      document
-      .querySelector("#confirmPasswordInput")
-      .value;
+      const amount =
+        Number(
+          $("#adminAmount").value
+        );
 
+      if (!username) {
 
-      if(!username){
+        showError(
+          "اكتب Username."
+        );
 
-        throw new Error(
-          "اكتب اسم المستخدم."
+        return;
+
+      }
+
+      if (!amount || amount <= 0) {
+
+        showError(
+          "اكتب كمية صحيحة."
+        );
+
+        return;
+
+      }
+
+      const functionName =
+        action === "add"
+          ? "admin_add_coins"
+          : "admin_remove_coins";
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            functionName,
+            {
+              receiver_username:
+                username,
+              amount:
+                amount
+            }
+          );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        alert(
+          action === "add"
+            ? "✅ تمت إضافة Coins."
+            : "✅ تمت إزالة Coins."
+        );
+
+        await loadProfile();
+
+      } catch (error) {
+
+        console.error(error);
+
+        showError(
+          error.message ||
+          "فشلت العملية."
         );
 
       }
 
+    }
 
-      if(password.length < 6){
 
-        throw new Error(
-          "كلمة المرور يجب أن تكون 6 أحرف أو أكثر."
+    /* ==========================================
+       BUY COINS
+    ========================================== */
+
+    async function buyCoins() {
+
+      if (!currentUser) {
+
+        openLogin();
+
+        return;
+
+      }
+
+      if (!supabaseClient) {
+
+        showError(
+          "تعذر الاتصال بـ Supabase."
+        );
+
+        return;
+
+      }
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            "get_coin_packages"
+          );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        const data =
+          result.data || [];
+
+        if (!data.length) {
+
+          alert(
+            "⚠️ لا توجد باقات حالياً."
+          );
+
+          return;
+
+        }
+
+        let text =
+          "🪙 Galaxy Coins\n\n";
+
+        data.forEach(
+          (pkg, index) => {
+
+            text +=
+              `${index + 1}. ${pkg.name}\n` +
+              `🪙 ${Number(pkg.coins).toLocaleString()} Coins\n` +
+              `💵 $${pkg.price_usd}\n\n`;
+
+          }
+        );
+
+        const choice =
+          prompt(
+            text +
+            "اكتب رقم الباقة:"
+          );
+
+        if (choice === null) {
+          return;
+        }
+
+        const index =
+          Number(choice) - 1;
+
+        if (
+          Number.isNaN(index) ||
+          !data[index]
+        ) {
+
+          return;
+
+        }
+
+        await startPayment(
+          data[index]
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        showError(
+          error.message ||
+          "تعذر تحميل الباقات."
         );
 
       }
 
+    }
 
-      if(password !== confirmPassword){
 
-        throw new Error(
-          "كلمتا المرور غير متطابقتين."
+    /* ==========================================
+       PAYMENT
+    ========================================== */
+
+    async function startPayment(pkg) {
+
+      if (!supabaseClient) {
+
+        showError(
+          "تعذر الاتصال بـ Supabase."
+        );
+
+        return;
+
+      }
+
+      alert(
+        "⏳ جاري تجهيز عملية الدفع..."
+      );
+
+      try {
+
+        const result =
+          await supabaseClient.functions.invoke(
+            "quick-service",
+            {
+              body: {
+                package_id: pkg.id
+              }
+            }
+          );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        const data =
+          result.data;
+
+        if (data?.redirect_url) {
+
+          window.location.href =
+            data.redirect_url;
+
+          return;
+
+        }
+
+        alert(
+          "⚠️ لم يتم استلام رابط الدفع."
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        showError(
+          error.message ||
+          "حدث خطأ أثناء الدفع."
         );
 
       }
 
+    }
 
-      const {
-        data,
-        error
-      } =
-      await supabaseClient.auth
-      .signUp({
 
-        email:email,
+    /* ==========================================
+       LOGIN / REGISTER
+    ========================================== */
 
-        password:password,
+    async function submitAuth() {
 
-        options:{
+      if (!supabaseClient) {
 
-          data:{
+        $("#authMessage").textContent =
+          "❌ تعذر الاتصال بخدمة الحسابات.";
 
-            username:username
+        return;
+
+      }
+
+      const email =
+        $("#emailInput")
+          .value
+          .trim();
+
+      const password =
+        $("#passwordInput")
+          .value;
+
+      if (!email) {
+
+        $("#authMessage").textContent =
+          "❌ اكتب الإيميل.";
+
+        return;
+
+      }
+
+      if (!password) {
+
+        $("#authMessage").textContent =
+          "❌ اكتب كلمة المرور.";
+
+        return;
+
+      }
+
+      const button =
+        $("#authSubmit");
+
+      button.disabled = true;
+
+      button.textContent =
+        "⏳ جاري المعالجة...";
+
+      $("#authMessage").textContent =
+        "";
+
+      try {
+
+        /* LOGIN */
+
+        if (authMode === "login") {
+
+          const result =
+            await supabaseClient.auth
+              .signInWithPassword({
+                email:
+                  email,
+                password:
+                  password
+              });
+
+          if (result.error) {
+
+            throw result.error;
+
+          }
+
+          currentUser =
+            result.data.user;
+
+          await loadProfile();
+
+          closeAuth();
+
+          updateUI();
+
+          await createAdminPanel();
+
+          alert(
+            "✅ تم تسجيل الدخول بنجاح!"
+          );
+
+        }
+
+        /* REGISTER */
+
+        else {
+
+          const username =
+            $("#usernameInput")
+              .value
+              .trim();
+
+          const confirmPassword =
+            $("#confirmPasswordInput")
+              .value;
+
+          if (!username) {
+
+            throw new Error(
+              "اكتب اسم المستخدم."
+            );
+
+          }
+
+          if (username.length < 3) {
+
+            throw new Error(
+              "اسم المستخدم يجب أن يكون 3 أحرف أو أكثر."
+            );
+
+          }
+
+          if (password.length < 6) {
+
+            throw new Error(
+              "كلمة المرور يجب أن تكون 6 أحرف أو أكثر."
+            );
+
+          }
+
+          if (
+            password !==
+            confirmPassword
+          ) {
+
+            throw new Error(
+              "كلمتا المرور غير متطابقتين."
+            );
+
+          }
+
+          const result =
+            await supabaseClient.auth
+              .signUp({
+
+                email:
+                  email,
+
+                password:
+                  password,
+
+                options: {
+
+                  data: {
+                    username:
+                      username
+                  }
+
+                }
+
+              });
+
+          if (result.error) {
+
+            throw result.error;
+
+          }
+
+          currentUser =
+            result.data.user;
+
+          /*
+            إذا كان Supabase يحتاج
+            تأكيد الإيميل، قد لا يرجع
+            session مباشرة.
+          */
+
+          if (currentUser) {
+
+            await loadProfile();
+
+          }
+
+          closeAuth();
+
+          updateUI();
+
+          await createAdminPanel();
+
+          if (result.data.session) {
+
+            alert(
+              "🎉 تم إنشاء الحساب بنجاح!\n\n" +
+              "أهلاً بك في Galaxy Arena 🚀"
+            );
+
+          } else {
+
+            alert(
+              "🎉 تم إنشاء الحساب!\n\n" +
+              "إذا ظهر لك طلب تأكيد الإيميل، افتح رسالة التأكيد أولاً."
+            );
 
           }
 
         }
 
-      });
+      } catch (error) {
 
+        console.error(
+          "AUTH ERROR:",
+          error
+        );
 
-      if(error)
-      throw error;
+        $("#authMessage").textContent =
+          "❌ " +
+          (
+            error.message ||
+            "حدث خطأ."
+          );
 
+      } finally {
 
-      currentUser =
-      data.user;
+        button.disabled = false;
 
-
-      if(currentUser){
-
-        await loadProfile();
+        button.textContent =
+          authMode === "login"
+            ? "🚀 تسجيل الدخول"
+            : "✨ إنشاء الحساب";
 
       }
 
-
-      closeAuth();
-
-      updateUI();
-
-      await createAdminPanel();
+    }
 
 
-      alert(
-        "🎉 تم إنشاء الحساب بنجاح!\n\nأهلاً بك في Galaxy Arena 🚀"
+    /* ==========================================
+       FORGOT PASSWORD
+    ========================================== */
+
+    async function sendResetEmail() {
+
+      if (!supabaseClient) {
+
+        $("#resetMessage").textContent =
+          "❌ تعذر الاتصال بـ Supabase.";
+
+        return;
+
+      }
+
+      const email =
+        $("#resetEmail")
+          .value
+          .trim();
+
+      const message =
+        $("#resetMessage");
+
+      const button =
+        $("#sendReset");
+
+      if (!email) {
+
+        message.textContent =
+          "❌ اكتب الإيميل.";
+
+        return;
+
+      }
+
+      button.disabled = true;
+
+      button.textContent =
+        "⏳ جاري الإرسال...";
+
+      message.textContent =
+        "";
+
+      try {
+
+        const redirectUrl =
+          window.location.origin +
+          window.location.pathname;
+
+        const result =
+          await supabaseClient.auth
+            .resetPasswordForEmail(
+              email,
+              {
+                redirectTo:
+                  redirectUrl
+              }
+            );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        message.textContent =
+          "✅ تم إرسال رابط إعادة التعيين إذا كان الحساب موجوداً.";
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "❌ " +
+          (
+            error.message ||
+            "تعذر إرسال الرابط."
+          );
+
+      } finally {
+
+        button.disabled = false;
+
+        button.textContent =
+          "📨 إرسال الرابط";
+
+      }
+
+    }
+
+
+    /* ==========================================
+       SAVE NEW PASSWORD
+    ========================================== */
+
+    async function saveNewPassword() {
+
+      if (!supabaseClient) {
+
+        $("#newPasswordMessage")
+          .textContent =
+          "❌ تعذر الاتصال بـ Supabase.";
+
+        return;
+
+      }
+
+      const password =
+        $("#newPassword")
+          .value;
+
+      const confirm =
+        $("#newPasswordConfirm")
+          .value;
+
+      const message =
+        $("#newPasswordMessage");
+
+      const button =
+        $("#saveNewPassword");
+
+      if (password.length < 6) {
+
+        message.textContent =
+          "❌ كلمة المرور يجب أن تكون 6 أحرف أو أكثر.";
+
+        return;
+
+      }
+
+      if (password !== confirm) {
+
+        message.textContent =
+          "❌ كلمتا المرور غير متطابقتين.";
+
+        return;
+
+      }
+
+      button.disabled = true;
+
+      button.textContent =
+        "⏳ جاري الحفظ...";
+
+      try {
+
+        const result =
+          await supabaseClient.auth
+            .updateUser({
+              password:
+                password
+            });
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        message.textContent =
+          "✅ تم تغيير كلمة المرور بنجاح!";
+
+        button.textContent =
+          "✅ تم الحفظ";
+
+        setTimeout(() => {
+
+          $("#newPasswordModal")
+            .classList
+            .remove("show");
+
+        }, 1500);
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "❌ " +
+          (
+            error.message ||
+            "تعذر تغيير كلمة المرور."
+          );
+
+        button.disabled = false;
+
+        button.textContent =
+          "🔐 حفظ";
+
+      }
+
+    }
+
+
+    /* ==========================================
+       AUTH STATE
+    ========================================== */
+
+    function setupAuthListener() {
+
+      if (!supabaseClient) {
+        return;
+      }
+
+      supabaseClient.auth
+        .onAuthStateChange(
+          (event, session) => {
+
+            /*
+              لا نستعمل await مباشرة
+              داخل callback حتى ما نعلق
+              عملية Supabase.
+            */
+
+            setTimeout(
+              async () => {
+
+                try {
+
+                  if (
+                    event ===
+                    "PASSWORD_RECOVERY"
+                  ) {
+
+                    $("#newPasswordModal")
+                      .classList
+                      .add("show");
+
+                  }
+
+                  if (session) {
+
+                    currentUser =
+                      session.user;
+
+                    await loadProfile();
+
+                    updateUI();
+
+                    await createAdminPanel();
+
+                  } else {
+
+                    currentUser =
+                      null;
+
+                    currentProfile =
+                      null;
+
+                    $("#adminPanel")
+                      .style
+                      .display =
+                      "none";
+
+                    updateUI();
+
+                  }
+
+                } catch (error) {
+
+                  console.error(
+                    "Auth state error:",
+                    error
+                  );
+
+                }
+
+              },
+              0
+            );
+
+          }
+        );
+
+    }
+
+
+    /* ==========================================
+       BUTTONS
+    ========================================== */
+
+    function setupButtons() {
+
+      $("#loginBtn").onclick =
+        openLogin;
+
+      $("#heroLoginBtn").onclick =
+        openLogin;
+
+      $("#closeModal").onclick =
+        closeAuth;
+
+      $("#closeReset").onclick =
+        closeReset;
+
+      $("#authSubmit").onclick =
+        submitAuth;
+
+      $("#switchAuth").onclick =
+        () => {
+
+          if (authMode === "login") {
+
+            openRegister();
+
+          } else {
+
+            openLogin();
+
+          }
+
+        };
+
+
+      $("#forgotLink").onclick =
+        () => {
+
+          const currentEmail =
+            $("#emailInput")
+              .value
+              .trim();
+
+          $("#resetEmail")
+            .value =
+            currentEmail;
+
+          $("#resetMessage")
+            .textContent =
+            "";
+
+          closeAuth();
+
+          $("#resetModal")
+            .classList
+            .add("show");
+
+        };
+
+
+      $("#sendReset").onclick =
+        sendResetEmail;
+
+      $("#saveNewPassword").onclick =
+        saveNewPassword;
+
+      $("#buyCoinsBtn").onclick =
+        buyCoins;
+
+      $("#addCoinsAdmin").onclick =
+        () =>
+          changeCoins("add");
+
+      $("#removeCoinsAdmin").onclick =
+        () =>
+          changeCoins("remove");
+
+
+      /* إغلاق عند الضغط خارج النافذة */
+
+      $("#authModal").addEventListener(
+        "click",
+        (event) => {
+
+          if (
+            event.target ===
+            $("#authModal")
+          ) {
+
+            closeAuth();
+
+          }
+
+        }
+      );
+
+
+      $("#resetModal").addEventListener(
+        "click",
+        (event) => {
+
+          if (
+            event.target ===
+            $("#resetModal")
+          ) {
+
+            closeReset();
+
+          }
+
+        }
       );
 
     }
 
-  }
 
-  catch(error){
+    /* ==========================================
+       START APP
+    ========================================== */
 
-    console.error(
-      "AUTH ERROR:",
-      error
-    );
+    async function startApp() {
 
-    authMessage.textContent =
-    "❌ " +
-    (
-      error.message ||
-      "حدث خطأ"
-    );
+      createStars();
 
-  }
+      updateUI();
 
+      setupButtons();
 
-  authSubmit.disabled =
-  false;
+      setupAuthListener();
 
-  authSubmit.textContent =
-  authMode === "login"
-  ? "🚀 تسجيل الدخول"
-  : "✨ إنشاء الحساب";
+      if (!supabaseClient) {
 
-});
+        console.error(
+          "Supabase client unavailable."
+        );
 
+        return;
 
-/* =====================================================
-   LOAD PROFILE
-===================================================== */
+      }
 
-async function loadProfile(){
+      try {
 
-  if(!currentUser)
-  return;
+        const result =
+          await supabaseClient.auth
+            .getSession();
 
+        if (result.error) {
 
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.rpc(
-    "get_my_profile"
-  );
+          console.error(
+            "Session error:",
+            result.error
+          );
 
+          return;
 
-  if(error){
+        }
 
-    console.error(
-      "PROFILE ERROR:",
-      error
-    );
+        const session =
+          result.data?.session;
 
-    return;
+        if (session) {
 
-  }
+          currentUser =
+            session.user;
 
+          await loadProfile();
 
-  currentProfile =
-  Array.isArray(data)
-  ? data[0]
-  : data;
+          await createAdminPanel();
 
+        }
 
-  updateCoins();
+        updateUI();
 
-}
+      } catch (error) {
 
-
-/* =====================================================
-   UPDATE COINS
-===================================================== */
-
-function updateCoins(){
-
-  const coins =
-  document.querySelector("#coins");
-
-  if(!coins)
-  return;
-
-
-  coins.textContent =
-  Number(
-    currentProfile
-    ?.galaxy_coins ?? 0
-  ).toLocaleString();
-
-}
-
-
-/* =====================================================
-   UPDATE UI
-===================================================== */
-
-function updateUI(){
-
-  updateCoins();
-
-
-  const loginBtn =
-  document.querySelector("#loginBtn");
-
-  const heroBtn =
-  document.querySelector("#heroLoginBtn");
-
-
-  if(currentUser){
-
-    loginBtn.textContent =
-    "تسجيل الخروج";
-
-    loginBtn.onclick =
-    logout;
-
-
-    heroBtn.textContent =
-    "👤 حسابي";
-
-    heroBtn.onclick =
-    showAccount;
-
-  }
-
-  else{
-
-    loginBtn.textContent =
-    "تسجيل الدخول";
-
-    loginBtn.onclick =
-    openLogin;
-
-
-    heroBtn.textContent =
-    "🚀 تسجيل الدخول";
-
-    heroBtn.onclick =
-    openLogin;
-
-  }
-
-}
-
-
-/* =====================================================
-   ACCOUNT
-===================================================== */
-
-function showAccount(){
-
-  alert(
-
-    "👤 حساب Galaxy Arena\n\n" +
-
-    "📧 الإيميل:\n" +
-    (
-      currentUser?.email ||
-      ""
-    ) +
-
-    "\n\n" +
-
-    "🪙 Galaxy Coins:\n" +
-    Number(
-      currentProfile
-      ?.galaxy_coins ?? 0
-    ).toLocaleString()
-
-  );
-
-}
-
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-async function logout(){
-
-  await supabaseClient.auth.signOut();
-
-  currentUser =
-  null;
-
-  currentProfile =
-  null;
-
-  document
-  .querySelector("#adminPanel")
-  .style.display =
-  "none";
-
-  updateUI();
-
-  alert(
-    "👋 تم تسجيل الخروج."
-  );
-
-}
-
-
-/* =====================================================
-   ADMIN CHECK
-===================================================== */
-
-async function checkAdmin(){
-
-  if(!currentUser)
-  return false;
-
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.rpc(
-    "is_admin"
-  );
-
-
-  if(error){
-
-    console.error(
-      "ADMIN ERROR:",
-      error
-    );
-
-    return false;
-
-  }
-
-
-  return data === true;
-
-}
-
-
-/* =====================================================
-   ADMIN PANEL
-===================================================== */
-
-async function createAdminPanel(){
-
-  const admin =
-  await checkAdmin();
-
-
-  const panel =
-  document.querySelector(
-    "#adminPanel"
-  );
-
-
-  if(!panel)
-  return;
-
-
-  panel.style.display =
-  admin
-  ? "block"
-  : "none";
-
-}
-
-
-/* =====================================================
-   CHANGE COINS
-===================================================== */
-
-async function changeCoins(
-  action
-){
-
-  const username =
-  document
-  .querySelector("#adminUsername")
-  .value
-  .trim();
-
-  const amount =
-  Number(
-    document
-    .querySelector("#adminAmount")
-    .value
-  );
-
-
-  if(!username){
-
-    alert(
-      "❌ اكتب Username."
-    );
-
-    return;
-
-  }
-
-
-  if(
-    !amount ||
-    amount <= 0
-  ){
-
-    alert(
-      "❌ اكتب كمية صحيحة."
-    );
-
-    return;
-
-  }
-
-
-  const functionName =
-  action === "add"
-  ? "admin_add_coins"
-  : "admin_remove_coins";
-
-
-  const {
-    error
-  } =
-  await supabaseClient.rpc(
-
-    functionName,
-
-    {
-
-      receiver_username:
-      username,
-
-      amount:
-      amount
-
-    }
-
-  );
-
-
-  if(error){
-
-    alert(
-      "❌ فشلت العملية:\n\n" +
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  alert(
-    action === "add"
-    ? "✅ تمت إضافة Coins."
-    : "✅ تمت إزالة Coins."
-  );
-
-
-}
-
-
-/* =====================================================
-   BUY COINS
-===================================================== */
-
-async function buyCoins(){
-
-  if(!currentUser){
-
-    openLogin();
-
-    return;
-
-  }
-
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient.rpc(
-    "get_coin_packages"
-  );
-
-
-  if(error){
-
-    alert(
-      "❌ تعذر تحميل الباقات:\n\n" +
-      error.message
-    );
-
-    return;
-
-  }
-
-
-  if(
-    !data ||
-    data.length === 0
-  ){
-
-    alert(
-      "⚠️ لا توجد باقات حالياً."
-    );
-
-    return;
-
-  }
-
-
-  let text =
-  "🪙 Galaxy Coins\n\n";
-
-
-  data.forEach(
-    (pkg,index)=>{
-
-      text +=
-
-      `${index+1}. ${pkg.name}\n` +
-
-      `🪙 ${Number(pkg.coins).toLocaleString()} Coins\n` +
-
-      `💵 $${pkg.price_usd}\n\n`;
-
-    }
-  );
-
-
-  const choice =
-  prompt(
-    text +
-    "اكتب رقم الباقة:"
-  );
-
-
-  const index =
-  Number(choice) - 1;
-
-
-  if(
-    Number.isNaN(index) ||
-    !data[index]
-  )
-  return;
-
-
-  await startPayment(
-    data[index]
-  );
-
-}
-
-
-/* =====================================================
-   PAYMENT
-===================================================== */
-
-async function startPayment(
-  pkg
-){
-
-  alert(
-    "⏳ جاري تجهيز عملية الدفع..."
-  );
-
-
-  const {
-    data,
-    error
-  } =
-  await supabaseClient
-  .functions
-  .invoke(
-
-    "quick-service",
-
-    {
-
-      body:{
-
-        package_id:
-        pkg.id
+        console.error(
+          "START ERROR:",
+          error
+        );
 
       }
 
     }
 
-  );
 
+    /* ==========================================
+       RUN
+    ========================================== */
 
-  if(error){
+    if (
+      document.readyState ===
+      "loading"
+    ) {
 
-    alert(
-      "❌ خطأ بالدفع:\n\n" +
-      error.message
-    );
+      document.addEventListener(
+        "DOMContentLoaded",
+        startApp
+      );
 
-    return;
+    } else {
 
-  }
+      startApp();
 
+    }
 
-  if(data?.redirect_url){
+  </script>
 
-    window.location.href =
-    data.redirect_url;
-
-    return;
-
-  }
-
-
-  alert(
-    "⚠️ لم يتم استلام رابط الدفع."
-  );
-
-}
-
-
-/* =====================================================
-   FORGOT PASSWORD
-===================================================== */
-
-document
-.querySelector("#forgotLink")
-.addEventListener(
-"click",
-()=>{
-
-  closeAuth();
-
-  document
-  .querySelector("#resetEmail")
-  .value =
-  document
-  .querySelector("#emailInput")
-  .value
-  .trim();
-
-  document
-  .querySelector("#resetMessage")
-  .textContent =
-  "";
-
-  resetModal.classList.add(
-    "show"
-  );
-
-});
-
-
-/* =====================================================
-   SEND RESET
-===================================================== */
-
-document
-.querySelector("#sendReset")
-.addEventListener(
-"click",
-async ()=>{
-
-  const email =
-  document
-  .querySelector("#resetEmail")
-  .value
-  .trim();
-
-  const message =
-  document
-  .querySelector("#resetMessage");
-
-
-  if(!email){
-
-    message.textContent =
-    "❌ اكتب الإيميل.";
-
-    return;
-
-  }
-
-
-  const button =
-  document
-  .querySelector("#sendReset");
-
-
-  button.disabled =
-  true;
-
-  button.textContent =
-  "⏳ جاري الإرسال...";
-
-
-  try{
-
-    const {
-      error
-    } =
-    await supabaseClient.auth
-    .resetPasswordForEmail(
-
-      email,
-
-      {
-
-        redirectTo:
-        window.location.origin +
-        window.location.pathname
-
-      }
-
-    );
-
-
-    if(error)
-    throw error;
-
-
-    message.textContent =
-    "✅ إذا كان الحساب موجوداً، تم إرسال رابط إعادة التعيين إلى الإيميل.";
-
-  }
-
-  catch(error){
-
-    message.textContent =
-    "❌ " +
-    error.message;
-
-  }
-
-
-  button.disabled =
-  false;
-
-  button.textContent =
-  "📨 إرسال الرابط";
-
-});
-
-
-/* =====================================================
-   PASSWORD RECOVERY
-===================================================== */
-
-supabaseClient.auth
-.onAuthStateChange(
-async(
-  event,
-  session
-)=>{
-
-  if(
-    event ===
-    "PASSWORD_RECOVERY"
-  ){
-
-    newPasswordModal
-    .classList
-    .add("show");
-
-  }
-
-
-  if(session){
-
-    currentUser =
-    session.user;
-
-    await loadProfile();
-
-    updateUI();
-
-    await createAdminPanel();
-
-  }
-
-});
-
-
-/* =====================================================
-   SAVE NEW PASSWORD
-===================================================== */
-
-document
-.querySelector("#saveNewPassword")
-.addEventListener(
-"click",
-async ()=>{
-
-  const password =
-  document
-  .querySelector("#newPassword")
-  .value;
-
-  const confirm =
-  document
-  .querySelector("#newPasswordConfirm")
-  .value;
-
-  const message =
-  document
-  .querySelector("#newPasswordMessage");
-
-
-  if(password.length < 6){
-
-    message.textContent =
-    "❌ كلمة المرور يجب أن تكون 6 أحرف أو أكثر.";
-
-    return;
-
-  }
-
-
-  if(password !== confirm){
-
-    message.textContent =
-    "❌ كلمتا المرور غير متطابقتين.";
-
-    return;
-
-  }
-
-
-  const button =
-  document
-  .querySelector("#saveNewPassword");
-
-
-  button.disabled =
-  true;
-
-  button.textContent =
-  "⏳ جاري الحفظ...";
-
-
-  try{
-
-    const {
-      error
-    } =
-    await supabaseClient.auth
-    .updateUser({
-
-      password:
-      password
-
-    });
-
-
-    if(error)
-    throw error;
-
-
-    message.textContent =
-    "✅ تم تغيير كلمة المرور بنجاح!";
-
-
-    setTimeout(
-      ()=>{
-
-        newPasswordModal
-        .classList
-        .remove("show");
-
-        window.location.href =
-        window.location.origin +
-        window.location.pathname;
-
-      },
-      1500
-    );
-
-  }
-
-  catch(error){
-
-    message.textContent =
-    "❌ " +
-    error.message;
-
-  }
-
-
-  button.disabled =
-  false;
-
-  button.textContent =
-  "🔐 حفظ";
-
-});
-
-
-/* =====================================================
-   BUTTON EVENTS
-===================================================== */
-
-document
-.querySelector("#closeModal")
-.addEventListener(
-"click",
-closeAuth
-);
-
-
-document
-.querySelector("#closeReset")
-.addEventListener(
-"click",
-closeReset
-);
-
-
-document
-.querySelector("#switchAuth")
-.addEventListener(
-"click",
-()=>{
-
-  if(
-    authMode ===
-    "login"
-  ){
-
-    openRegister();
-
-  }
-
-  else{
-
-    openLogin();
-
-  }
-
-});
-
-
-document
-.querySelector("#buyCoinsBtn")
-.addEventListener(
-"click",
-buyCoins
-);
-
-
-document
-.querySelector("#addCoinsAdmin")
-.addEventListener(
-"click",
-()=>{
-
-  changeCoins("add");
-
-});
-
-
-document
-.querySelector("#removeCoinsAdmin")
-.addEventListener(
-"click",
-()=>{
-
-  changeCoins("remove");
-
-});
-
-
-/* =====================================================
-   CLOSE MODAL ON BACKDROP
-===================================================== */
-
-authModal.addEventListener(
-"click",
-event=>{
-
-  if(
-    event.target ===
-    authModal
-  ){
-
-    closeAuth();
-
-  }
-
-});
-
-
-resetModal.addEventListener(
-"click",
-event=>{
-
-  if(
-    event.target ===
-    resetModal
-  ){
-
-    closeReset();
-
-  }
-
-});
-
-
-/* =====================================================
-   START
-===================================================== */
-
-async function startApp(){
-
-  createStars();
-
-
-  const {
-    data
-  } =
-  await supabaseClient
-  .auth
-  .getSession();
-
-
-  currentUser =
-  data.session
-  ? data.session.user
-  : null;
-
-
-  if(currentUser){
-
-    await loadProfile();
-
-    await createAdminPanel();
-
-  }
-
-
-  updateUI();
-
-}
-
-
-/* =====================================================
-   RUN
-===================================================== */
-
-document.addEventListener(
-"DOMContentLoaded",
-startApp
-);
-
-</script>
+</body>
+</html>
