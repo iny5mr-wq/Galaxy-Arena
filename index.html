@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Galaxy Arena</title>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -337,6 +336,98 @@
       color: #aaaac0;
       line-height: 1.8;
       margin-bottom: 18px;
+    }
+
+    /* ==============================
+       GALAXY COIN PACKAGES
+    ============================== */
+
+    .coin-packages {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+    }
+
+    .coin-package {
+      position: relative;
+      padding: 25px 18px;
+      border-radius: 24px;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(20,20,58,.88),
+          rgba(8,8,28,.94)
+        );
+      border: 1px solid rgba(98,234,255,.13);
+      text-align: center;
+      overflow: hidden;
+      transition: .25s;
+    }
+
+    .coin-package::before {
+      content: "";
+      position: absolute;
+      width: 130px;
+      height: 130px;
+      top: -70px;
+      right: -60px;
+      border-radius: 50%;
+      background: rgba(98,234,255,.08);
+      filter: blur(5px);
+    }
+
+    .coin-package:hover {
+      transform: translateY(-7px);
+      border-color: rgba(98,234,255,.42);
+      box-shadow:
+        0 18px 45px rgba(0,190,255,.13),
+        0 0 35px rgba(105,87,232,.10);
+    }
+
+    .coin-package-icon {
+      font-size: 38px;
+      margin-bottom: 10px;
+    }
+
+    .coin-package h3 {
+      margin-bottom: 9px;
+      font-size: 20px;
+    }
+
+    .coin-package-coins {
+      color: #72eaff;
+      font-size: 25px;
+      font-weight: 1000;
+      margin-bottom: 7px;
+    }
+
+    .coin-package-price {
+      color: #fff;
+      font-size: 21px;
+      font-weight: 900;
+      margin-bottom: 17px;
+    }
+
+    .coin-package button {
+      width: 100%;
+    }
+
+    .selected-package-info {
+      margin: 0 auto 18px;
+      padding: 15px;
+      border-radius: 16px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(98,234,255,.07),
+          rgba(105,87,232,.09)
+        );
+      border: 1px solid rgba(98,234,255,.20);
+      color: #7cecff;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.7;
+      text-align: center;
     }
 
     .player-search-box {
@@ -1126,26 +1217,153 @@
 
     </section>
 
+    <!-- ==============================
+         GALAXY STORE
+    ============================== -->
+
     <section id="store" class="section">
 
       <h2 class="section-title">
         🛒 Galaxy Store
       </h2>
 
-      <div class="cards">
+      <p class="section-subtitle">
+        اختر باقة Galaxy Coins المناسبة لك، ثم تواصل معنا عبر Instagram لإتمام الشراء.
+      </p>
 
-        <div class="card">
+      <div class="coin-packages">
+
+        <div class="coin-package">
+
+          <div class="coin-package-icon">
+            🪙
+          </div>
 
           <h3>
-            🪙 Galaxy Coins
+            Starter
           </h3>
 
-          <p>
-            اشحن رصيدك وشارك بالبطولات.
-          </p>
+          <div class="coin-package-coins">
+            500 Coins
+          </div>
 
-          <button id="buyCoinsBtn" type="button">
-            🪙 شراء Galaxy Coins
+          <div class="coin-package-price">
+            $5
+          </div>
+
+          <button
+            type="button"
+            onclick="selectCoinPackage('Starter', 500, 5)"
+          >
+            شراء الباقة
+          </button>
+
+        </div>
+
+        <div class="coin-package">
+
+          <div class="coin-package-icon">
+            💰
+          </div>
+
+          <h3>
+            Silver
+          </h3>
+
+          <div class="coin-package-coins">
+            1,100 Coins
+          </div>
+
+          <div class="coin-package-price">
+            $10
+          </div>
+
+          <button
+            type="button"
+            onclick="selectCoinPackage('Silver', 1100, 10)"
+          >
+            شراء الباقة
+          </button>
+
+        </div>
+
+        <div class="coin-package">
+
+          <div class="coin-package-icon">
+            💎
+          </div>
+
+          <h3>
+            Gold
+          </h3>
+
+          <div class="coin-package-coins">
+            2,500 Coins
+          </div>
+
+          <div class="coin-package-price">
+            $20
+          </div>
+
+          <button
+            type="button"
+            onclick="selectCoinPackage('Gold', 2500, 20)"
+          >
+            شراء الباقة
+          </button>
+
+        </div>
+
+        <div class="coin-package">
+
+          <div class="coin-package-icon">
+            🚀
+          </div>
+
+          <h3>
+            Pro
+          </h3>
+
+          <div class="coin-package-coins">
+            6,000 Coins
+          </div>
+
+          <div class="coin-package-price">
+            $40
+          </div>
+
+          <button
+            type="button"
+            onclick="selectCoinPackage('Pro', 6000, 40)"
+          >
+            شراء الباقة
+          </button>
+
+        </div>
+
+        <div class="coin-package">
+
+          <div class="coin-package-icon">
+            👑
+          </div>
+
+          <h3>
+            Galaxy Elite
+          </h3>
+
+          <div class="coin-package-coins">
+            15,000 Coins
+          </div>
+
+          <div class="coin-package-price">
+            $100
+          </div>
+
+          <button
+            type="button"
+            onclick="selectCoinPackage('Galaxy Elite', 15000, 100)"
+          >
+            شراء الباقة
           </button>
 
         </div>
@@ -1210,6 +1428,8 @@
     </p>
 
   </footer>
+
+  <!-- AUTH MODAL -->
 
   <div id="authModal" class="modal">
 
@@ -1334,6 +1554,8 @@
 
   </div>
 
+  <!-- ACCOUNT MODAL -->
+
   <div id="accountModal" class="modal">
 
     <div class="modal-box account-box">
@@ -1407,6 +1629,8 @@
 
   </div>
 
+  <!-- PLAYER PROFILE MODAL -->
+
   <div id="playerProfileModal" class="modal">
 
     <div class="modal-box player-profile-box">
@@ -1451,6 +1675,8 @@
     </div>
 
   </div>
+
+  <!-- RESET MODAL -->
 
   <div id="resetModal" class="modal">
 
@@ -1506,6 +1732,8 @@
     </div>
 
   </div>
+
+  <!-- NEW PASSWORD MODAL -->
 
   <div id="newPasswordModal" class="modal">
 
@@ -1574,6 +1802,7 @@
   </div>
 
   <!-- INSTAGRAM PURCHASE MODAL -->
+
   <div id="instagramPurchaseModal" class="modal">
 
     <div class="modal-box instagram-box">
@@ -1587,10 +1816,17 @@
       </h2>
 
       <p class="modal-subtitle">
-        حاليًا شراء Galaxy Coins يتم بشكل يدوي.
+        الباقة التي اخترتها:
         <br>
         تواصل معنا عبر Instagram لإتمام عملية الشراء.
       </p>
+
+      <div
+        id="selectedPackageInfo"
+        class="selected-package-info"
+      >
+        اختر باقة أولاً
+      </div>
 
       <div class="instagram-username">
         @itz7yo
@@ -1607,7 +1843,9 @@
 
       <div class="instagram-note">
         💬 اضغط على زر فتح Instagram وتواصل معنا،
-        وبعد إتمام الدفع سيتم إضافة Galaxy Coins إلى حسابك.
+        واذكر الباقة التي اخترتها.
+        <br>
+        بعد إتمام الدفع سيتم إضافة Galaxy Coins إلى حسابك.
       </div>
 
       <div class="modal-actions">
@@ -1684,6 +1922,12 @@
     let currentProfile = null;
     let authMode = "login";
     let currentViewedPlayer = null;
+
+    /* ==========================================
+       GALAXY COIN PACKAGE STATE
+    ========================================== */
+
+    let selectedCoinPackage = null;
 
     /* ==========================================
        HELPERS
@@ -1832,7 +2076,60 @@
        INSTAGRAM PURCHASE
     ========================================== */
 
+    function selectCoinPackage(
+      name,
+      coins,
+      price
+    ) {
+
+      selectedCoinPackage = {
+        name: name,
+        coins: Number(coins),
+        price: Number(price)
+      };
+
+      const packageInfo =
+        $("#selectedPackageInfo");
+
+      if (packageInfo) {
+
+        packageInfo.innerHTML =
+          "📦 " +
+          name +
+          "<br>" +
+          "🪙 " +
+          selectedCoinPackage.coins.toLocaleString() +
+          " Galaxy Coins" +
+          " — $" +
+          selectedCoinPackage.price;
+
+      }
+
+      openInstagramPurchase();
+
+    }
+
     function openInstagramPurchase() {
+
+      const packageInfo =
+        $("#selectedPackageInfo");
+
+      if (
+        packageInfo &&
+        selectedCoinPackage
+      ) {
+
+        packageInfo.innerHTML =
+          "📦 " +
+          selectedCoinPackage.name +
+          "<br>" +
+          "🪙 " +
+          selectedCoinPackage.coins.toLocaleString() +
+          " Galaxy Coins" +
+          " — $" +
+          selectedCoinPackage.price;
+
+      }
 
       $("#instagramPurchaseModal")
         .classList
@@ -2300,11 +2597,31 @@
     }
 
     /* ==========================================
-       BUY COINS → INSTAGRAM
-       لا يوجد دفع إلكتروني هنا
+       BUY COINS
     ========================================== */
 
     function buyCoins() {
+
+      if (!selectedCoinPackage) {
+
+        const store =
+          $("#store");
+
+        if (store) {
+
+          store.scrollIntoView({
+            behavior: "smooth"
+          });
+
+        }
+
+        alert(
+          "🪙 اختر إحدى باقات Galaxy Coins أولاً."
+        );
+
+        return;
+
+      }
 
       openInstagramPurchase();
 
@@ -3984,10 +4301,9 @@
       $("#saveNewPassword").onclick =
         saveNewPassword;
 
-      /* BUY COINS → INSTAGRAM */
+      /* BUY COINS */
 
-      $("#buyCoinsBtn").onclick =
-        buyCoins;
+      /* هذا الزر لم يعد ضرورياً لأن الباقات هي أزرار الشراء */
 
       $("#openInstagramBtn").onclick =
         openInstagram;
@@ -4152,6 +4468,185 @@
 
           }
         );
+
+    }
+
+    /* ==========================================
+       AUTH SUBMIT
+    ========================================== */
+
+    async function submitAuth() {
+
+      if (!supabaseClient) {
+
+        $("#authMessage").textContent =
+          "❌ تعذر الاتصال بـ Supabase.";
+
+        return;
+
+      }
+
+      const email =
+        $("#emailInput")
+          .value
+          .trim();
+
+      const password =
+        $("#passwordInput")
+          .value;
+
+      const message =
+        $("#authMessage");
+
+      const button =
+        $("#authSubmit");
+
+      if (!email) {
+
+        message.textContent =
+          "❌ اكتب الإيميل.";
+
+        return;
+
+      }
+
+      if (!password) {
+
+        message.textContent =
+          "❌ اكتب كلمة المرور.";
+
+        return;
+
+      }
+
+      button.disabled =
+        true;
+
+      button.textContent =
+        "⏳ جاري التنفيذ...";
+
+      message.textContent =
+        "";
+
+      try {
+
+        if (
+          authMode ===
+          "login"
+        ) {
+
+          const result =
+            await supabaseClient.auth
+              .signInWithPassword({
+                email:
+                  email,
+                password:
+                  password
+              });
+
+          if (result.error) {
+
+            throw result.error;
+
+          }
+
+          message.textContent =
+            "✅ تم تسجيل الدخول بنجاح.";
+
+          closeAuth();
+
+        } else {
+
+          const username =
+            $("#usernameInput")
+              .value
+              .trim();
+
+          const confirmPassword =
+            $("#confirmPasswordInput")
+              .value;
+
+          if (!username) {
+
+            message.textContent =
+              "❌ اكتب Username.";
+
+            return;
+
+          }
+
+          if (password.length < 6) {
+
+            message.textContent =
+              "❌ كلمة المرور يجب أن تكون 6 أحرف أو أكثر.";
+
+            return;
+
+          }
+
+          if (
+            password !==
+            confirmPassword
+          ) {
+
+            message.textContent =
+              "❌ كلمتا المرور غير متطابقتين.";
+
+            return;
+
+          }
+
+          const result =
+            await supabaseClient.auth
+              .signUp({
+                email:
+                  email,
+                password:
+                  password,
+                options: {
+                  data: {
+                    username:
+                      username
+                  }
+                }
+              });
+
+          if (result.error) {
+
+            throw result.error;
+
+          }
+
+          message.textContent =
+            "✅ تم إنشاء الحساب بنجاح. تحقق من إيميلك إذا كان تأكيد البريد مفعلاً.";
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "AUTH ERROR:",
+          error
+        );
+
+        message.textContent =
+          "❌ " +
+          (
+            error.message ||
+            "حدث خطأ أثناء العملية."
+          );
+
+      } finally {
+
+        button.disabled =
+          false;
+
+        button.textContent =
+          authMode === "login"
+            ? "🚀 تسجيل الدخول"
+            : "✨ إنشاء الحساب";
+
+      }
 
     }
 
