@@ -650,6 +650,76 @@
     }
 
     /* =========================
+       INSTAGRAM PURCHASE
+    ========================== */
+
+    .instagram-box {
+      text-align: center;
+    }
+
+    .instagram-icon {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 18px;
+      border-radius: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      background:
+        linear-gradient(
+          135deg,
+          #833ab4,
+          #fd1d1d,
+          #fcb045
+        );
+      box-shadow:
+        0 0 35px rgba(253,29,29,.20),
+        0 0 65px rgba(131,58,180,.15);
+      animation: floating 3s ease-in-out infinite;
+    }
+
+    .instagram-username {
+      display: inline-block;
+      margin: 8px auto 18px;
+      padding: 13px 20px;
+      border-radius: 15px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+      direction: ltr;
+      box-shadow: 0 0 25px rgba(131,58,180,.12);
+    }
+
+    .instagram-note {
+      padding: 13px;
+      border-radius: 15px;
+      background: rgba(98,234,255,.05);
+      border: 1px solid rgba(98,234,255,.12);
+      color: #aaaac0;
+      font-size: 13px;
+      line-height: 1.8;
+      margin-top: 5px;
+    }
+
+    .instagram-open-btn {
+      background:
+        linear-gradient(
+          135deg,
+          #833ab4,
+          #fd1d1d,
+          #fcb045
+        );
+      box-shadow: 0 8px 28px rgba(131,58,180,.22);
+    }
+
+    .instagram-open-btn:hover {
+      box-shadow: 0 12px 35px rgba(131,58,180,.35);
+    }
+
+    /* =========================
        ACCOUNT MODAL
     ========================== */
 
@@ -847,6 +917,10 @@
 
       .player-profile-username {
         font-size: 23px;
+      }
+
+      .instagram-username {
+        font-size: 20px;
       }
 
     }
@@ -1231,8 +1305,6 @@
         ادخل إلى حسابك في Galaxy Arena
       </p>
 
-      <!-- USERNAME -->
-
       <div
         id="usernameGroup"
         class="input-group"
@@ -1252,8 +1324,6 @@
 
       </div>
 
-      <!-- EMAIL -->
-
       <div class="input-group">
 
         <label>
@@ -1269,8 +1339,6 @@
 
       </div>
 
-      <!-- PASSWORD -->
-
       <div class="input-group">
 
         <label>
@@ -1285,8 +1353,6 @@
         >
 
       </div>
-
-      <!-- CONFIRM -->
 
       <div
         id="confirmGroup"
@@ -1607,6 +1673,62 @@
 
 
   <!-- =========================
+       INSTAGRAM PURCHASE MODAL
+  ========================== -->
+
+  <div id="instagramPurchaseModal" class="modal">
+
+    <div class="modal-box instagram-box">
+
+      <div class="instagram-icon">
+        📸
+      </div>
+
+      <h2>
+        شراء Galaxy Coins
+      </h2>
+
+      <p class="modal-subtitle">
+        حاليًا شراء Galaxy Coins يتم بشكل يدوي.
+        <br>
+        تواصل معنا عبر Instagram لإتمام عملية الشراء.
+      </p>
+
+      <div class="instagram-username">
+        @itz7yo
+      </div>
+
+      <div class="instagram-note">
+        💬 اضغط على زر فتح Instagram وتواصل معنا،
+        وبعد إتمام الدفع سيتم إضافة Galaxy Coins إلى حسابك.
+      </div>
+
+      <div class="modal-actions">
+
+        <button
+          id="openInstagramBtn"
+          class="instagram-open-btn"
+          type="button"
+        >
+          📸 فتح Instagram
+        </button>
+
+        <button
+          id="closeInstagramPurchase"
+          class="secondary"
+          type="button"
+        >
+          إغلاق
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
        JAVASCRIPT
   ========================== -->
 
@@ -1809,6 +1931,42 @@
         .remove("show");
 
       currentViewedPlayer = null;
+
+    }
+
+
+    /* ==========================================
+       INSTAGRAM PURCHASE
+    ========================================== */
+
+    function openInstagramPurchase() {
+
+      $("#instagramPurchaseModal")
+        .classList
+        .add("show");
+
+    }
+
+
+    function closeInstagramPurchase() {
+
+      $("#instagramPurchaseModal")
+        .classList
+        .remove("show");
+
+    }
+
+
+    function openInstagram() {
+
+      const instagramUrl =
+        "https://www.instagram.com/itz7yo/";
+
+      window.open(
+        instagramUrl,
+        "_blank",
+        "noopener,noreferrer"
+      );
 
     }
 
@@ -2269,110 +2427,19 @@
 
     /* ==========================================
        BUY COINS
+       حالياً: Instagram بدل PayTabs
     ========================================== */
 
-    async function buyCoins() {
+    function buyCoins() {
 
-      if (!currentUser) {
-
-        openLogin();
-
-        return;
-
-      }
-
-      if (!supabaseClient) {
-
-        showError(
-          "تعذر الاتصال بـ Supabase."
-        );
-
-        return;
-
-      }
-
-      try {
-
-        const result =
-          await supabaseClient.rpc(
-            "get_coin_packages"
-          );
-
-        if (result.error) {
-
-          throw result.error;
-
-        }
-
-        const data =
-          result.data || [];
-
-        if (!data.length) {
-
-          alert(
-            "⚠️ لا توجد باقات حالياً."
-          );
-
-          return;
-
-        }
-
-        let text =
-          "🪙 Galaxy Coins\n\n";
-
-        data.forEach(
-          (pkg, index) => {
-
-            text +=
-              `${index + 1}. ${pkg.name}\n` +
-              `🪙 ${Number(pkg.coins).toLocaleString()} Coins\n` +
-              `💵 $${pkg.price_usd}\n\n`;
-
-          }
-        );
-
-        const choice =
-          prompt(
-            text +
-            "اكتب رقم الباقة:"
-          );
-
-        if (choice === null) {
-          return;
-        }
-
-        const index =
-          Number(choice) - 1;
-
-        if (
-          Number.isNaN(index) ||
-          !data[index]
-        ) {
-
-          return;
-
-        }
-
-        await startPayment(
-          data[index]
-        );
-
-      } catch (error) {
-
-        console.error(error);
-
-        showError(
-          error.message ||
-          "تعذر تحميل الباقات."
-        );
-
-      }
+      openInstagramPurchase();
 
     }
 
 
     /* ==========================================
        PAYMENT
+       محفوظ للمستقبل، لكن زر الشراء لا يستخدمه حالياً
     ========================================== */
 
     async function startPayment(pkg) {
@@ -4231,8 +4298,20 @@
       $("#saveNewPassword").onclick =
         saveNewPassword;
 
+
+      /* =========================
+         BUY COINS → INSTAGRAM
+      ========================== */
+
       $("#buyCoinsBtn").onclick =
         buyCoins;
+
+      $("#openInstagramBtn").onclick =
+        openInstagram;
+
+      $("#closeInstagramPurchase").onclick =
+        closeInstagramPurchase;
+
 
       $("#addCoinsAdmin").onclick =
         () =>
@@ -4365,6 +4444,26 @@
             ) {
 
               closePlayerProfile();
+
+            }
+
+          }
+        );
+
+
+      /* إغلاق Instagram */
+
+      $("#instagramPurchaseModal")
+        .addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              $("#instagramPurchaseModal")
+            ) {
+
+              closeInstagramPurchase();
 
             }
 
