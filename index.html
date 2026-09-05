@@ -1,289 +1,1333 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
+<script>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+/* =====================================================
+   SUPABASE
+===================================================== */
 
-  <title>Galaxy Arena</title>
+const SUPABASE_URL =
+"https://nubkrxxreuiqefvjbloj.supabase.co";
 
-  <link
-    rel="stylesheet"
-    href="styles.css"
-  >
+const SUPABASE_KEY =
+"sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
+const supabaseClient =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-<body>
 
-  <!-- NAVBAR -->
-  <header>
+let currentUser = null;
+let currentProfile = null;
+let authMode = "login";
 
-    <nav>
 
-      <div class="logo">
-        🌌 Galaxy Arena
-      </div>
+/* =====================================================
+   ELEMENTS
+===================================================== */
 
-      <div class="nav-links">
+const authModal =
+document.querySelector("#authModal");
 
-        <a href="#home">
-          الرئيسية
-        </a>
+const resetModal =
+document.querySelector("#resetModal");
 
-        <a href="#tournaments">
-          البطولات
-        </a>
+const newPasswordModal =
+document.querySelector("#newPasswordModal");
 
-        <a href="#games">
-          الألعاب
-        </a>
+const authTitle =
+document.querySelector("#authTitle");
 
-        <a href="#store">
-          المتجر
-        </a>
+const authSubtitle =
+document.querySelector("#authSubtitle");
 
-      </div>
+const usernameGroup =
+document.querySelector("#usernameGroup");
 
-      <div class="user-area">
+const confirmGroup =
+document.querySelector("#confirmGroup");
 
-        <span>
-          🪙
-          <span id="coins">0</span>
-        </span>
+const authSubmit =
+document.querySelector("#authSubmit");
 
-        <button
-          id="loginBtn"
-          type="button"
-        >
-          تسجيل الدخول
-        </button>
+const authMessage =
+document.querySelector("#authMessage");
 
-      </div>
 
-    </nav>
+/* =====================================================
+   SPACE STARS
+===================================================== */
 
-  </header>
+function createStars(){
 
+  const space =
+  document.querySelector("#space");
 
-  <!-- HERO -->
-  <main>
+  for(
+    let i=0;
+    i<100;
+    i++
+  ){
 
-    <section
-      id="home"
-      class="hero"
-    >
+    const star =
+    document.createElement("div");
 
-      <p>
-        WELCOME TO
-      </p>
+    star.className =
+    "star";
 
-      <h1>
-        GALAXY ARENA
-      </h1>
+    star.style.left =
+    Math.random()*100 + "%";
 
-      <h2>
-        عالم اللاعبين يبدأ من هنا 🚀
-      </h2>
+    star.style.top =
+    Math.random()*100 + "%";
 
-      <p>
-        شارك بالبطولات، العب ألعابك المفضلة،
-        اجمع Galaxy Coins ونافس اللاعبين حول العالم.
-      </p>
+    star.style.animationDuration =
+    (5 + Math.random()*15) + "s";
 
-      <button
-        id="heroLoginBtn"
-        type="button"
-      >
-        🚀 تسجيل الدخول
-      </button>
+    star.style.animationDelay =
+    (-Math.random()*15) + "s";
 
-    </section>
+    space.appendChild(star);
 
+  }
 
-    <!-- TOURNAMENTS -->
-    <section
-      id="tournaments"
-      class="section"
-    >
+}
 
-      <h2>
-        🏆 البطولات
-      </h2>
 
-      <div class="cards">
+/* =====================================================
+   OPEN LOGIN
+===================================================== */
 
-        <div class="card">
+function openLogin(){
 
-          <h3>
-            Call of Duty
-          </h3>
+  authMode =
+  "login";
 
-          <p>
-            تنافس ضد أفضل اللاعبين.
-          </p>
+  authTitle.textContent =
+  "تسجيل الدخول";
 
-          <button type="button">
-            قريباً
-          </button>
+  authSubtitle.textContent =
+  "ادخل إلى حسابك في Galaxy Arena";
 
-        </div>
+  usernameGroup.style.display =
+  "none";
 
+  confirmGroup.style.display =
+  "none";
 
-        <div class="card">
+  authSubmit.textContent =
+  "🚀 تسجيل الدخول";
 
-          <h3>
-            FC 26
-          </h3>
+  authMessage.textContent =
+  "";
 
-          <p>
-            أثبت أنك أفضل لاعب كرة قدم.
-          </p>
+  document
+  .querySelector("#passwordInput")
+  .setAttribute(
+    "autocomplete",
+    "current-password"
+  );
 
-          <button type="button">
-            قريباً
-          </button>
+  authModal.classList.add("show");
 
-        </div>
+}
 
 
-        <div class="card">
+/* =====================================================
+   OPEN REGISTER
+===================================================== */
 
-          <h3>
-            Fortnite
-          </h3>
+function openRegister(){
 
-          <p>
-            ادخل المنافسة واربح.
-          </p>
+  authMode =
+  "register";
 
-          <button type="button">
-            قريباً
-          </button>
+  authTitle.textContent =
+  "إنشاء حساب";
 
-        </div>
+  authSubtitle.textContent =
+  "انضم إلى عالم Galaxy Arena 🌌";
 
-      </div>
+  usernameGroup.style.display =
+  "block";
 
-    </section>
+  confirmGroup.style.display =
+  "block";
 
+  authSubmit.textContent =
+  "✨ إنشاء الحساب";
 
-    <!-- GAMES -->
-    <section
-      id="games"
-      class="section"
-    >
+  authMessage.textContent =
+  "";
 
-      <h2>
-        🎮 الألعاب
-      </h2>
+  document
+  .querySelector("#passwordInput")
+  .setAttribute(
+    "autocomplete",
+    "new-password"
+  );
 
-      <div class="cards">
+  authModal.classList.add("show");
 
-        <div class="card">
-          <h3>Call of Duty</h3>
-          <p>FPS</p>
-        </div>
+}
 
-        <div class="card">
-          <h3>FC 26</h3>
-          <p>Football</p>
-        </div>
 
-        <div class="card">
-          <h3>Fortnite</h3>
-          <p>Battle Royale</p>
-        </div>
+/* =====================================================
+   CLOSE MODALS
+===================================================== */
 
-      </div>
+function closeAuth(){
 
-    </section>
+  authModal.classList.remove(
+    "show"
+  );
 
+}
 
-    <!-- STORE -->
-    <section
-      id="store"
-      class="section"
-    >
+function closeReset(){
 
-      <h2>
-        🛒 Galaxy Store
-      </h2>
+  resetModal.classList.remove(
+    "show"
+  );
 
-      <div class="cards">
+}
 
-        <div class="card coin-card">
 
-          <h3>
-            🪙 Galaxy Coins
-          </h3>
+/* =====================================================
+   AUTH SUBMIT
+===================================================== */
 
-          <p>
-            اشحن رصيدك وشارك بالبطولات.
-          </p>
+authSubmit.addEventListener(
+"click",
+async function(){
 
-          <button
-            id="buyCoinsBtn"
-            type="button"
-          >
-            شراء Galaxy Coins
-          </button>
+  const email =
+  document
+  .querySelector("#emailInput")
+  .value
+  .trim();
 
-        </div>
+  const password =
+  document
+  .querySelector("#passwordInput")
+  .value;
 
-      </div>
+  if(!email){
 
-    </section>
+    authMessage.textContent =
+    "❌ اكتب الإيميل.";
 
-  </main>
+    return;
 
+  }
 
-  <!-- FOOTER -->
-  <footer>
+  if(!password){
 
-    <p>
-      © 2026 Galaxy Arena
-    </p>
+    authMessage.textContent =
+    "❌ اكتب كلمة المرور.";
 
-    <p>
-      Built for gamers 🌌
-    </p>
+    return;
 
-  </footer>
+  }
 
 
-  <script src="app.js"></script>
+  authSubmit.disabled =
+  true;
 
-  <script>
+  authSubmit.textContent =
+  "⏳ جاري المعالجة...";
 
-    /*
-      زر الدخول الموجود بالـ Hero
-      يستخدم نفس وظيفة تسجيل الدخول.
-    */
 
-    const heroLoginBtn =
-      document.querySelector("#heroLoginBtn");
+  try{
 
-    if (heroLoginBtn) {
 
-      heroLoginBtn.addEventListener(
-        "click",
-        () => {
+    if(authMode === "login"){
 
-          if (typeof login === "function") {
-            login();
+      const {
+        data,
+        error
+      } =
+      await supabaseClient.auth
+      .signInWithPassword({
+
+        email:email,
+
+        password:password
+
+      });
+
+
+      if(error)
+      throw error;
+
+
+      currentUser =
+      data.user;
+
+      await loadProfile();
+
+      closeAuth();
+
+      updateUI();
+
+      await createAdminPanel();
+
+
+      alert(
+        "✅ تم تسجيل الدخول بنجاح!"
+      );
+
+
+    }
+
+
+    else{
+
+
+      const username =
+      document
+      .querySelector("#usernameInput")
+      .value
+      .trim();
+
+      const confirmPassword =
+      document
+      .querySelector("#confirmPasswordInput")
+      .value;
+
+
+      if(!username){
+
+        throw new Error(
+          "اكتب اسم المستخدم."
+        );
+
+      }
+
+
+      if(password.length < 6){
+
+        throw new Error(
+          "كلمة المرور يجب أن تكون 6 أحرف أو أكثر."
+        );
+
+      }
+
+
+      if(password !== confirmPassword){
+
+        throw new Error(
+          "كلمتا المرور غير متطابقتين."
+        );
+
+      }
+
+
+      const {
+        data,
+        error
+      } =
+      await supabaseClient.auth
+      .signUp({
+
+        email:email,
+
+        password:password,
+
+        options:{
+
+          data:{
+
+            username:username
+
           }
 
         }
+
+      });
+
+
+      if(error)
+      throw error;
+
+
+      currentUser =
+      data.user;
+
+
+      if(currentUser){
+
+        await loadProfile();
+
+      }
+
+
+      closeAuth();
+
+      updateUI();
+
+      await createAdminPanel();
+
+
+      alert(
+        "🎉 تم إنشاء الحساب بنجاح!\n\nأهلاً بك في Galaxy Arena 🚀"
       );
 
     }
 
-  </script>
+  }
 
-</body>
-</html>
+  catch(error){
+
+    console.error(
+      "AUTH ERROR:",
+      error
+    );
+
+    authMessage.textContent =
+    "❌ " +
+    (
+      error.message ||
+      "حدث خطأ"
+    );
+
+  }
+
+
+  authSubmit.disabled =
+  false;
+
+  authSubmit.textContent =
+  authMode === "login"
+  ? "🚀 تسجيل الدخول"
+  : "✨ إنشاء الحساب";
+
+});
+
+
+/* =====================================================
+   LOAD PROFILE
+===================================================== */
+
+async function loadProfile(){
+
+  if(!currentUser)
+  return;
+
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient.rpc(
+    "get_my_profile"
+  );
+
+
+  if(error){
+
+    console.error(
+      "PROFILE ERROR:",
+      error
+    );
+
+    return;
+
+  }
+
+
+  currentProfile =
+  Array.isArray(data)
+  ? data[0]
+  : data;
+
+
+  updateCoins();
+
+}
+
+
+/* =====================================================
+   UPDATE COINS
+===================================================== */
+
+function updateCoins(){
+
+  const coins =
+  document.querySelector("#coins");
+
+  if(!coins)
+  return;
+
+
+  coins.textContent =
+  Number(
+    currentProfile
+    ?.galaxy_coins ?? 0
+  ).toLocaleString();
+
+}
+
+
+/* =====================================================
+   UPDATE UI
+===================================================== */
+
+function updateUI(){
+
+  updateCoins();
+
+
+  const loginBtn =
+  document.querySelector("#loginBtn");
+
+  const heroBtn =
+  document.querySelector("#heroLoginBtn");
+
+
+  if(currentUser){
+
+    loginBtn.textContent =
+    "تسجيل الخروج";
+
+    loginBtn.onclick =
+    logout;
+
+
+    heroBtn.textContent =
+    "👤 حسابي";
+
+    heroBtn.onclick =
+    showAccount;
+
+  }
+
+  else{
+
+    loginBtn.textContent =
+    "تسجيل الدخول";
+
+    loginBtn.onclick =
+    openLogin;
+
+
+    heroBtn.textContent =
+    "🚀 تسجيل الدخول";
+
+    heroBtn.onclick =
+    openLogin;
+
+  }
+
+}
+
+
+/* =====================================================
+   ACCOUNT
+===================================================== */
+
+function showAccount(){
+
+  alert(
+
+    "👤 حساب Galaxy Arena\n\n" +
+
+    "📧 الإيميل:\n" +
+    (
+      currentUser?.email ||
+      ""
+    ) +
+
+    "\n\n" +
+
+    "🪙 Galaxy Coins:\n" +
+    Number(
+      currentProfile
+      ?.galaxy_coins ?? 0
+    ).toLocaleString()
+
+  );
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+  currentUser =
+  null;
+
+  currentProfile =
+  null;
+
+  document
+  .querySelector("#adminPanel")
+  .style.display =
+  "none";
+
+  updateUI();
+
+  alert(
+    "👋 تم تسجيل الخروج."
+  );
+
+}
+
+
+/* =====================================================
+   ADMIN CHECK
+===================================================== */
+
+async function checkAdmin(){
+
+  if(!currentUser)
+  return false;
+
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient.rpc(
+    "is_admin"
+  );
+
+
+  if(error){
+
+    console.error(
+      "ADMIN ERROR:",
+      error
+    );
+
+    return false;
+
+  }
+
+
+  return data === true;
+
+}
+
+
+/* =====================================================
+   ADMIN PANEL
+===================================================== */
+
+async function createAdminPanel(){
+
+  const admin =
+  await checkAdmin();
+
+
+  const panel =
+  document.querySelector(
+    "#adminPanel"
+  );
+
+
+  if(!panel)
+  return;
+
+
+  panel.style.display =
+  admin
+  ? "block"
+  : "none";
+
+}
+
+
+/* =====================================================
+   CHANGE COINS
+===================================================== */
+
+async function changeCoins(
+  action
+){
+
+  const username =
+  document
+  .querySelector("#adminUsername")
+  .value
+  .trim();
+
+  const amount =
+  Number(
+    document
+    .querySelector("#adminAmount")
+    .value
+  );
+
+
+  if(!username){
+
+    alert(
+      "❌ اكتب Username."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !amount ||
+    amount <= 0
+  ){
+
+    alert(
+      "❌ اكتب كمية صحيحة."
+    );
+
+    return;
+
+  }
+
+
+  const functionName =
+  action === "add"
+  ? "admin_add_coins"
+  : "admin_remove_coins";
+
+
+  const {
+    error
+  } =
+  await supabaseClient.rpc(
+
+    functionName,
+
+    {
+
+      receiver_username:
+      username,
+
+      amount:
+      amount
+
+    }
+
+  );
+
+
+  if(error){
+
+    alert(
+      "❌ فشلت العملية:\n\n" +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  alert(
+    action === "add"
+    ? "✅ تمت إضافة Coins."
+    : "✅ تمت إزالة Coins."
+  );
+
+
+}
+
+
+/* =====================================================
+   BUY COINS
+===================================================== */
+
+async function buyCoins(){
+
+  if(!currentUser){
+
+    openLogin();
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient.rpc(
+    "get_coin_packages"
+  );
+
+
+  if(error){
+
+    alert(
+      "❌ تعذر تحميل الباقات:\n\n" +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !data ||
+    data.length === 0
+  ){
+
+    alert(
+      "⚠️ لا توجد باقات حالياً."
+    );
+
+    return;
+
+  }
+
+
+  let text =
+  "🪙 Galaxy Coins\n\n";
+
+
+  data.forEach(
+    (pkg,index)=>{
+
+      text +=
+
+      `${index+1}. ${pkg.name}\n` +
+
+      `🪙 ${Number(pkg.coins).toLocaleString()} Coins\n` +
+
+      `💵 $${pkg.price_usd}\n\n`;
+
+    }
+  );
+
+
+  const choice =
+  prompt(
+    text +
+    "اكتب رقم الباقة:"
+  );
+
+
+  const index =
+  Number(choice) - 1;
+
+
+  if(
+    Number.isNaN(index) ||
+    !data[index]
+  )
+  return;
+
+
+  await startPayment(
+    data[index]
+  );
+
+}
+
+
+/* =====================================================
+   PAYMENT
+===================================================== */
+
+async function startPayment(
+  pkg
+){
+
+  alert(
+    "⏳ جاري تجهيز عملية الدفع..."
+  );
+
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+  .functions
+  .invoke(
+
+    "quick-service",
+
+    {
+
+      body:{
+
+        package_id:
+        pkg.id
+
+      }
+
+    }
+
+  );
+
+
+  if(error){
+
+    alert(
+      "❌ خطأ بالدفع:\n\n" +
+      error.message
+    );
+
+    return;
+
+  }
+
+
+  if(data?.redirect_url){
+
+    window.location.href =
+    data.redirect_url;
+
+    return;
+
+  }
+
+
+  alert(
+    "⚠️ لم يتم استلام رابط الدفع."
+  );
+
+}
+
+
+/* =====================================================
+   FORGOT PASSWORD
+===================================================== */
+
+document
+.querySelector("#forgotLink")
+.addEventListener(
+"click",
+()=>{
+
+  closeAuth();
+
+  document
+  .querySelector("#resetEmail")
+  .value =
+  document
+  .querySelector("#emailInput")
+  .value
+  .trim();
+
+  document
+  .querySelector("#resetMessage")
+  .textContent =
+  "";
+
+  resetModal.classList.add(
+    "show"
+  );
+
+});
+
+
+/* =====================================================
+   SEND RESET
+===================================================== */
+
+document
+.querySelector("#sendReset")
+.addEventListener(
+"click",
+async ()=>{
+
+  const email =
+  document
+  .querySelector("#resetEmail")
+  .value
+  .trim();
+
+  const message =
+  document
+  .querySelector("#resetMessage");
+
+
+  if(!email){
+
+    message.textContent =
+    "❌ اكتب الإيميل.";
+
+    return;
+
+  }
+
+
+  const button =
+  document
+  .querySelector("#sendReset");
+
+
+  button.disabled =
+  true;
+
+  button.textContent =
+  "⏳ جاري الإرسال...";
+
+
+  try{
+
+    const {
+      error
+    } =
+    await supabaseClient.auth
+    .resetPasswordForEmail(
+
+      email,
+
+      {
+
+        redirectTo:
+        window.location.origin +
+        window.location.pathname
+
+      }
+
+    );
+
+
+    if(error)
+    throw error;
+
+
+    message.textContent =
+    "✅ إذا كان الحساب موجوداً، تم إرسال رابط إعادة التعيين إلى الإيميل.";
+
+  }
+
+  catch(error){
+
+    message.textContent =
+    "❌ " +
+    error.message;
+
+  }
+
+
+  button.disabled =
+  false;
+
+  button.textContent =
+  "📨 إرسال الرابط";
+
+});
+
+
+/* =====================================================
+   PASSWORD RECOVERY
+===================================================== */
+
+supabaseClient.auth
+.onAuthStateChange(
+async(
+  event,
+  session
+)=>{
+
+  if(
+    event ===
+    "PASSWORD_RECOVERY"
+  ){
+
+    newPasswordModal
+    .classList
+    .add("show");
+
+  }
+
+
+  if(session){
+
+    currentUser =
+    session.user;
+
+    await loadProfile();
+
+    updateUI();
+
+    await createAdminPanel();
+
+  }
+
+});
+
+
+/* =====================================================
+   SAVE NEW PASSWORD
+===================================================== */
+
+document
+.querySelector("#saveNewPassword")
+.addEventListener(
+"click",
+async ()=>{
+
+  const password =
+  document
+  .querySelector("#newPassword")
+  .value;
+
+  const confirm =
+  document
+  .querySelector("#newPasswordConfirm")
+  .value;
+
+  const message =
+  document
+  .querySelector("#newPasswordMessage");
+
+
+  if(password.length < 6){
+
+    message.textContent =
+    "❌ كلمة المرور يجب أن تكون 6 أحرف أو أكثر.";
+
+    return;
+
+  }
+
+
+  if(password !== confirm){
+
+    message.textContent =
+    "❌ كلمتا المرور غير متطابقتين.";
+
+    return;
+
+  }
+
+
+  const button =
+  document
+  .querySelector("#saveNewPassword");
+
+
+  button.disabled =
+  true;
+
+  button.textContent =
+  "⏳ جاري الحفظ...";
+
+
+  try{
+
+    const {
+      error
+    } =
+    await supabaseClient.auth
+    .updateUser({
+
+      password:
+      password
+
+    });
+
+
+    if(error)
+    throw error;
+
+
+    message.textContent =
+    "✅ تم تغيير كلمة المرور بنجاح!";
+
+
+    setTimeout(
+      ()=>{
+
+        newPasswordModal
+        .classList
+        .remove("show");
+
+        window.location.href =
+        window.location.origin +
+        window.location.pathname;
+
+      },
+      1500
+    );
+
+  }
+
+  catch(error){
+
+    message.textContent =
+    "❌ " +
+    error.message;
+
+  }
+
+
+  button.disabled =
+  false;
+
+  button.textContent =
+  "🔐 حفظ";
+
+});
+
+
+/* =====================================================
+   BUTTON EVENTS
+===================================================== */
+
+document
+.querySelector("#closeModal")
+.addEventListener(
+"click",
+closeAuth
+);
+
+
+document
+.querySelector("#closeReset")
+.addEventListener(
+"click",
+closeReset
+);
+
+
+document
+.querySelector("#switchAuth")
+.addEventListener(
+"click",
+()=>{
+
+  if(
+    authMode ===
+    "login"
+  ){
+
+    openRegister();
+
+  }
+
+  else{
+
+    openLogin();
+
+  }
+
+});
+
+
+document
+.querySelector("#buyCoinsBtn")
+.addEventListener(
+"click",
+buyCoins
+);
+
+
+document
+.querySelector("#addCoinsAdmin")
+.addEventListener(
+"click",
+()=>{
+
+  changeCoins("add");
+
+});
+
+
+document
+.querySelector("#removeCoinsAdmin")
+.addEventListener(
+"click",
+()=>{
+
+  changeCoins("remove");
+
+});
+
+
+/* =====================================================
+   CLOSE MODAL ON BACKDROP
+===================================================== */
+
+authModal.addEventListener(
+"click",
+event=>{
+
+  if(
+    event.target ===
+    authModal
+  ){
+
+    closeAuth();
+
+  }
+
+});
+
+
+resetModal.addEventListener(
+"click",
+event=>{
+
+  if(
+    event.target ===
+    resetModal
+  ){
+
+    closeReset();
+
+  }
+
+});
+
+
+/* =====================================================
+   START
+===================================================== */
+
+async function startApp(){
+
+  createStars();
+
+
+  const {
+    data
+  } =
+  await supabaseClient
+  .auth
+  .getSession();
+
+
+  currentUser =
+  data.session
+  ? data.session.user
+  : null;
+
+
+  if(currentUser){
+
+    await loadProfile();
+
+    await createAdminPanel();
+
+  }
+
+
+  updateUI();
+
+}
+
+
+/* =====================================================
+   RUN
+===================================================== */
+
+document.addEventListener(
+"DOMContentLoaded",
+startApp
+);
+
+</script>
