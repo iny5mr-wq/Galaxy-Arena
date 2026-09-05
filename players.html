@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Galaxy Arena - Players</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body {
+
+    font-family: Arial, sans-serif;
+
+    background:
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(90, 80, 255, .15),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(170, 70, 255, .12),
+            transparent 35%
+        ),
+        #050817;
+
+    color: white;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================
+   STARS
+========================= */
+
+#stars {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 0;
+
+    pointer-events: none;
+
+    overflow: hidden;
+}
+
+.star {
+
+    position: absolute;
+
+    width: 2px;
+
+    height: 2px;
+
+    background: white;
+
+    border-radius: 50%;
+
+    opacity: .7;
+
+    animation:
+        twinkle 3s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+
+    0% {
+        opacity: .15;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: .15;
+    }
+
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+.container {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: min(1100px, 92%);
+
+    margin: auto;
+
+    padding:
+        25px
+        0
+        60px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 18px 22px;
+
+    margin-bottom: 25px;
+
+    border-radius: 20px;
+
+    border:
+        1px solid
+        rgba(130, 150, 255, .25);
+
+    background:
+        rgba(10, 16, 40, .78);
+
+    backdrop-filter: blur(15px);
+
+    box-shadow:
+        0 15px 50px
+        rgba(0,0,0,.25);
+}
+
+.logo {
+
+    font-size: 25px;
+
+    font-weight: 900;
+}
+
+.logo span {
+
+    color: #7c8cff;
+}
+
+.back {
+
+    text-decoration: none;
+
+    color: white;
+
+    padding:
+        10px
+        15px;
+
+    border-radius: 12px;
+
+    background:
+        rgba(124, 140, 255, .15);
+
+    transition: .2s;
+}
+
+.back:hover {
+
+    background:
+        rgba(124, 140, 255, .28);
+
+    transform:
+        translateY(-2px);
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+
+    text-align: center;
+
+    padding:
+        30px
+        15px
+        35px;
+}
+
+.hero h1 {
+
+    font-size:
+        clamp(32px, 7vw, 58px);
+
+    margin:
+        0
+        0
+        12px;
+
+    font-weight: 900;
+}
+
+.hero h1 span {
+
+    color: #8b7cff;
+}
+
+.hero p {
+
+    color: #aab4d8;
+
+    font-size: 16px;
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+.search-box {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-bottom: 25px;
+}
+
+.search-box input {
+
+    flex: 1;
+
+    padding: 16px;
+
+    border-radius: 14px;
+
+    border:
+        1px solid
+        rgba(150,170,255,.25);
+
+    background:
+        rgba(255,255,255,.06);
+
+    color: white;
+
+    outline: none;
+
+    font-size: 16px;
+}
+
+.search-box input::placeholder {
+
+    color: #818bac;
+}
+
+.search-box button {
+
+    border: none;
+
+    border-radius: 14px;
+
+    padding:
+        0
+        22px;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6575ff,
+            #9b5cff
+        );
+
+    transition: .2s;
+}
+
+.search-box button:hover {
+
+    transform:
+        translateY(-2px);
+
+    filter:
+        brightness(1.1);
+}
+
+
+/* =========================
+   SECTION
+========================= */
+
+.section {
+
+    margin-top: 20px;
+}
+
+.section-title {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 15px;
+}
+
+.section-title h2 {
+
+    margin: 0;
+
+    font-size: 24px;
+}
+
+.count {
+
+    color: #8993b8;
+
+    font-size: 14px;
+}
+
+
+/* =========================
+   PLAYERS GRID
+========================= */
+
+.players-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(230px, 1fr)
+        );
+
+    gap: 15px;
+}
+
+
+/* =========================
+   PLAYER CARD
+========================= */
+
+.player-card {
+
+    position: relative;
+
+    padding: 20px;
+
+    border-radius: 20px;
+
+    border:
+        1px solid
+        rgba(120,150,255,.22);
+
+    background:
+        rgba(10,16,40,.75);
+
+    backdrop-filter:
+        blur(15px);
+
+    transition:
+        transform .2s,
+        border .2s;
+
+    overflow: hidden;
+}
+
+.player-card:hover {
+
+    transform:
+        translateY(-5px);
+
+    border-color:
+        rgba(140,160,255,.5);
+}
+
+.player-avatar {
+
+    width: 65px;
+
+    height: 65px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 15px;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6575ff,
+            #9b5cff
+        );
+
+    font-size: 28px;
+
+    font-weight: 900;
+}
+
+.username {
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+    margin-bottom: 8px;
+
+    word-break: break-word;
+}
+
+.rank {
+
+    display: inline-block;
+
+    padding:
+        6px
+        10px;
+
+    border-radius: 50px;
+
+    background:
+        rgba(255,255,255,.07);
+
+    color: #c7cff5;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+.player-number {
+
+    position: absolute;
+
+    top: 15px;
+
+    left: 15px;
+
+    color: #69749d;
+
+    font-size: 13px;
+}
+
+
+/* =========================
+   EMPTY / LOADING
+========================= */
+
+.message {
+
+    padding: 30px;
+
+    text-align: center;
+
+    border-radius: 18px;
+
+    background:
+        rgba(255,255,255,.04);
+
+    color: #9da7cb;
+}
+
+.error {
+
+    color: #ff7887;
+}
+
+.loading {
+
+    color: #a8b1ff;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:650px) {
+
+    .header {
+
+        flex-direction: column;
+
+        text-align: center;
+    }
+
+    .search-box {
+
+        flex-direction: column;
+    }
+
+    .search-box button {
+
+        padding: 15px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="stars"></div>
+
+
+<div class="container">
+
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="logo">
+
+            🌌
+            <span>Galaxy Arena</span>
+
+        </div>
+
+
+        <a
+            href="index.html"
+            class="back"
+        >
+
+            ← الموقع الرئيسي
+
+        </a>
+
+    </div>
+
+
+
+    <!-- HERO -->
+
+    <div class="hero">
+
+        <h1>
+
+            🎮
+            <span>Players</span>
+
+        </h1>
+
+        <p>
+
+            اكتشف لاعبين Galaxy Arena
+            وتعرّف على مجتمع اللاعبين.
+
+        </p>
+
+    </div>
+
+
+
+    <!-- SEARCH -->
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="🔎 ابحث عن Username..."
+        >
+
+        <button
+            onclick="searchPlayers()"
+        >
+
+            بحث
+
+        </button>
+
+    </div>
+
+
+
+    <!-- PLAYERS -->
+
+    <div class="section">
+
+        <div class="section-title">
+
+            <h2>
+                👥 اللاعبين
+            </h2>
+
+            <span
+                class="count"
+                id="playerCount"
+            >
+                جاري التحميل...
+            </span>
+
+        </div>
+
+
+        <div
+            id="playersGrid"
+            class="players-grid"
+        >
+
+            <div class="message loading">
+
+                🔄 جاري تحميل اللاعبين...
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+
+<script>
+
+
+// ===============================
+// SUPABASE
+// ===============================
+
+const SUPABASE_URL =
+    "https://nubkrxxreuiqefvjbloj.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+
+// ===============================
+// STARS
+// ===============================
+
+const stars =
+    document.getElementById("stars");
+
+
+for (
+    let i = 0;
+    i < 180;
+    i++
+) {
+
+    const star =
+        document.createElement("div");
+
+    star.className = "star";
+
+    star.style.left =
+        Math.random() * 100 + "%";
+
+    star.style.top =
+        Math.random() * 100 + "%";
+
+    star.style.animationDelay =
+        Math.random() * 3 + "s";
+
+    stars.appendChild(star);
+
+}
+
+
+
+// ===============================
+// LOAD PLAYERS
+// ===============================
+
+async function loadPlayers(
+    search = ""
+) {
+
+    const grid =
+        document.getElementById(
+            "playersGrid"
+        );
+
+    const count =
+        document.getElementById(
+            "playerCount"
+        );
+
+
+    grid.innerHTML = `
+        <div class="message loading">
+            🔄 جاري تحميل اللاعبين...
+        </div>
+    `;
+
+
+    let query =
+        supabaseClient
+            .from("profiles")
+            .select(
+                "username, rank, avatar_url"
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            )
+            .limit(100);
+
+
+    if (search) {
+
+        query =
+            query.ilike(
+                "username",
+                `%${search}%`
+            );
+
+    }
+
+
+    const {
+        data,
+        error
+    } = await query;
+
+
+    if (error) {
+
+        console.error(error);
+
+
+        count.textContent =
+            "خطأ";
+
+
+        grid.innerHTML = `
+            <div class="message error">
+
+                ❌ ما قدرنا نحمل اللاعبين.
+
+                <br><br>
+
+                غالبًا يحتاج جدول
+                profiles
+                سياسة قراءة عامة.
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (!data || data.length === 0) {
+
+        count.textContent =
+            "0 لاعب";
+
+
+        grid.innerHTML = `
+            <div class="message">
+
+                👻 ماكو لاعبين مطابقين للبحث.
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    count.textContent =
+        `${data.length} لاعب`;
+
+
+    grid.innerHTML = "";
+
+
+    data.forEach(
+        (player, index) => {
+
+            const card =
+                document.createElement(
+                    "div"
+                );
+
+            card.className =
+                "player-card";
+
+
+            const initial =
+                player.username
+                    ? player.username
+                        .charAt(0)
+                        .toUpperCase()
+                    : "?";
+
+
+            card.innerHTML = `
+
+                <div
+                    class="player-number"
+                >
+
+                    #${index + 1}
+
+                </div>
+
+
+                <div
+                    class="player-avatar"
+                >
+
+                    ${escapeHtml(initial)}
+
+                </div>
+
+
+                <div
+                    class="username"
+                >
+
+                    ${escapeHtml(
+                        player.username
+                        || "Player"
+                    )}
+
+                </div>
+
+
+                <span
+                    class="rank"
+                >
+
+                    🏆
+                    ${escapeHtml(
+                        player.rank
+                        || "BRONZE"
+                    )}
+
+                </span>
+
+            `;
+
+
+            grid.appendChild(card);
+
+        }
+    );
+
+}
+
+
+
+// ===============================
+// SEARCH
+// ===============================
+
+function searchPlayers() {
+
+    const input =
+        document.getElementById(
+            "searchInput"
+        );
+
+    const value =
+        input.value.trim();
+
+
+    loadPlayers(value);
+
+}
+
+
+
+// ===============================
+// ENTER KEY
+// ===============================
+
+document
+    .getElementById("searchInput")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                searchPlayers();
+
+            }
+
+        }
+    );
+
+
+
+// ===============================
+// ESCAPE HTML
+// ===============================
+
+function escapeHtml(value) {
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+
+// ===============================
+// START
+// ===============================
+
+loadPlayers();
+
+</script>
+
+
+</body>
+
+</html>
