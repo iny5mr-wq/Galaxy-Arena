@@ -2,13 +2,8 @@
 <html lang="ar" dir="rtl">
 
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Galaxy Arena - Players</title>
 
@@ -16,720 +11,471 @@
 
 <style>
 
-* {
-    box-sizing: border-box;
+*{
+    box-sizing:border-box;
 }
 
-html,
-body {
-    margin: 0;
-    padding: 0;
-    min-height: 100%;
+html,body{
+    margin:0;
+    padding:0;
+    min-height:100%;
 }
 
-body {
-
-    font-family: Arial, sans-serif;
-
+body{
+    font-family:Arial,sans-serif;
     background:
-        radial-gradient(
-            circle at 20% 20%,
-            rgba(90, 80, 255, .15),
-            transparent 35%
-        ),
-        radial-gradient(
-            circle at 80% 80%,
-            rgba(170, 70, 255, .12),
-            transparent 35%
-        ),
+        radial-gradient(circle at 20% 20%,rgba(90,80,255,.18),transparent 35%),
+        radial-gradient(circle at 80% 80%,rgba(170,70,255,.14),transparent 35%),
         #050817;
+    color:white;
+    overflow-x:hidden;
+}
 
-    color: white;
+#stars{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+}
 
-    overflow-x: hidden;
+.star{
+    position:absolute;
+    width:2px;
+    height:2px;
+    background:white;
+    border-radius:50%;
+    opacity:.7;
+    animation:twinkle 3s infinite ease-in-out;
+}
+
+@keyframes twinkle{
+    0%,100%{opacity:.15}
+    50%{opacity:1}
+}
+
+.container{
+    position:relative;
+    z-index:2;
+    width:min(1100px,92%);
+    margin:auto;
+    padding:25px 0 70px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 22px;
+    border:1px solid rgba(130,150,255,.25);
+    border-radius:20px;
+    background:rgba(10,16,40,.78);
+    backdrop-filter:blur(15px);
+    margin-bottom:30px;
+}
+
+.logo{
+    font-size:25px;
+    font-weight:900;
+}
+
+.logo span{
+    color:#7c8cff;
+}
+
+.back{
+    color:white;
+    text-decoration:none;
+    padding:10px 15px;
+    border-radius:12px;
+    background:rgba(124,140,255,.15);
+}
+
+.hero{
+    text-align:center;
+    padding:20px 10px 35px;
+}
+
+.hero h1{
+    font-size:clamp(35px,7vw,60px);
+    margin:0 0 12px;
+    font-weight:900;
+}
+
+.hero h1 span{
+    color:#8b7cff;
+}
+
+.hero p{
+    color:#aab4d8;
+}
+
+.search{
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+.search input{
+    flex:1;
+    padding:16px;
+    border-radius:14px;
+    border:1px solid rgba(150,170,255,.25);
+    background:rgba(255,255,255,.06);
+    color:white;
+    outline:none;
+    font-size:16px;
+}
+
+.search input::placeholder{
+    color:#7f89ad;
+}
+
+.search button{
+    border:0;
+    border-radius:14px;
+    padding:0 25px;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    background:linear-gradient(135deg,#6575ff,#9b5cff);
+}
+
+.info{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.info h2{
+    margin:0;
+}
+
+.count{
+    color:#8993b8;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:16px;
+}
+
+.player{
+    position:relative;
+    padding:22px;
+    border-radius:22px;
+    border:1px solid rgba(120,150,255,.22);
+    background:rgba(10,16,40,.78);
+    backdrop-filter:blur(15px);
+    cursor:pointer;
+    transition:.25s;
+}
+
+.player:hover{
+    transform:translateY(-6px);
+    border-color:rgba(150,170,255,.55);
+}
+
+.avatar{
+    width:70px;
+    height:70px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    border-radius:50%;
+    margin-bottom:15px;
+    font-size:28px;
+    font-weight:900;
+    background:linear-gradient(135deg,#6575ff,#9b5cff);
+}
+
+.username{
+    font-size:20px;
+    font-weight:900;
+    margin-bottom:10px;
+    word-break:break-word;
+}
+
+.rank{
+    display:inline-block;
+    padding:7px 12px;
+    border-radius:50px;
+    background:rgba(255,255,255,.07);
+    color:#ccd3f5;
+    font-size:13px;
+    font-weight:bold;
+}
+
+.number{
+    position:absolute;
+    left:15px;
+    top:15px;
+    color:#69749d;
+    font-size:13px;
+}
+
+.message{
+    padding:30px;
+    text-align:center;
+    border-radius:18px;
+    background:rgba(255,255,255,.04);
+    color:#a4aed0;
+}
+
+.error{
+    color:#ff7887;
+}
+
+.loading{
+    color:#a8b1ff;
 }
 
 
-/* =========================
-   STARS
-========================= */
+/* PROFILE */
 
-#stars {
-
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 0;
-
-    pointer-events: none;
-
-    overflow: hidden;
+.profile{
+    display:none;
+    margin-top:25px;
+    padding:30px;
+    text-align:center;
+    border-radius:25px;
+    border:1px solid rgba(130,150,255,.3);
+    background:rgba(10,16,40,.85);
+    backdrop-filter:blur(20px);
 }
 
-.star {
-
-    position: absolute;
-
-    width: 2px;
-
-    height: 2px;
-
-    background: white;
-
-    border-radius: 50%;
-
-    opacity: .7;
-
-    animation:
-        twinkle 3s infinite ease-in-out;
+.profile.show{
+    display:block;
 }
 
-@keyframes twinkle {
+.profile-avatar{
+    width:100px;
+    height:100px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:0 auto 15px;
+    border-radius:50%;
+    font-size:40px;
+    font-weight:900;
+    background:linear-gradient(135deg,#6575ff,#9b5cff);
+}
 
-    0% {
-        opacity: .15;
+.profile h2{
+    margin:10px 0;
+    font-size:28px;
+}
+
+.profile-rank{
+    display:inline-block;
+    padding:8px 15px;
+    border-radius:50px;
+    background:rgba(255,255,255,.08);
+    color:#ccd3f5;
+}
+
+.close-profile{
+    margin-top:20px;
+    border:0;
+    padding:12px 20px;
+    border-radius:12px;
+    background:rgba(255,255,255,.08);
+    color:white;
+    cursor:pointer;
+}
+
+@media(max-width:650px){
+
+    .header{
+        flex-direction:column;
+        gap:15px;
+        text-align:center;
     }
 
-    50% {
-        opacity: 1;
+    .search{
+        flex-direction:column;
     }
 
-    100% {
-        opacity: .15;
-    }
-
-}
-
-
-/* =========================
-   MAIN
-========================= */
-
-.container {
-
-    position: relative;
-
-    z-index: 2;
-
-    width: min(1100px, 92%);
-
-    margin: auto;
-
-    padding:
-        25px
-        0
-        60px;
-}
-
-
-/* =========================
-   HEADER
-========================= */
-
-.header {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 15px;
-
-    padding: 18px 22px;
-
-    margin-bottom: 25px;
-
-    border-radius: 20px;
-
-    border:
-        1px solid
-        rgba(130, 150, 255, .25);
-
-    background:
-        rgba(10, 16, 40, .78);
-
-    backdrop-filter: blur(15px);
-
-    box-shadow:
-        0 15px 50px
-        rgba(0,0,0,.25);
-}
-
-.logo {
-
-    font-size: 25px;
-
-    font-weight: 900;
-}
-
-.logo span {
-
-    color: #7c8cff;
-}
-
-.back {
-
-    text-decoration: none;
-
-    color: white;
-
-    padding:
-        10px
-        15px;
-
-    border-radius: 12px;
-
-    background:
-        rgba(124, 140, 255, .15);
-
-    transition: .2s;
-}
-
-.back:hover {
-
-    background:
-        rgba(124, 140, 255, .28);
-
-    transform:
-        translateY(-2px);
-}
-
-
-/* =========================
-   HERO
-========================= */
-
-.hero {
-
-    text-align: center;
-
-    padding:
-        30px
-        15px
-        35px;
-}
-
-.hero h1 {
-
-    font-size:
-        clamp(32px, 7vw, 58px);
-
-    margin:
-        0
-        0
-        12px;
-
-    font-weight: 900;
-}
-
-.hero h1 span {
-
-    color: #8b7cff;
-}
-
-.hero p {
-
-    color: #aab4d8;
-
-    font-size: 16px;
-}
-
-
-/* =========================
-   SEARCH
-========================= */
-
-.search-box {
-
-    display: flex;
-
-    gap: 10px;
-
-    margin-bottom: 25px;
-}
-
-.search-box input {
-
-    flex: 1;
-
-    padding: 16px;
-
-    border-radius: 14px;
-
-    border:
-        1px solid
-        rgba(150,170,255,.25);
-
-    background:
-        rgba(255,255,255,.06);
-
-    color: white;
-
-    outline: none;
-
-    font-size: 16px;
-}
-
-.search-box input::placeholder {
-
-    color: #818bac;
-}
-
-.search-box button {
-
-    border: none;
-
-    border-radius: 14px;
-
-    padding:
-        0
-        22px;
-
-    color: white;
-
-    font-weight: bold;
-
-    cursor: pointer;
-
-    background:
-        linear-gradient(
-            135deg,
-            #6575ff,
-            #9b5cff
-        );
-
-    transition: .2s;
-}
-
-.search-box button:hover {
-
-    transform:
-        translateY(-2px);
-
-    filter:
-        brightness(1.1);
-}
-
-
-/* =========================
-   SECTION
-========================= */
-
-.section {
-
-    margin-top: 20px;
-}
-
-.section-title {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 15px;
-}
-
-.section-title h2 {
-
-    margin: 0;
-
-    font-size: 24px;
-}
-
-.count {
-
-    color: #8993b8;
-
-    font-size: 14px;
-}
-
-
-/* =========================
-   PLAYERS GRID
-========================= */
-
-.players-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(230px, 1fr)
-        );
-
-    gap: 15px;
-}
-
-
-/* =========================
-   PLAYER CARD
-========================= */
-
-.player-card {
-
-    position: relative;
-
-    padding: 20px;
-
-    border-radius: 20px;
-
-    border:
-        1px solid
-        rgba(120,150,255,.22);
-
-    background:
-        rgba(10,16,40,.75);
-
-    backdrop-filter:
-        blur(15px);
-
-    transition:
-        transform .2s,
-        border .2s;
-
-    overflow: hidden;
-}
-
-.player-card:hover {
-
-    transform:
-        translateY(-5px);
-
-    border-color:
-        rgba(140,160,255,.5);
-}
-
-.player-avatar {
-
-    width: 65px;
-
-    height: 65px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    margin-bottom: 15px;
-
-    border-radius: 50%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #6575ff,
-            #9b5cff
-        );
-
-    font-size: 28px;
-
-    font-weight: 900;
-}
-
-.username {
-
-    font-size: 20px;
-
-    font-weight: 900;
-
-    margin-bottom: 8px;
-
-    word-break: break-word;
-}
-
-.rank {
-
-    display: inline-block;
-
-    padding:
-        6px
-        10px;
-
-    border-radius: 50px;
-
-    background:
-        rgba(255,255,255,.07);
-
-    color: #c7cff5;
-
-    font-size: 13px;
-
-    font-weight: bold;
-}
-
-.player-number {
-
-    position: absolute;
-
-    top: 15px;
-
-    left: 15px;
-
-    color: #69749d;
-
-    font-size: 13px;
-}
-
-
-/* =========================
-   EMPTY / LOADING
-========================= */
-
-.message {
-
-    padding: 30px;
-
-    text-align: center;
-
-    border-radius: 18px;
-
-    background:
-        rgba(255,255,255,.04);
-
-    color: #9da7cb;
-}
-
-.error {
-
-    color: #ff7887;
-}
-
-.loading {
-
-    color: #a8b1ff;
-}
-
-
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width:650px) {
-
-    .header {
-
-        flex-direction: column;
-
-        text-align: center;
-    }
-
-    .search-box {
-
-        flex-direction: column;
-    }
-
-    .search-box button {
-
-        padding: 15px;
+    .search button{
+        padding:15px;
     }
 
 }
 
 </style>
-
 </head>
 
 
 <body>
 
-
 <div id="stars"></div>
 
-
 <div class="container">
-
-
-    <!-- HEADER -->
 
     <div class="header">
 
         <div class="logo">
-
-            🌌
-            <span>Galaxy Arena</span>
-
+            🌌 <span>Galaxy Arena</span>
         </div>
 
-
-        <a
-            href="index.html"
-            class="back"
-        >
-
+        <a href="index.html" class="back">
             ← الموقع الرئيسي
-
         </a>
 
     </div>
 
 
-
-    <!-- HERO -->
-
     <div class="hero">
 
         <h1>
-
-            🎮
-            <span>Players</span>
-
+            🎮 <span>Players</span>
         </h1>
 
         <p>
-
-            اكتشف لاعبين Galaxy Arena
-            وتعرّف على مجتمع اللاعبين.
-
+            اكتشف لاعبي Galaxy Arena
         </p>
 
     </div>
 
 
-
-    <!-- SEARCH -->
-
-    <div class="search-box">
+    <div class="search">
 
         <input
-            type="text"
             id="searchInput"
+            type="text"
             placeholder="🔎 ابحث عن Username..."
         >
 
-        <button
-            onclick="searchPlayers()"
-        >
-
-            بحث
-
+        <button onclick="searchPlayers()">
+            🔎 بحث
         </button>
 
     </div>
 
 
+    <div class="info">
 
-    <!-- PLAYERS -->
+        <h2>
+            👥 اللاعبين
+        </h2>
 
-    <div class="section">
-
-        <div class="section-title">
-
-            <h2>
-                👥 اللاعبين
-            </h2>
-
-            <span
-                class="count"
-                id="playerCount"
-            >
-                جاري التحميل...
-            </span>
-
-        </div>
-
-
-        <div
-            id="playersGrid"
-            class="players-grid"
+        <span
+            id="count"
+            class="count"
         >
+            جاري التحميل...
+        </span>
 
-            <div class="message loading">
+    </div>
 
-                🔄 جاري تحميل اللاعبين...
 
-            </div>
+    <div
+        id="playersGrid"
+        class="grid"
+    >
 
+        <div class="message loading">
+            🔄 جاري تحميل اللاعبين...
         </div>
 
     </div>
 
 
-</div>
+    <!-- PLAYER PROFILE -->
 
+    <div
+        id="profile"
+        class="profile"
+    >
+
+        <div
+            id="profileAvatar"
+            class="profile-avatar"
+        >
+        </div>
+
+        <h2 id="profileUsername">
+            Player
+        </h2>
+
+        <div
+            id="profileRank"
+            class="profile-rank"
+        >
+            🏆 BRONZE
+        </div>
+
+        <br>
+
+        <button
+            class="close-profile"
+            onclick="closeProfile()"
+        >
+            إغلاق الملف
+        </button>
+
+    </div>
+
+</div>
 
 
 <script>
 
-
-// ===============================
-// SUPABASE
-// ===============================
-
 const SUPABASE_URL =
-    "https://nubkrxxreuiqefvjbloj.supabase.co";
+"https://nubkrxxreuiqefvjbloj.supabase.co";
 
 const SUPABASE_KEY =
-    "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
-
+"sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
 
 const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
+window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
 
-
-// ===============================
+// ==========================
 // STARS
-// ===============================
+// ==========================
 
 const stars =
-    document.getElementById("stars");
+document.getElementById("stars");
 
-
-for (
-    let i = 0;
-    i < 180;
-    i++
-) {
+for(let i=0;i<180;i++){
 
     const star =
-        document.createElement("div");
+    document.createElement("div");
 
-    star.className = "star";
+    star.className="star";
 
     star.style.left =
-        Math.random() * 100 + "%";
+    Math.random()*100+"%";
 
     star.style.top =
-        Math.random() * 100 + "%";
+    Math.random()*100+"%";
 
     star.style.animationDelay =
-        Math.random() * 3 + "s";
+    Math.random()*3+"s";
 
     stars.appendChild(star);
-
 }
 
 
-
-// ===============================
+// ==========================
 // LOAD PLAYERS
-// ===============================
+// ==========================
 
-async function loadPlayers(
-    search = ""
-) {
+async function loadPlayers(search=""){
 
     const grid =
-        document.getElementById(
-            "playersGrid"
-        );
+    document.getElementById("playersGrid");
 
     const count =
-        document.getElementById(
-            "playerCount"
-        );
+    document.getElementById("count");
 
 
-    grid.innerHTML = `
+    grid.innerHTML=`
         <div class="message loading">
             🔄 جاري تحميل اللاعبين...
         </div>
@@ -737,27 +483,27 @@ async function loadPlayers(
 
 
     let query =
-        supabaseClient
-            .from("profiles")
-            .select(
-                "username, rank, avatar_url"
-            )
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            )
-            .limit(100);
+    supabaseClient
+    .from("profiles")
+    .select(
+        "username,rank,avatar_url,created_at"
+    )
+    .order(
+        "created_at",
+        {
+            ascending:false
+        }
+    )
+    .limit(100);
 
 
-    if (search) {
+    if(search){
 
         query =
-            query.ilike(
-                "username",
-                `%${search}%`
-            );
+        query.ilike(
+            "username",
+            `%${search}%`
+        );
 
     }
 
@@ -765,29 +511,19 @@ async function loadPlayers(
     const {
         data,
         error
-    } = await query;
+    } =
+    await query;
 
 
-    if (error) {
+    if(error){
 
         console.error(error);
 
+        count.textContent="خطأ";
 
-        count.textContent =
-            "خطأ";
-
-
-        grid.innerHTML = `
+        grid.innerHTML=`
             <div class="message error">
-
-                ❌ ما قدرنا نحمل اللاعبين.
-
-                <br><br>
-
-                غالبًا يحتاج جدول
-                profiles
-                سياسة قراءة عامة.
-
+                ❌ صار خطأ بتحميل اللاعبين.
             </div>
         `;
 
@@ -795,17 +531,13 @@ async function loadPlayers(
     }
 
 
-    if (!data || data.length === 0) {
+    if(!data || data.length===0){
 
-        count.textContent =
-            "0 لاعب";
+        count.textContent="0 لاعب";
 
-
-        grid.innerHTML = `
+        grid.innerHTML=`
             <div class="message">
-
                 👻 ماكو لاعبين مطابقين للبحث.
-
             </div>
         `;
 
@@ -814,178 +546,189 @@ async function loadPlayers(
 
 
     count.textContent =
-        `${data.length} لاعب`;
+    `${data.length} لاعب`;
+
+    grid.innerHTML="";
 
 
-    grid.innerHTML = "";
+    data.forEach((player,index)=>{
+
+        const card =
+        document.createElement("div");
+
+        card.className="player";
 
 
-    data.forEach(
-        (player, index) => {
-
-            const card =
-                document.createElement(
-                    "div"
-                );
-
-            card.className =
-                "player-card";
+        const username =
+        player.username || "Player";
 
 
-            const initial =
-                player.username
-                    ? player.username
-                        .charAt(0)
-                        .toUpperCase()
-                    : "?";
+        const initial =
+        username
+        .charAt(0)
+        .toUpperCase();
 
 
-            card.innerHTML = `
+        card.innerHTML=`
 
-                <div
-                    class="player-number"
-                >
+            <div class="number">
+                #${index+1}
+            </div>
 
-                    #${index + 1}
+            <div class="avatar">
+                ${escapeHtml(initial)}
+            </div>
 
-                </div>
+            <div class="username">
+                ${escapeHtml(username)}
+            </div>
 
+            <span class="rank">
+                🏆 ${escapeHtml(
+                    player.rank || "BRONZE"
+                )}
+            </span>
 
-                <div
-                    class="player-avatar"
-                >
-
-                    ${escapeHtml(initial)}
-
-                </div>
-
-
-                <div
-                    class="username"
-                >
-
-                    ${escapeHtml(
-                        player.username
-                        || "Player"
-                    )}
-
-                </div>
+        `;
 
 
-                <span
-                    class="rank"
-                >
-
-                    🏆
-                    ${escapeHtml(
-                        player.rank
-                        || "BRONZE"
-                    )}
-
-                </span>
-
-            `;
+        card.onclick=()=>{
+            showProfile(player);
+        };
 
 
-            grid.appendChild(card);
+        grid.appendChild(card);
 
-        }
-    );
+    });
 
 }
 
 
-
-// ===============================
+// ==========================
 // SEARCH
-// ===============================
+// ==========================
 
-function searchPlayers() {
-
-    const input =
-        document.getElementById(
-            "searchInput"
-        );
+function searchPlayers(){
 
     const value =
-        input.value.trim();
+    document
+    .getElementById("searchInput")
+    .value
+    .trim();
 
+
+    closeProfile();
 
     loadPlayers(value);
 
 }
 
 
+// ==========================
+// PROFILE
+// ==========================
 
-// ===============================
-// ENTER KEY
-// ===============================
+function showProfile(player){
 
-document
-    .getElementById("searchInput")
-    .addEventListener(
-        "keydown",
-        function(event) {
-
-            if (
-                event.key === "Enter"
-            ) {
-
-                searchPlayers();
-
-            }
-
-        }
-    );
+    const profile =
+    document.getElementById("profile");
 
 
+    const username =
+    player.username || "Player";
 
-// ===============================
-// ESCAPE HTML
-// ===============================
 
-function escapeHtml(value) {
+    const initial =
+    username
+    .charAt(0)
+    .toUpperCase();
 
-    return String(value)
 
-        .replace(
-            /&/g,
-            "&amp;"
-        )
+    document
+    .getElementById("profileAvatar")
+    .textContent=initial;
 
-        .replace(
-            /</g,
-            "&lt;"
-        )
 
-        .replace(
-            />/g,
-            "&gt;"
-        )
+    document
+    .getElementById("profileUsername")
+    .textContent=username;
 
-        .replace(
-            /"/g,
-            "&quot;"
-        )
 
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    document
+    .getElementById("profileRank")
+    .textContent=
+    "🏆 " +
+    (player.rank || "BRONZE");
+
+
+    profile.classList.add("show");
+
+
+    profile.scrollIntoView({
+        behavior:"smooth",
+        block:"center"
+    });
 
 }
 
 
+// ==========================
+// CLOSE PROFILE
+// ==========================
 
-// ===============================
+function closeProfile(){
+
+    document
+    .getElementById("profile")
+    .classList.remove("show");
+
+}
+
+
+// ==========================
+// ENTER SEARCH
+// ==========================
+
+document
+.getElementById("searchInput")
+.addEventListener(
+    "keydown",
+    function(event){
+
+        if(event.key==="Enter"){
+
+            searchPlayers();
+
+        }
+
+    }
+);
+
+
+// ==========================
+// SECURITY
+// ==========================
+
+function escapeHtml(value){
+
+    return String(value)
+
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+// ==========================
 // START
-// ===============================
+// ==========================
 
 loadPlayers();
 
 </script>
 
-
 </body>
-
 </html>
