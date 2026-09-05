@@ -1,153 +1,415 @@
-const SUPABASE_URL = "https://nubkrxxreuiqefvjbloj.supabase.co";
-const SUPABASE_KEY = "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
+/* =========================================================
+   GALAXY ARENA
+   Main App
+   ========================================================= */
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-let currentUser = null;
-let currentProfile = null;
+"use strict";
 
 /* =========================
-   ELEMENTS
+   SUPABASE
 ========================= */
 
-const loginButton =
-  document.querySelector("#loginBtn") ||
-  document.querySelector("#login");
+const SUPABASE_URL =
+  "https://nubkrxxreuiqefvjbloj.supabase.co";
 
-const coinsElement =
-  document.querySelector("#coins");
+const SUPABASE_KEY =
+  "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
+
+let supabaseClient = null;
+
+try {
+  if (!window.supabase) {
+    throw new Error("Supabase library did not load.");
+  }
+
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+  console.log("Galaxy Arena: Supabase connected.");
+} catch (error) {
+  console.error("Supabase initialization error:", error);
+}
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function showMessage(message) {
+  alert(message);
+}
+
+function getElement(id) {
+  return document.getElementById(id);
+}
+
 
 /* =========================
    LOGIN
 ========================= */
 
 async function login() {
-  const email = prompt("اكتب إيميلك للدخول:");
 
-  if (!email) return;
+  if (!supabaseClient) {
+    showMessage(
+      "صار خطأ بالاتصال بالخدمة.\nحاول تحديث الصفحة."
+    );
+    return;
+  }
 
-  const cleanEmail = email.trim();
+  const email = prompt(
+    "اكتب إيميلك للدخول إلى Galaxy Arena:"
+  );
+
+  if (!email) {
+    return;
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
 
   if (!cleanEmail.includes("@")) {
-    alert("اكتب إيميل صحيح.");
+    showMessage("اكتب إيميل صحيح.");
     return;
   }
 
-  const { error } =
-    await supabaseClient.auth.signInWithOtp({
-      email: cleanEmail,
-      options: {
-        emailRedirectTo: window.location.origin
-      }
-    });
+  try {
 
-  if (error) {
+    showMessage(
+      "جاري إرسال رابط تسجيل الدخول إلى إيميلك..."
+    );
+
+    const { error } =
+      await supabaseClient.auth.signInWithOtp({
+
+        email: cleanEmail,
+
+        options: {
+          emailRedirectTo:
+            window.location.origin
+        }
+
+      });
+
+    if (error) {
+      console.error("Login error:", error);
+
+      showMessage(
+        "صار خطأ بتسجيل الدخول:\n\n" +
+        error.message
+      );
+
+      return;
+    }
+
+    showMessage(
+      "تم إرسال رابط الدخول إلى إيميلك ✅\n\n" +
+      "افتح الإيميل واضغط على الرابط."
+    );
+
+  } catch (error) {
+
     console.error(error);
-    alert("صار خطأ:\n" + error.message);
+
+    showMessage(
+      "صار خطأ غير متوقع.\nحاول مرة ثانية."
+    );
+  }
+}
+
+
+/* =========================
+   LOAD USER
+========================= */
+
+async function loadUser() {
+
+  if (!supabaseClient) {
     return;
   }
 
-  alert(
-    "تم إرسال رابط تسجيل الدخول إلى إيميلك 📧\n\n" +
-    "افتح الإيميل واضغط الرابط."
-  );
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient.auth.getUser();
+
+    if (error) {
+      console.error("getUser error:", error);
+      return;
+    }
+
+    if (!data || !data.user) {
+      updateCoins(0);
+      return;
+    }
+
+    console.log(
+      "Logged in:",
+      data.user.email
+    );
+
+    await loadProfile();
+    await checkAdmin();
+
+  } catch (error) {
+
+    console.error(
+      "loadUser error:",
+      error
+    );
+  }
 }
+
 
 /* =========================
    LOAD PROFILE
 ========================= */
 
 async function loadProfile() {
-  if (!currentUser) return;
 
-  const { data, error } =
-    await supabaseClient.rpc("get_my_profile");
-
-  if (error) {
-    console.error("Profile error:", error);
+  if (!supabaseClient) {
     return;
   }
 
-  currentProfile =
-    Array.isArray(data) ? data[0] : data;
+  try {
 
-  if (!currentProfile) return;
+    const {
+      data,
+      error
+    } = await supabaseClient.rpc(
+      "get_my_profile"
+    );
 
-  if (coinsElement) {
-    coinsElement.textContent =
-      Number(
-        currentProfile.galaxy_coins || 0
-      ).toLocaleString();
-  }
+    if (error) {
 
-  if (loginButton) {
-    loginButton.textContent = "حسابي";
+      console.error(
+        "Profile error:",
+        error
+      );
+
+      return;
+    }
+
+    console.log(
+      "Profile:",
+      data
+    );
+
+    let profile = data;
+
+    /*
+      بعض RPC functions ترجع object
+      وبعضها ممكن ترجع array.
+    */
+
+    if (Array.isArray(data)) {
+      profile = data[0];
+    }
+
+    if (!profile) {
+      updateCoins(0);
+      return;
+    }
+
+    const coins =
+      Number(profile.galaxy_coins || 0);
+
+    updateCoins(coins);
+
+    updateLoginButton();
+
+  } catch (error) {
+
+    console.error(
+      "loadProfile error:",
+      error
+    );
   }
 }
+
 
 /* =========================
-   AUTH
+   UPDATE COINS
 ========================= */
 
-async function loadUser() {
-  const { data, error } =
-    await supabaseClient.auth.getUser();
+function updateCoins(amount) {
 
-  if (error) {
-    console.log("Auth:", error.message);
+  const coinsElement =
+    getElement("coins");
+
+  if (!coinsElement) {
     return;
   }
 
-  currentUser = data.user || null;
+  const safeAmount =
+    Number.isFinite(Number(amount))
+      ? Number(amount)
+      : 0;
 
-  if (currentUser) {
-    await loadProfile();
-    await checkAdmin();
+  coinsElement.textContent =
+    safeAmount.toLocaleString("en-US");
+}
+
+
+/* =========================
+   UPDATE LOGIN BUTTON
+========================= */
+
+async function updateLoginButton() {
+
+  const loginBtn =
+    getElement("loginBtn");
+
+  if (!loginBtn) {
+    return;
+  }
+
+  try {
+
+    const {
+      data
+    } = await supabaseClient.auth.getUser();
+
+    if (data && data.user) {
+
+      loginBtn.textContent =
+        "✅ تم تسجيل الدخول";
+
+    } else {
+
+      loginBtn.textContent =
+        "تسجيل الدخول";
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
   }
 }
 
-supabaseClient.auth.onAuthStateChange(
-  async (event, session) => {
 
-    currentUser = session?.user || null;
+/* =========================
+   LOGOUT
+========================= */
 
-    if (currentUser) {
-      await loadProfile();
-      await checkAdmin();
-    } else {
-      if (coinsElement) {
-        coinsElement.textContent = "0";
-      }
+async function logout() {
 
-      if (loginButton) {
-        loginButton.textContent = "تسجيل الدخول";
-      }
-    }
+  if (!supabaseClient) {
+    return;
   }
-);
+
+  try {
+
+    const {
+      error
+    } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
+
+    updateCoins(0);
+
+    const loginBtn =
+      getElement("loginBtn");
+
+    if (loginBtn) {
+      loginBtn.textContent =
+        "تسجيل الدخول";
+    }
+
+    const adminButton =
+      getElement("galaxyAdminButton");
+
+    if (adminButton) {
+      adminButton.remove();
+    }
+
+    const adminPanel =
+      getElement("galaxyAdminPanel");
+
+    if (adminPanel) {
+      adminPanel.remove();
+    }
+
+    showMessage(
+      "تم تسجيل الخروج ✅"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      "تعذر تسجيل الخروج."
+    );
+  }
+}
+
 
 /* =========================
    ADMIN CHECK
 ========================= */
 
 async function checkAdmin() {
-  if (!currentUser) return;
 
-  const { data, error } =
-    await supabaseClient.rpc("is_admin");
-
-  if (error) {
-    console.log("Admin:", error.message);
+  if (!supabaseClient) {
     return;
   }
 
-  if (data === true) {
-    createAdminButton();
+  try {
+
+    const {
+      data: userData
+    } =
+      await supabaseClient.auth.getUser();
+
+    if (!userData || !userData.user) {
+      return;
+    }
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.rpc(
+        "is_admin"
+      );
+
+    if (error) {
+
+      console.error(
+        "Admin check error:",
+        error
+      );
+
+      return;
+    }
+
+    console.log(
+      "Is admin:",
+      data
+    );
+
+    if (data === true) {
+
+      createAdminButton();
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "checkAdmin error:",
+      error
+    );
   }
 }
+
 
 /* =========================
    ADMIN BUTTON
@@ -156,8 +418,8 @@ async function checkAdmin() {
 function createAdminButton() {
 
   if (
-    document.querySelector(
-      "#galaxyAdminButton"
+    getElement(
+      "galaxyAdminButton"
     )
   ) {
     return;
@@ -166,7 +428,12 @@ function createAdminButton() {
   const button =
     document.createElement("button");
 
-  button.id = "galaxyAdminButton";
+  button.id =
+    "galaxyAdminButton";
+
+  button.type =
+    "button";
+
   button.textContent =
     "⚙️ لوحة الأدمن";
 
@@ -174,8 +441,8 @@ function createAdminButton() {
     position:fixed;
     bottom:20px;
     right:20px;
-    z-index:9999;
-    padding:12px 18px;
+    z-index:99999;
+    padding:13px 18px;
     border:0;
     border-radius:12px;
     background:linear-gradient(
@@ -183,19 +450,22 @@ function createAdminButton() {
       #7c3aed,
       #a855f7
     );
-    color:white;
+    color:#fff;
     font-weight:bold;
     cursor:pointer;
     box-shadow:
-      0 0 20px
-      rgba(168,85,247,.5);
+      0 0 25px
+      rgba(168,85,247,.6);
   `;
 
-  button.onclick =
-    openAdminPanel;
+  button.addEventListener(
+    "click",
+    openAdminPanel
+  );
 
   document.body.appendChild(button);
 }
+
 
 /* =========================
    ADMIN PANEL
@@ -204,8 +474,8 @@ function createAdminButton() {
 function openAdminPanel() {
 
   if (
-    document.querySelector(
-      "#galaxyAdminPanel"
+    getElement(
+      "galaxyAdminPanel"
     )
   ) {
     return;
@@ -220,8 +490,8 @@ function openAdminPanel() {
   panel.style.cssText = `
     position:fixed;
     inset:0;
-    z-index:10000;
-    background:rgba(0,0,0,.88);
+    z-index:100000;
+    background:rgba(0,0,0,.9);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -229,6 +499,7 @@ function openAdminPanel() {
   `;
 
   panel.innerHTML = `
+
     <div style="
       width:100%;
       max-width:420px;
@@ -237,15 +508,30 @@ function openAdminPanel() {
       border-radius:20px;
       padding:25px;
       box-sizing:border-box;
+      box-shadow:
+        0 0 50px
+        rgba(124,58,237,.5);
     ">
 
-      <h2>
+      <h2 style="
+        margin-top:0;
+        text-align:center;
+      ">
         ⚙️ Galaxy Arena Admin
       </h2>
 
+      <p style="
+        text-align:center;
+        opacity:.7;
+      ">
+        إدارة Galaxy Coins
+      </p>
+
       <input
-        id="adminUsername"
+        id="galaxyAdminUsername"
+        type="text"
         placeholder="Username"
+        autocomplete="off"
         style="
           width:100%;
           box-sizing:border-box;
@@ -255,12 +541,14 @@ function openAdminPanel() {
           border:1px solid #444;
           background:#1b1930;
           color:white;
+          outline:none;
         "
       >
 
       <input
-        id="adminAmount"
+        id="galaxyAdminAmount"
         type="number"
+        min="1"
         placeholder="عدد Galaxy Coins"
         style="
           width:100%;
@@ -271,11 +559,13 @@ function openAdminPanel() {
           border:1px solid #444;
           background:#1b1930;
           color:white;
+          outline:none;
         "
       >
 
       <button
-        id="adminAdd"
+        id="galaxyAddCoins"
+        type="button"
         style="
           width:100%;
           padding:13px;
@@ -285,13 +575,15 @@ function openAdminPanel() {
           background:#22c55e;
           color:white;
           font-weight:bold;
+          cursor:pointer;
         "
       >
         ➕ إضافة Coins
       </button>
 
       <button
-        id="adminRemove"
+        id="galaxyRemoveCoins"
+        type="button"
         style="
           width:100%;
           padding:13px;
@@ -301,13 +593,15 @@ function openAdminPanel() {
           background:#ef4444;
           color:white;
           font-weight:bold;
+          cursor:pointer;
         "
       >
         ➖ حذف Coins
       </button>
 
       <button
-        id="adminClose"
+        id="galaxyCloseAdmin"
+        type="button"
         style="
           width:100%;
           padding:13px;
@@ -316,6 +610,7 @@ function openAdminPanel() {
           border-radius:10px;
           background:#333;
           color:white;
+          cursor:pointer;
         "
       >
         إغلاق
@@ -326,402 +621,513 @@ function openAdminPanel() {
 
   document.body.appendChild(panel);
 
-  document.querySelector(
-    "#adminClose"
-  ).onclick = () => {
-    panel.remove();
-  };
 
-  document.querySelector(
-    "#adminAdd"
-  ).onclick = () => {
-    adminCoins("add");
-  };
-
-  document.querySelector(
-    "#adminRemove"
-  ).onclick = () => {
-    adminCoins("remove");
-  };
-}
-
-/* =========================
-   ADMIN COINS
-========================= */
-
-async function adminCoins(action) {
-
-  const username =
-    document.querySelector(
-      "#adminUsername"
-    )?.value.trim();
-
-  const amount =
-    Number(
-      document.querySelector(
-        "#adminAmount"
-      )?.value
+  const closeButton =
+    getElement(
+      "galaxyCloseAdmin"
     );
 
-  if (!username || !amount || amount <= 0) {
-    alert(
-      "اكتب Username وعدد Coins صحيح."
+  if (closeButton) {
+
+    closeButton.addEventListener(
+      "click",
+      () => panel.remove()
+    );
+
+  }
+
+
+  const addButton =
+    getElement(
+      "galaxyAddCoins"
+    );
+
+  if (addButton) {
+
+    addButton.addEventListener(
+      "click",
+      () => {
+        adminChangeCoins("add");
+      }
+    );
+
+  }
+
+
+  const removeButton =
+    getElement(
+      "galaxyRemoveCoins"
+    );
+
+  if (removeButton) {
+
+    removeButton.addEventListener(
+      "click",
+      () => {
+        adminChangeCoins("remove");
+      }
+    );
+
+  }
+}
+
+
+/* =========================
+   ADMIN CHANGE COINS
+========================= */
+
+async function adminChangeCoins(
+  action
+) {
+
+  if (!supabaseClient) {
+    showMessage(
+      "Supabase غير متصل."
     );
     return;
   }
 
-  const rpc =
+  const usernameInput =
+    getElement(
+      "galaxyAdminUsername"
+    );
+
+  const amountInput =
+    getElement(
+      "galaxyAdminAmount"
+    );
+
+  if (
+    !usernameInput ||
+    !amountInput
+  ) {
+    return;
+  }
+
+  const username =
+    usernameInput.value.trim();
+
+  const amount =
+    Number(amountInput.value);
+
+  if (!username) {
+
+    showMessage(
+      "اكتب Username."
+    );
+
+    return;
+  }
+
+  if (
+    !Number.isInteger(amount) ||
+    amount <= 0
+  ) {
+
+    showMessage(
+      "اكتب عدد Coins صحيح."
+    );
+
+    return;
+  }
+
+  const rpcName =
     action === "add"
       ? "admin_add_coins"
       : "admin_remove_coins";
 
-  const { error } =
-    await supabaseClient.rpc(
-      rpc,
-      {
-        receiver_username:
-          username,
-        amount:
-          amount
-      }
+  try {
+
+    const {
+      error
+    } =
+      await supabaseClient.rpc(
+        rpcName,
+        {
+          receiver_username:
+            username,
+
+          amount:
+            amount
+        }
+      );
+
+    if (error) {
+
+      console.error(
+        "Coin RPC error:",
+        error
+      );
+
+      showMessage(
+        "صار خطأ:\n\n" +
+        error.message
+      );
+
+      return;
+    }
+
+    showMessage(
+      action === "add"
+        ? "تمت إضافة Galaxy Coins بنجاح ✅"
+        : "تم حذف Galaxy Coins بنجاح ✅"
     );
 
-  if (error) {
-    alert(
-      "صار خطأ:\n" +
-      error.message
+    await loadProfile();
+
+    amountInput.value = "";
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      "صار خطأ أثناء تعديل Coins."
     );
+  }
+}
+
+
+/* =========================
+   BUY COINS
+========================= */
+
+async function buyCoins() {
+
+  if (!supabaseClient) {
+
+    showMessage(
+      "الخدمة غير متصلة."
+    );
+
     return;
   }
 
-  alert(
-    action === "add"
-      ? "تمت إضافة Galaxy Coins ✅"
-      : "تم حذف Galaxy Coins ✅"
-  );
+  try {
 
-  await loadProfile();
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth.getUser();
+
+    if (error || !data?.user) {
+
+      showMessage(
+        "سجّل دخول أولاً حتى تشتري Galaxy Coins."
+      );
+
+      return;
+    }
+
+    /*
+      نعرض الباقات الموجودة في Supabase.
+    */
+
+    const {
+      data: packages,
+      error: packagesError
+    } =
+      await supabaseClient.rpc(
+        "get_coin_packages"
+      );
+
+    if (packagesError) {
+
+      console.error(
+        packagesError
+      );
+
+      showMessage(
+        "تعذر تحميل باقات Galaxy Coins."
+      );
+
+      return;
+    }
+
+    if (
+      !packages ||
+      packages.length === 0
+    ) {
+
+      showMessage(
+        "حالياً ماكو باقات Coins مفعلة."
+      );
+
+      return;
+    }
+
+    let text =
+      "🪙 باقات Galaxy Coins\n\n";
+
+    packages.forEach(
+      (item, index) => {
+
+        text +=
+          `${index + 1}. ` +
+          `${Number(item.coins).toLocaleString()} Coins — ` +
+          `$${item.price_usd}\n`;
+
+      }
+    );
+
+    const choice =
+      prompt(
+        text +
+        "\nاكتب رقم الباقة:"
+      );
+
+    if (!choice) {
+      return;
+    }
+
+    const index =
+      Number(choice) - 1;
+
+    if (
+      !Number.isInteger(index) ||
+      !packages[index]
+    ) {
+
+      showMessage(
+        "اختيار غير صحيح."
+      );
+
+      return;
+    }
+
+    const selected =
+      packages[index];
+
+    await createPayTabsPayment(
+      selected
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Buy coins error:",
+      error
+    );
+
+    showMessage(
+      "صار خطأ أثناء شراء Coins."
+    );
+  }
 }
+
 
 /* =========================
    PAYTABS
 ========================= */
 
 async function createPayTabsPayment(
-  amount,
-  packageName,
-  coins
+  selectedPackage
 ) {
 
-  if (!currentUser) {
-    alert(
-      "سجل دخولك أولاً."
+  try {
+
+    showMessage(
+      "جاري تجهيز صفحة الدفع..."
     );
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.functions.invoke(
+        "quick-service",
+        {
+          body: {
+            package_id:
+              selectedPackage.id
+          }
+        }
+      );
+
+    if (error) {
+
+      console.error(
+        "PayTabs function error:",
+        error
+      );
+
+      showMessage(
+        "تعذر إنشاء عملية الدفع:\n\n" +
+        error.message
+      );
+
+      return;
+    }
+
+    if (!data) {
+
+      showMessage(
+        "لم يتم استلام بيانات الدفع."
+      );
+
+      return;
+    }
+
+    /*
+      حسب الاستجابة القادمة من Edge Function.
+    */
+
+    const paymentUrl =
+      data.redirect_url ||
+      data.payment_url ||
+      data.redirectUrl ||
+      data.url;
+
+    if (!paymentUrl) {
+
+      console.error(
+        "Payment response:",
+        data
+      );
+
+      showMessage(
+        "تم إنشاء الطلب لكن لم يتم العثور على رابط الدفع."
+      );
+
+      return;
+    }
+
+    window.location.href =
+      paymentUrl;
+
+  } catch (error) {
+
+    console.error(
+      "Payment error:",
+      error
+    );
+
+    showMessage(
+      "صار خطأ بصفحة الدفع."
+    );
+  }
+}
+
+
+/* =========================
+   BUTTON EVENTS
+========================= */
+
+function setupButtons() {
+
+  const loginBtn =
+    getElement("loginBtn");
+
+  if (loginBtn) {
+
+    loginBtn.addEventListener(
+      "click",
+      login
+    );
+
+  }
+
+
+  const heroLoginBtn =
+    getElement("heroLoginBtn");
+
+  if (heroLoginBtn) {
+
+    heroLoginBtn.addEventListener(
+      "click",
+      login
+    );
+
+  }
+
+
+  const buyCoinsBtn =
+    getElement("buyCoinsBtn");
+
+  if (buyCoinsBtn) {
+
+    buyCoinsBtn.addEventListener(
+      "click",
+      buyCoins
+    );
+
+  }
+
+}
+
+
+/* =========================
+   AUTH STATE
+========================= */
+
+function setupAuthListener() {
+
+  if (!supabaseClient) {
     return;
   }
 
-  const response =
-    await fetch(
-      `${SUPABASE_URL}/functions/v1/quick-service`,
-      {
-        method: "POST",
+  supabaseClient.auth.onAuthStateChange(
+    async (event, session) => {
 
-        headers: {
-          "Content-Type":
-            "application/json",
+      console.log(
+        "Auth event:",
+        event
+      );
 
-          apikey:
-            SUPABASE_KEY
-        },
+      if (session?.user) {
 
-        body: JSON.stringify({
-          amount:
-            Number(amount),
+        await loadProfile();
+        await checkAdmin();
 
-          customerName:
-            currentProfile?.username ||
-            "Galaxy Arena User",
+      } else {
 
-          customerEmail:
-            currentUser.email,
+        updateCoins(0);
 
-          packageName:
-            packageName ||
-            `${coins} Galaxy Coins`
-        })
       }
-    );
 
-  const result =
-    await response.json();
+    }
+  );
+}
+
+
+/* =========================
+   START APP
+========================= */
+
+async function startGalaxyArena() {
 
   console.log(
-    "PayTabs:",
-    result
+    "🌌 Galaxy Arena starting..."
   );
 
-  if (!result.success) {
-    alert(
-      "تعذر إنشاء الدفع:\n" +
-      (result.error ||
-        "خطأ غير معروف")
-    );
-    return;
-  }
+  setupButtons();
 
-  const paymentUrl =
-    result?.data?.redirect_url ||
-    result?.data?.payment_url;
+  setupAuthListener();
 
-  if (!paymentUrl) {
-    alert(
-      "PayTabs لم يرجع رابط الدفع."
-    );
-    return;
-  }
+  await loadUser();
 
-  window.location.href =
-    paymentUrl;
+  console.log(
+    "🌌 Galaxy Arena ready."
+  );
 }
+
 
 /* =========================
    START
 ========================= */
 
-if (loginButton) {
-  loginButton.onclick = login;
-}
+if (
+  document.readyState === "loading"
+) {
 
-loadUser();
-/* =========================
-   GALAXY ARENA ADMIN
-========================= */
-
-async function galaxyAdminCheck() {
-  const { data: userData } =
-    await supabaseClient.auth.getUser();
-
-  if (!userData?.user) return;
-
-  const { data, error } =
-    await supabaseClient.rpc("is_admin");
-
-  if (error || data !== true) return;
-
-  if (document.getElementById("galaxyAdminButton")) return;
-
-  const button = document.createElement("button");
-
-  button.id = "galaxyAdminButton";
-  button.textContent = "⚙️ لوحة الأدمن";
-
-  button.style.cssText = `
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    z-index:99999;
-    padding:13px 18px;
-    border:0;
-    border-radius:12px;
-    background:linear-gradient(135deg,#7c3aed,#a855f7);
-    color:#fff;
-    font-weight:bold;
-    cursor:pointer;
-    box-shadow:0 0 25px rgba(168,85,247,.6);
-  `;
-
-  button.onclick = galaxyOpenAdmin;
-
-  document.body.appendChild(button);
-}
-
-
-function galaxyOpenAdmin() {
-
-  if (document.getElementById("galaxyAdminPanel")) {
-    return;
-  }
-
-  const panel = document.createElement("div");
-
-  panel.id = "galaxyAdminPanel";
-
-  panel.style.cssText = `
-    position:fixed;
-    inset:0;
-    z-index:100000;
-    background:rgba(0,0,0,.9);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-  `;
-
-  panel.innerHTML = `
-    <div style="
-      width:100%;
-      max-width:420px;
-      background:#111022;
-      color:white;
-      border-radius:20px;
-      padding:25px;
-      box-sizing:border-box;
-    ">
-
-      <h2>⚙️ Galaxy Arena Admin</h2>
-
-      <input
-        id="galaxyAdminUsername"
-        placeholder="Username"
-        style="
-          width:100%;
-          box-sizing:border-box;
-          padding:12px;
-          margin:8px 0;
-          border-radius:10px;
-          border:1px solid #444;
-          background:#1b1930;
-          color:white;
-        "
-      >
-
-      <input
-        id="galaxyAdminAmount"
-        type="number"
-        placeholder="Galaxy Coins"
-        style="
-          width:100%;
-          box-sizing:border-box;
-          padding:12px;
-          margin:8px 0;
-          border-radius:10px;
-          border:1px solid #444;
-          background:#1b1930;
-          color:white;
-        "
-      >
-
-      <button id="galaxyAddCoins"
-        style="
-          width:100%;
-          padding:13px;
-          margin-top:10px;
-          border:0;
-          border-radius:10px;
-          background:#22c55e;
-          color:white;
-          font-weight:bold;
-        "
-      >
-        ➕ إضافة Coins
-      </button>
-
-      <button id="galaxyRemoveCoins"
-        style="
-          width:100%;
-          padding:13px;
-          margin-top:10px;
-          border:0;
-          border-radius:10px;
-          background:#ef4444;
-          color:white;
-          font-weight:bold;
-        "
-      >
-        ➖ حذف Coins
-      </button>
-
-      <button id="galaxyCloseAdmin"
-        style="
-          width:100%;
-          padding:13px;
-          margin-top:15px;
-          border:0;
-          border-radius:10px;
-          background:#333;
-          color:white;
-        "
-      >
-        إغلاق
-      </button>
-
-    </div>
-  `;
-
-  document.body.appendChild(panel);
-
-
-  document.getElementById(
-    "galaxyCloseAdmin"
-  ).onclick = () => {
-    panel.remove();
-  };
-
-
-  document.getElementById(
-    "galaxyAddCoins"
-  ).onclick = () => {
-    galaxyChangeCoins("add");
-  };
-
-
-  document.getElementById(
-    "galaxyRemoveCoins"
-  ).onclick = () => {
-    galaxyChangeCoins("remove");
-  };
-}
-
-
-async function galaxyChangeCoins(action) {
-
-  const username =
-    document.getElementById(
-      "galaxyAdminUsername"
-    ).value.trim();
-
-  const amount =
-    Number(
-      document.getElementById(
-        "galaxyAdminAmount"
-      ).value
-    );
-
-  if (!username || !amount || amount <= 0) {
-    alert("اكتب Username وعدد Coins صحيح.");
-    return;
-  }
-
-  const rpc =
-    action === "add"
-      ? "admin_add_coins"
-      : "admin_remove_coins";
-
-  const { error } =
-    await supabaseClient.rpc(
-      rpc,
-      {
-        receiver_username: username,
-        amount: amount
-      }
-    );
-
-  if (error) {
-    alert("خطأ:\n" + error.message);
-    return;
-  }
-
-  alert(
-    action === "add"
-      ? "تمت إضافة Coins ✅"
-      : "تم حذف Coins ✅"
+  document.addEventListener(
+    "DOMContentLoaded",
+    startGalaxyArena
   );
 
-  await loadProfile();
+} else {
+
+  startGalaxyArena();
+
 }
-
-
-/* تشغيل لوحة الأدمن */
-setTimeout(() => {
-  galaxyAdminCheck();
-}, 1000);
