@@ -1,2464 +1,897 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Galaxy Arena - Admin</title>
 
-  <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<style>
+* {
+    box-sizing: border-box;
+}
 
-  <title>Galaxy Arena — Admin</title>
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    font-family: Arial, sans-serif;
+    background: #050817;
+    color: white;
+}
 
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+body {
+    overflow-x: hidden;
+}
 
-  <style>
+#stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    border-radius: 50%;
+    opacity: .8;
+    animation: twinkle 3s infinite ease-in-out;
+}
+
+@keyframes twinkle {
+    0%,100% { opacity: .2; }
+    50% { opacity: 1; }
+}
+
+.container {
+    position: relative;
+    z-index: 2;
+    width: min(1000px, 92%);
+    margin: auto;
+    padding: 30px 0 60px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 18px 22px;
+    border: 1px solid rgba(120,150,255,.25);
+    border-radius: 20px;
+    background: rgba(10,16,40,.75);
+    backdrop-filter: blur(15px);
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: 900;
+}
+
+.logo span {
+    color: #7c8cff;
+}
+
+.back {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 12px;
+    background: rgba(124,140,255,.15);
+}
+
+.card {
+    background: rgba(10,16,40,.82);
+    border: 1px solid rgba(120,150,255,.25);
+    border-radius: 24px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    backdrop-filter: blur(15px);
+}
+
+h1, h2, h3 {
+    margin-top: 0;
+}
+
+.subtitle {
+    color: #aeb7d8;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    margin: 8px 0;
+    border-radius: 12px;
+    border: 1px solid rgba(150,170,255,.25);
+    outline: none;
+    background: rgba(255,255,255,.06);
+    color: white;
+    font-size: 16px;
+}
+
+input::placeholder {
+    color: #8891b5;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    background: linear-gradient(135deg,#6575ff,#9b5cff);
+    transition: .2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+button.danger {
+    background: linear-gradient(135deg,#ff4757,#ff1744);
+}
+
+button.secondary {
+    background: rgba(255,255,255,.08);
+}
+
+.hidden {
+    display: none !important;
+}
+
+.status {
+    padding: 12px;
+    border-radius: 12px;
+    margin-top: 12px;
+    background: rgba(255,255,255,.05);
+    color: #cbd3f5;
+}
+
+.success {
+    color: #7dffb2;
+}
+
+.error {
+    color: #ff7d8a;
+}
+
+.loading {
+    color: #aab5ff;
+}
+
+.admin-badge {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 50px;
+    background: rgba(100,255,160,.12);
+    color: #7dffb2;
+    border: 1px solid rgba(100,255,160,.2);
+    font-weight: bold;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+}
+
+.stat {
+    padding: 20px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.05);
+}
+
+.stat small {
+    color: #8f99bc;
+}
+
+.stat strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 24px;
+}
+
+.player-card {
+    margin-top: 18px;
+    padding: 20px;
+    border-radius: 18px;
+    background: rgba(100,120,255,.08);
+    border: 1px solid rgba(120,150,255,.2);
+}
+
+.coin-actions {
+    margin-top: 15px;
+}
+
+.logout {
+    margin-top: 20px;
+}
+
+@media(max-width:700px) {
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
     }
 
-    html {
-      scroll-behavior: smooth;
+    .stats {
+        grid-template-columns: 1fr;
     }
-
-    body {
-      font-family: Arial, Tahoma, sans-serif;
-      min-height: 100vh;
-      color: #fff;
-      overflow-x: hidden;
-
-      background:
-        radial-gradient(
-          circle at 15% 10%,
-          rgba(106, 76, 255, .25),
-          transparent 30%
-        ),
-        radial-gradient(
-          circle at 85% 25%,
-          rgba(0, 200, 255, .18),
-          transparent 30%
-        ),
-        radial-gradient(
-          circle at 50% 90%,
-          rgba(170, 0, 255, .15),
-          transparent 35%
-        ),
-        linear-gradient(
-          180deg,
-          #03030d 0%,
-          #08081a 45%,
-          #020208 100%
-        );
-    }
-
-
-    /* =========================
-       SPACE
-    ========================== */
-
-    #space {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      overflow: hidden;
-      pointer-events: none;
-    }
-
-    .star {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      border-radius: 50%;
-      background: #fff;
-      opacity: .7;
-
-      animation:
-        starMove
-        linear
-        infinite;
-    }
-
-    @keyframes starMove {
-
-      0% {
-        transform: translateY(-20px);
-        opacity: .1;
-      }
-
-      50% {
-        opacity: 1;
-      }
-
-      100% {
-        transform: translateY(110vh);
-        opacity: .1;
-      }
-
-    }
-
-
-    /* =========================
-       HEADER
-    ========================== */
-
-    header {
-
-      position: sticky;
-      top: 0;
-
-      z-index: 100;
-
-      background:
-        rgba(3,3,15,.78);
-
-      backdrop-filter:
-        blur(18px);
-
-      border-bottom:
-        1px solid
-        rgba(255,255,255,.08);
-
-    }
-
-
-    nav {
-
-      width:
-        min(1200px,94%);
-
-      min-height:
-        72px;
-
-      margin:
-        auto;
-
-      display:
-        flex;
-
-      align-items:
-        center;
-
-      justify-content:
-        space-between;
-
-      gap:
-        15px;
-
-    }
-
-
-    .logo {
-
-      font-size:
-        21px;
-
-      font-weight:
-        900;
-
-      white-space:
-        nowrap;
-
-      background:
-        linear-gradient(
-          90deg,
-          #fff,
-          #62eaff,
-          #967aff,
-          #fff
-        );
-
-      background-size:
-        250%;
-
-      -webkit-background-clip:
-        text;
-
-      -webkit-text-fill-color:
-        transparent;
-
-      animation:
-        logoGlow
-        5s ease
-        infinite;
-
-    }
-
-
-    @keyframes logoGlow {
-
-      0%,100% {
-        background-position:
-          0%;
-      }
-
-      50% {
-        background-position:
-          100%;
-      }
-
-    }
-
-
-    .back-btn {
-
-      text-decoration:
-        none;
-
-      color:
-        #fff;
-
-      padding:
-        10px 15px;
-
-      border-radius:
-        12px;
-
-      background:
-        rgba(255,255,255,.07);
-
-      border:
-        1px solid
-        rgba(255,255,255,.1);
-
-      transition:
-        .2s;
-
-    }
-
-
-    .back-btn:hover {
-
-      background:
-        rgba(0,200,255,.15);
-
-      transform:
-        translateY(-2px);
-
-    }
-
-
-    /* =========================
-       CONTAINER
-    ========================== */
-
-    .container {
-
-      width:
-        min(1150px,92%);
-
-      margin:
-        50px auto 80px;
-
-    }
-
-
-    .page-title {
-
-      text-align:
-        center;
-
-      margin-bottom:
-        40px;
-
-    }
-
-
-    .page-title .icon {
-
-      width:
-        82px;
-
-      height:
-        82px;
-
-      margin:
-        0 auto 18px;
-
-      display:
-        flex;
-
-      align-items:
-        center;
-
-      justify-content:
-        center;
-
-      border-radius:
-        25px;
-
-      font-size:
-        38px;
-
-      background:
-        linear-gradient(
-          135deg,
-          #6957e8,
-          #00d4ff
-        );
-
-      box-shadow:
-        0 0 45px
-        rgba(0,212,255,.2);
-
-      animation:
-        floating
-        3s ease-in-out
-        infinite;
-
-    }
-
-
-    @keyframes floating {
-
-      0%,100% {
-        transform:
-          translateY(0);
-      }
-
-      50% {
-        transform:
-          translateY(-8px);
-      }
-
-    }
-
-
-    .page-title h1 {
-
-      font-size:
-        clamp(32px,6vw,55px);
-
-      margin-bottom:
-        10px;
-
-      background:
-        linear-gradient(
-          90deg,
-          #fff,
-          #63eaff,
-          #9479ff,
-          #fff
-        );
-
-      background-size:
-        300%;
-
-      -webkit-background-clip:
-        text;
-
-      -webkit-text-fill-color:
-        transparent;
-
-      animation:
-        galaxyText
-        5s ease
-        infinite;
-
-    }
-
-
-    @keyframes galaxyText {
-
-      0%,100% {
-        background-position:
-          0%;
-      }
-
-      50% {
-        background-position:
-          100%;
-      }
-
-    }
-
-
-    .page-title p {
-
-      color:
-        #9e9eb8;
-
-      line-height:
-        1.8;
-
-    }
-
-
-    /* =========================
-       STATUS
-    ========================== */
-
-    .status {
-
-      display:
-        none;
-
-      margin-bottom:
-        25px;
-
-      padding:
-        15px 18px;
-
-      border-radius:
-        15px;
-
-      background:
-        rgba(255,255,255,.05);
-
-      border:
-        1px solid
-        rgba(255,255,255,.1);
-
-      text-align:
-        center;
-
-      line-height:
-        1.7;
-
-    }
-
-
-    .status.show {
-      display:
-        block;
-    }
-
-
-    .status.success {
-
-      border-color:
-        rgba(0,255,150,.35);
-
-      background:
-        rgba(0,255,150,.06);
-
-    }
-
-
-    .status.error {
-
-      border-color:
-        rgba(255,70,90,.35);
-
-      background:
-        rgba(255,70,90,.06);
-
-    }
-
-
-    /* =========================
-       LOGIN
-    ========================== */
-
-    #loginSection {
-
-      max-width:
-        450px;
-
-      margin:
-        auto;
-
-    }
-
-
-    .panel {
-
-      padding:
-        30px;
-
-      border-radius:
-        25px;
-
-      background:
-        rgba(13,13,38,.76);
-
-      border:
-        1px solid
-        rgba(255,255,255,.1);
-
-      backdrop-filter:
-        blur(18px);
-
-      box-shadow:
-        0 25px 70px
-        rgba(0,0,0,.35);
-
-    }
-
-
-    .panel h2 {
-
-      margin-bottom:
-        22px;
-
-      text-align:
-        center;
-
-    }
-
-
-    .input-group {
-
-      margin-bottom:
-        16px;
-
-    }
-
-
-    .input-group label {
-
-      display:
-        block;
-
-      margin-bottom:
-        8px;
-
-      color:
-        #d8d8ed;
-
-      font-size:
-        14px;
-
-    }
-
-
-    input {
-
-      width:
-        100%;
-
-      padding:
-        14px;
-
-      border-radius:
-        14px;
-
-      border:
-        1px solid
-        rgba(255,255,255,.12);
-
-      outline:
-        none;
-
-      background:
-        rgba(255,255,255,.05);
-
-      color:
-        #fff;
-
-      font-size:
-        15px;
-
-      transition:
-        .2s;
-
-    }
-
-
-    input:focus {
-
-      border-color:
-        #00d4ff;
-
-      box-shadow:
-        0 0 20px
-        rgba(0,212,255,.12);
-
-    }
-
-
-    button {
-
-      border:
-        0;
-
-      border-radius:
-        13px;
-
-      padding:
-        12px 17px;
-
-      color:
-        #fff;
-
-      font-weight:
-        800;
-
-      cursor:
-        pointer;
-
-      background:
-        linear-gradient(
-          135deg,
-          #6957e8,
-          #00bfff
-        );
-
-      box-shadow:
-        0 8px 28px
-        rgba(0,190,255,.14);
-
-      transition:
-        .2s;
-
-    }
-
-
-    button:hover {
-
-      transform:
-        translateY(-2px);
-
-      box-shadow:
-        0 12px 32px
-        rgba(0,190,255,.24);
-
-    }
-
-
-    button:disabled {
-
-      opacity:
-        .55;
-
-      cursor:
-        not-allowed;
-
-      transform:
-        none;
-
-    }
-
-
-    .full-btn {
-
-      width:
-        100%;
-
-    }
-
-
-    .secondary {
-
-      background:
-        rgba(255,255,255,.07);
-
-      box-shadow:
-        none;
-
-    }
-
-
-    /* =========================
-       ADMIN DASHBOARD
-    ========================== */
-
-    #dashboard {
-
-      display:
-        none;
-
-    }
-
-
-    .top-grid {
-
-      display:
-        grid;
-
-      grid-template-columns:
-        repeat(
-          auto-fit,
-          minmax(220px,1fr)
-        );
-
-      gap:
-        18px;
-
-      margin-bottom:
-        25px;
-
-    }
-
-
-    .stat-card {
-
-      padding:
-        24px;
-
-      border-radius:
-        22px;
-
-      background:
-        rgba(13,13,38,.76);
-
-      border:
-        1px solid
-        rgba(255,255,255,.09);
-
-      backdrop-filter:
-        blur(15px);
-
-      transition:
-        .25s;
-
-    }
-
-
-    .stat-card:hover {
-
-      transform:
-        translateY(-5px);
-
-      border-color:
-        rgba(0,210,255,.3);
-
-    }
-
-
-    .stat-icon {
-
-      font-size:
-        28px;
-
-      margin-bottom:
-        12px;
-
-    }
-
-
-    .stat-label {
-
-      color:
-        #9e9eb8;
-
-      font-size:
-        14px;
-
-      margin-bottom:
-        8px;
-
-    }
-
-
-    .stat-value {
-
-      font-size:
-        25px;
-
-      font-weight:
-        900;
-
-    }
-
-
-    /* =========================
-       COIN MANAGEMENT
-    ========================== */
-
-    .management {
-
-      display:
-        grid;
-
-      grid-template-columns:
-        1fr 1fr;
-
-      gap:
-        20px;
-
-      margin-bottom:
-        25px;
-
-    }
-
-
-    .management-card {
-
-      padding:
-        28px;
-
-      border-radius:
-        23px;
-
-      background:
-        rgba(13,13,38,.76);
-
-      border:
-        1px solid
-        rgba(255,255,255,.09);
-
-      backdrop-filter:
-        blur(15px);
-
-    }
-
-
-    .management-card h2 {
-
-      margin-bottom:
-        10px;
-
-    }
-
-
-    .management-card p {
-
-      color:
-        #9999b5;
-
-      line-height:
-        1.7;
-
-      margin-bottom:
-        20px;
-
-    }
-
-
-    .action-row {
-
-      display:
-        flex;
-
-      gap:
-        10px;
-
-      flex-wrap:
-        wrap;
-
-    }
-
-
-    .action-row button {
-
-      flex:
-        1;
-
-      min-width:
-        130px;
-
-    }
-
-
-    /* =========================
-       USER RESULT
-    ========================== */
-
-    #userResult {
-
-      display:
-        none;
-
-      margin-top:
-        20px;
-
-      padding:
-        20px;
-
-      border-radius:
-        18px;
-
-      background:
-        rgba(0,0,0,.2);
-
-      border:
-        1px solid
-        rgba(255,255,255,.08);
-
-    }
-
-
-    .user-result-title {
-
-      color:
-        #73eaff;
-
-      font-weight:
-        900;
-
-      margin-bottom:
-        15px;
-
-    }
-
-
-    .result-line {
-
-      display:
-        flex;
-
-      justify-content:
-        space-between;
-
-      gap:
-        10px;
-
-      padding:
-        10px 0;
-
-      border-bottom:
-        1px solid
-        rgba(255,255,255,.06);
-
-    }
-
-
-    .result-line:last-child {
-
-      border-bottom:
-        0;
-
-    }
-
-
-    .result-label {
-
-      color:
-        #9292ad;
-
-    }
-
-
-    .result-value {
-
-      font-weight:
-        800;
-
-      word-break:
-        break-word;
-
-    }
-
-
-    /* =========================
-       LOGOUT
-    ========================== */
-
-    .logout-area {
-
-      text-align:
-        center;
-
-      margin-top:
-        25px;
-
-    }
-
-
-    .logout {
-
-      background:
-        linear-gradient(
-          135deg,
-          #8e3150,
-          #d14b6d
-        );
-
-    }
-
-
-    /* =========================
-       FOOTER
-    ========================== */
-
-    footer {
-
-      text-align:
-        center;
-
-      padding:
-        35px 20px;
-
-      color:
-        #777792;
-
-      border-top:
-        1px solid
-        rgba(255,255,255,.08);
-
-      line-height:
-        2;
-
-    }
-
-
-    /* =========================
-       MOBILE
-    ========================== */
-
-    @media (max-width: 750px) {
-
-      nav {
-
-        flex-wrap:
-          wrap;
-
-        padding:
-          12px 0;
-
-      }
-
-      .management {
-
-        grid-template-columns:
-          1fr;
-
-      }
-
-      .container {
-
-        margin-top:
-          35px;
-
-      }
-
-      .panel,
-      .management-card,
-      .stat-card {
-
-        padding:
-          21px;
-
-      }
-
-    }
-
-  </style>
-
+}
+</style>
 </head>
-
 
 <body>
 
+<div id="stars"></div>
 
-  <div id="space"></div>
+<div class="container">
 
+    <div class="header">
+        <div class="logo">
+            🌌 <span>Galaxy Arena</span> Admin
+        </div>
 
-  <!-- =========================
-       HEADER
-  ========================== -->
+        <a class="back" href="index.html">
+            ← الموقع الرئيسي
+        </a>
+    </div>
 
-  <header>
+    <!-- LOGIN -->
+    <div id="loginSection" class="card">
 
-    <nav>
+        <h1>👑 لوحة الأدمن</h1>
 
-      <div class="logo">
-        👑 Galaxy Arena Admin
-      </div>
+        <p class="subtitle">
+            سجّل دخول بحساب الأدمن حتى تدخل لوحة التحكم.
+        </p>
 
-      <a
-        href="index.html"
-        class="back-btn"
-      >
-        ← الموقع الرئيسي
-      </a>
+        <input
+            type="email"
+            id="email"
+            placeholder="الإيميل"
+            autocomplete="email"
+        >
 
-    </nav>
+        <input
+            type="password"
+            id="password"
+            placeholder="كلمة المرور"
+            autocomplete="current-password"
+        >
 
-  </header>
+        <button onclick="login()">
+            🔐 تسجيل الدخول
+        </button>
 
-
-  <!-- =========================
-       MAIN
-  ========================== -->
-
-  <main class="container">
-
-
-    <div class="page-title">
-
-      <div class="icon">
-        👑
-      </div>
-
-      <h1>
-        ADMIN PANEL
-      </h1>
-
-      <p>
-        لوحة تحكم Galaxy Arena
-      </p>
+        <div id="loginStatus" class="status"></div>
 
     </div>
 
 
-    <!-- STATUS -->
+    <!-- ADMIN DASHBOARD -->
+    <div id="dashboard" class="hidden">
 
-    <div
-      id="status"
-      class="status"
-    ></div>
+        <div class="card">
 
+            <h1>🚀 Admin Dashboard</h1>
 
-    <!-- =========================
-         LOGIN
-    ========================== -->
+            <p class="subtitle">
+                مرحباً بك في لوحة تحكم Galaxy Arena
+            </p>
 
-    <section id="loginSection">
-
-      <div class="panel">
-
-        <h2>
-          🔐 دخول الأدمن
-        </h2>
-
-        <div class="input-group">
-
-          <label>
-            الإيميل
-          </label>
-
-          <input
-            id="email"
-            type="email"
-            placeholder="Admin Email"
-            autocomplete="email"
-          >
+            <span class="admin-badge">
+                👑 ADMIN
+            </span>
 
         </div>
 
 
-        <div class="input-group">
+        <div class="card">
 
-          <label>
-            كلمة المرور
-          </label>
+            <div class="stats">
 
-          <input
-            id="password"
-            type="password"
-            placeholder="Password"
-            autocomplete="current-password"
-          >
+                <div class="stat">
+                    <small>Admin Email</small>
+                    <strong id="adminEmail">---</strong>
+                </div>
 
-        </div>
+                <div class="stat">
+                    <small>Galaxy Coins</small>
+                    <strong id="adminCoins">---</strong>
+                </div>
 
+                <div class="stat">
+                    <small>Status</small>
+                    <strong>ONLINE</strong>
+                </div>
 
-        <button
-          id="loginButton"
-          class="full-btn"
-          type="button"
-        >
-          👑 دخول لوحة الأدمن
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <!-- =========================
-         DASHBOARD
-    ========================== -->
-
-    <section id="dashboard">
-
-
-      <!-- STATS -->
-
-      <div class="top-grid">
-
-        <div class="stat-card">
-
-          <div class="stat-icon">
-            👤
-          </div>
-
-          <div class="stat-label">
-            حساب الأدمن
-          </div>
-
-          <div
-            id="adminEmail"
-            class="stat-value"
-            style="font-size:16px;word-break:break-word;"
-          >
-            —
-          </div>
+            </div>
 
         </div>
 
 
-        <div class="stat-card">
+        <!-- PLAYER SEARCH -->
+        <div class="card">
 
-          <div class="stat-icon">
-            🪙
-          </div>
+            <h2>🔎 البحث عن لاعب</h2>
 
-          <div class="stat-label">
-            Galaxy Coins
-          </div>
-
-          <div
-            id="adminCoins"
-            class="stat-value"
-          >
-            0
-          </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-          <div class="stat-icon">
-            🛡️
-          </div>
-
-          <div class="stat-label">
-            الصلاحية
-          </div>
-
-          <div class="stat-value">
-            ADMIN
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- MANAGEMENT -->
-
-      <div class="management">
-
-
-        <!-- SEARCH USER -->
-
-        <div class="management-card">
-
-          <h2>
-            🔎 البحث عن لاعب
-          </h2>
-
-          <p>
-            اكتب Username للاعب حتى تشوف معلوماته ورصيده.
-          </p>
-
-          <div class="input-group">
+            <p class="subtitle">
+                اكتب Username اللاعب حتى تشوف رصيده ورتبته.
+            </p>
 
             <input
-              id="searchUsername"
-              type="text"
-              placeholder="Username"
+                type="text"
+                id="searchUsername"
+                placeholder="مثال: Player123"
             >
 
-          </div>
-
-          <button
-            id="searchButton"
-            type="button"
-          >
-            🔎 بحث
-          </button>
-
-
-          <div id="userResult">
-
-            <div class="user-result-title">
-              👤 معلومات اللاعب
-            </div>
-
-            <div class="result-line">
-
-              <span class="result-label">
-                Username
-              </span>
-
-              <span
-                id="resultUsername"
-                class="result-value"
-              >
-                —
-              </span>
-
-            </div>
-
-
-            <div class="result-line">
-
-              <span class="result-label">
-                Galaxy Coins
-              </span>
-
-              <span
-                id="resultCoins"
-                class="result-value"
-              >
-                0
-              </span>
-
-            </div>
-
-
-            <div class="result-line">
-
-              <span class="result-label">
-                Rank
-              </span>
-
-              <span
-                id="resultRank"
-                class="result-value"
-              >
-                —
-              </span>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- COINS -->
-
-        <div class="management-card">
-
-          <h2>
-            🪙 إدارة Coins
-          </h2>
-
-          <p>
-            إضافة أو إزالة Galaxy Coins من حساب اللاعب.
-          </p>
-
-          <div class="input-group">
-
-            <input
-              id="targetUsername"
-              type="text"
-              placeholder="Username"
-            >
-
-          </div>
-
-
-          <div class="input-group">
-
-            <input
-              id="coinAmount"
-              type="number"
-              min="1"
-              placeholder="عدد Coins"
-            >
-
-          </div>
-
-
-          <div class="action-row">
-
-            <button
-              id="addButton"
-              type="button"
-            >
-              ➕ إضافة
+            <button onclick="searchPlayer()">
+                🔎 بحث عن اللاعب
             </button>
 
-            <button
-              id="removeButton"
-              type="button"
-            >
-              ➖ إزالة
-            </button>
-
-          </div>
+            <div id="playerResult"></div>
 
         </div>
 
-      </div>
 
+        <!-- LOGOUT -->
+        <div class="card">
 
-      <!-- LOGOUT -->
+            <button class="secondary logout" onclick="logout()">
+                🚪 تسجيل الخروج
+            </button>
 
-      <div class="logout-area">
+        </div>
 
-        <button
-          id="logoutButton"
-          class="logout"
-          type="button"
-        >
-          🚪 تسجيل الخروج
-        </button>
+    </div>
 
-      </div>
+</div>
 
-    </section>
 
-  </main>
+<script>
 
+const SUPABASE_URL =
+    "https://nubkrxxreuiqefvjbloj.supabase.co";
 
-  <!-- =========================
-       FOOTER
-  ========================== -->
+const SUPABASE_KEY =
+    "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
 
-  <footer>
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
-    <p>
-      © 2026 Galaxy Arena
-    </p>
 
-    <p>
-      Admin Control Center 🌌
-    </p>
+// ===============================
+// STAR BACKGROUND
+// ===============================
 
-  </footer>
+const stars = document.getElementById("stars");
 
+for (let i = 0; i < 180; i++) {
 
-  <!-- =========================
-       JAVASCRIPT
-  ========================== -->
+    const star = document.createElement("div");
 
-  <script>
+    star.className = "star";
 
-    /* ==========================================
-       SUPABASE
-    ========================================== */
+    star.style.left =
+        Math.random() * 100 + "%";
 
-    const SUPABASE_URL =
-      "https://nubkrxxreuiqefvjbloj.supabase.co";
+    star.style.top =
+        Math.random() * 100 + "%";
 
-    const SUPABASE_KEY =
-      "sb_publishable_PwgyR9vD2dVXwODaZ5yq5g__Aj5O9Sr";
+    star.style.animationDelay =
+        Math.random() * 3 + "s";
 
+    stars.appendChild(star);
+}
 
-    let supabaseClient = null;
 
-    try {
+// ===============================
+// LOGIN
+// ===============================
 
-      if (
-        !window.supabase ||
-        !window.supabase.createClient
-      ) {
+async function login() {
 
-        throw new Error(
-          "Supabase library did not load."
-        );
+    const email =
+        document.getElementById("email").value.trim();
 
-      }
+    const password =
+        document.getElementById("password").value;
 
-      supabaseClient =
-        window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY
-        );
+    const status =
+        document.getElementById("loginStatus");
 
-    } catch (error) {
+    if (!email || !password) {
 
-      console.error(
-        error
-      );
-
-    }
-
-
-    /* ==========================================
-       STATE
-    ========================================== */
-
-    let currentUser = null;
-    let currentProfile = null;
-
-
-    /* ==========================================
-       HELPERS
-    ========================================== */
-
-    function $(selector) {
-
-      return document.querySelector(
-        selector
-      );
-
-    }
-
-
-    function showStatus(
-      message,
-      type = ""
-    ) {
-
-      const status =
-        $("#status");
-
-      status.textContent =
-        message;
-
-      status.className =
-        "status show " +
-        type;
-
-      clearTimeout(
-        window.statusTimer
-      );
-
-      window.statusTimer =
-        setTimeout(
-          () => {
-
-            status.classList
-              .remove("show");
-
-          },
-          5000
-        );
-
-    }
-
-
-    /* ==========================================
-       STARS
-    ========================================== */
-
-    function createStars() {
-
-      const space =
-        $("#space");
-
-      if (!space) return;
-
-      for (
-        let i = 0;
-        i < 130;
-        i++
-      ) {
-
-        const star =
-          document.createElement(
-            "div"
-          );
-
-        star.className =
-          "star";
-
-        star.style.left =
-          Math.random() * 100 +
-          "%";
-
-        star.style.top =
-          Math.random() * 100 +
-          "%";
-
-        star.style.animationDuration =
-          5 +
-          Math.random() * 15 +
-          "s";
-
-        star.style.animationDelay =
-          -Math.random() * 15 +
-          "s";
-
-        space.appendChild(
-          star
-        );
-
-      }
-
-    }
-
-
-    /* ==========================================
-       CHECK ADMIN
-    ========================================== */
-
-    async function isAdmin() {
-
-      if (
-        !supabaseClient ||
-        !currentUser
-      ) {
-
-        return false;
-
-      }
-
-      try {
-
-        const result =
-          await supabaseClient.rpc(
-            "is_admin"
-          );
-
-        if (result.error) {
-
-          console.error(
-            result.error
-          );
-
-          return false;
-
-        }
-
-        return (
-          result.data === true
-        );
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        return false;
-
-      }
-
-    }
-
-
-    /* ==========================================
-       LOAD ADMIN PROFILE
-    ========================================== */
-
-    async function loadAdminProfile() {
-
-      if (
-        !supabaseClient ||
-        !currentUser
-      ) {
+        status.innerHTML =
+            '<span class="error">❌ اكتب الإيميل وكلمة المرور.</span>';
 
         return;
+    }
 
-      }
+    status.innerHTML =
+        '<span class="loading">🔄 جاري تسجيل الدخول...</span>';
 
-      try {
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
-        const result =
-          await supabaseClient.rpc(
-            "get_my_profile"
-          );
+    if (error) {
 
-        if (result.error) {
+        console.error(error);
 
-          console.error(
-            result.error
-          );
+        status.innerHTML =
+            '<span class="error">❌ الإيميل أو كلمة المرور غير صحيحة.</span>';
 
-          return;
+        return;
+    }
 
-        }
+    await checkAdmin();
 
-        let data =
-          result.data;
+}
 
-        if (
-          Array.isArray(data)
-        ) {
 
-          data =
-            data[0] ||
-            null;
+// ===============================
+// CHECK ADMIN
+// ===============================
 
-        }
+async function checkAdmin() {
 
-        currentProfile =
-          data;
+    const status =
+        document.getElementById("loginStatus");
 
-        $("#adminEmail")
-          .textContent =
-          currentUser.email ||
-          "—";
+    const {
+        data: { user }
+    } =
+        await supabaseClient.auth.getUser();
 
-        $("#adminCoins")
-          .textContent =
-          Number(
-            currentProfile?.galaxy_coins ||
-            0
-          ).toLocaleString();
+    if (!user) {
 
-      } catch (error) {
+        status.innerHTML =
+            '<span class="error">❌ ماكو حساب مسجل.</span>';
 
-        console.error(
-          error
-        );
+        return;
+    }
 
-      }
+    const { data, error } =
+        await supabaseClient.rpc("is_admin");
 
+    if (error) {
+
+        console.error(error);
+
+        status.innerHTML =
+            '<span class="error">❌ صار خطأ أثناء التحقق من صلاحيات الأدمن.</span>';
+
+        return;
+    }
+
+    if (!data) {
+
+        await supabaseClient.auth.signOut();
+
+        status.innerHTML =
+            '<span class="error">🚫 هذا الحساب ليس Admin.</span>';
+
+        return;
     }
 
 
-    /* ==========================================
-       SHOW DASHBOARD
-    ========================================== */
+    document.getElementById("loginSection")
+        .classList.add("hidden");
 
-    async function showDashboard() {
+    document.getElementById("dashboard")
+        .classList.remove("hidden");
 
-      $("#loginSection")
-        .style
-        .display =
-        "none";
 
-      $("#dashboard")
-        .style
-        .display =
-        "block";
+    document.getElementById("adminEmail")
+        .textContent = user.email;
 
-      await loadAdminProfile();
+
+    await loadAdminProfile();
+
+}
+
+
+// ===============================
+// LOAD ADMIN PROFILE
+// ===============================
+
+async function loadAdminProfile() {
+
+    const { data, error } =
+        await supabaseClient.rpc("get_my_profile");
+
+    if (error) {
+
+        console.error(error);
+
+        document.getElementById("adminCoins")
+            .textContent = "---";
+
+        return;
+    }
+
+    if (data && data.length > 0) {
+
+        document.getElementById("adminCoins")
+            .textContent =
+            Number(data[0].galaxy_coins || 0)
+                .toLocaleString();
 
     }
 
+}
 
-    /* ==========================================
-       HIDE DASHBOARD
-    ========================================== */
 
-    function hideDashboard() {
+// ===============================
+// SEARCH PLAYER
+// ===============================
 
-      $("#dashboard")
-        .style
-        .display =
-        "none";
+async function searchPlayer() {
 
-      $("#loginSection")
-        .style
-        .display =
-        "block";
+    const usernameInput =
+        document.getElementById("searchUsername");
 
+    const resultBox =
+        document.getElementById("playerResult");
+
+    const username =
+        usernameInput.value.trim();
+
+
+    if (!username) {
+
+        resultBox.innerHTML = `
+            <div class="status">
+                <span class="error">
+                    ❌ اكتب اسم المستخدم أولاً.
+                </span>
+            </div>
+        `;
+
+        return;
     }
 
 
-    /* ==========================================
-       LOGIN
-    ========================================== */
-
-    async function adminLogin() {
-
-      if (!supabaseClient) {
-
-        showStatus(
-          "تعذر الاتصال بـ Supabase.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      const email =
-        $("#email")
-          .value
-          .trim();
-
-      const password =
-        $("#password")
-          .value;
-
-      if (!email) {
-
-        showStatus(
-          "اكتب الإيميل.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      if (!password) {
-
-        showStatus(
-          "اكتب كلمة المرور.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      const button =
-        $("#loginButton");
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        "⏳ جاري التحقق...";
-
-      try {
-
-        const result =
-          await supabaseClient.auth
-            .signInWithPassword({
-
-              email:
-                email,
-
-              password:
-                password
-
-            });
-
-        if (result.error) {
-
-          throw result.error;
-
-        }
-
-        currentUser =
-          result.data.user;
-
-        const admin =
-          await isAdmin();
-
-        if (!admin) {
-
-          await supabaseClient.auth
-            .signOut();
-
-          currentUser =
-            null;
-
-          throw new Error(
-            "هذا الحساب ليس لديه صلاحية Admin."
-          );
-
-        }
-
-        await showDashboard();
-
-        showStatus(
-          "👑 تم الدخول إلى لوحة الأدمن بنجاح.",
-          "success"
-        );
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        showStatus(
-          error.message ||
-          "فشل تسجيل الدخول.",
-          "error"
-        );
-
-      } finally {
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          "👑 دخول لوحة الأدمن";
-
-      }
-
-    }
-
-
-    /* ==========================================
-       SEARCH USER
-    ========================================== */
-
-    async function searchUser() {
-
-      if (!currentUser) {
-
-        showStatus(
-          "سجل دخول الأدمن أولاً.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      const username =
-        $("#searchUsername")
-          .value
-          .trim();
-
-      if (!username) {
-
-        showStatus(
-          "اكتب Username.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      const button =
-        $("#searchButton");
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        "⏳ بحث...";
-
-      try {
-
-        /*
-          نستخدم جدول profiles
-          لقراءة بيانات اللاعب.
-        */
-
-        const result =
-          await supabaseClient
-            .from("profiles")
-            .select(
-              "username, galaxy_coins, rank"
-            )
-            .eq(
-              "username",
-              username
-            )
-            .maybeSingle();
-
-        if (result.error) {
-
-          throw result.error;
-
-        }
-
-        if (!result.data) {
-
-          $("#userResult")
-            .style
-            .display =
-            "none";
-
-          showStatus(
-            "❌ لم يتم العثور على هذا اللاعب.",
-            "error"
-          );
-
-          return;
-
-        }
-
-        $("#resultUsername")
-          .textContent =
-          result.data.username ||
-          "—";
-
-        $("#resultCoins")
-          .textContent =
-          Number(
-            result.data.galaxy_coins ||
-            0
-          ).toLocaleString();
-
-        $("#resultRank")
-          .textContent =
-          result.data.rank ||
-          "BRONZE";
-
-        $("#userResult")
-          .style
-          .display =
-          "block";
-
-        /*
-          نضع Username أيضاً
-          داخل إدارة Coins.
-        */
-
-        $("#targetUsername")
-          .value =
-          result.data.username;
-
-        showStatus(
-          "✅ تم العثور على اللاعب.",
-          "success"
-        );
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        showStatus(
-          error.message ||
-          "حدث خطأ أثناء البحث.",
-          "error"
-        );
-
-      } finally {
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          "🔎 بحث";
-
-      }
-
-    }
-
-
-    /* ==========================================
-       CHANGE COINS
-    ========================================== */
-
-    async function changeCoins(
-      action
-    ) {
-
-      if (!currentUser) {
-
-        showStatus(
-          "سجل دخول الأدمن أولاً.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      const username =
-        $("#targetUsername")
-          .value
-          .trim();
-
-      const amount =
-        Number(
-          $("#coinAmount")
-            .value
-        );
-
-      if (!username) {
-
-        showStatus(
-          "اكتب Username للاعب.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      if (
-        !amount ||
-        amount <= 0
-      ) {
-
-        showStatus(
-          "اكتب كمية Coins صحيحة.",
-          "error"
-        );
-
-        return;
-
-      }
-
-      const button =
-        action === "add"
-          ? $("#addButton")
-          : $("#removeButton");
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        "⏳ جاري التنفيذ...";
-
-      try {
-
-        const functionName =
-          action === "add"
-            ? "admin_add_coins"
-            : "admin_remove_coins";
-
-        const result =
-          await supabaseClient.rpc(
-            functionName,
+    resultBox.innerHTML = `
+        <div class="status">
+            <span class="loading">
+                🔎 جاري البحث...
+            </span>
+        </div>
+    `;
+
+
+    const { data, error } =
+        await supabaseClient.rpc(
+            "admin_find_player",
             {
-              receiver_username:
-                username,
-
-              amount:
-                amount
+                search_username: username
             }
-          );
-
-        if (result.error) {
-
-          throw result.error;
-
-        }
-
-        showStatus(
-          action === "add"
-            ? `✅ تمت إضافة ${amount.toLocaleString()} Coins إلى ${username}.`
-            : `✅ تمت إزالة ${amount.toLocaleString()} Coins من ${username}.`,
-          "success"
         );
 
-        /*
-          تحديث معلومات اللاعب
-        */
 
-        $("#searchUsername")
-          .value =
-          username;
+    if (error) {
 
-        await searchUser();
+        console.error(error);
 
-        /*
-          تحديث رصيد الأدمن
-        */
-
-        await loadAdminProfile();
-
-        $("#coinAmount")
-          .value =
-          "";
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-        showStatus(
-          error.message ||
-          "فشلت عملية Coins.",
-          "error"
-        );
-
-      } finally {
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          action === "add"
-            ? "➕ إضافة"
-            : "➖ إزالة";
-
-      }
-
-    }
-
-
-    /* ==========================================
-       LOGOUT
-    ========================================== */
-
-    async function logout() {
-
-      try {
-
-        if (supabaseClient) {
-
-          await supabaseClient.auth
-            .signOut();
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-      }
-
-      currentUser =
-        null;
-
-      currentProfile =
-        null;
-
-      hideDashboard();
-
-      showStatus(
-        "👋 تم تسجيل الخروج.",
-        "success"
-      );
-
-    }
-
-
-    /* ==========================================
-       RESTORE SESSION
-    ========================================== */
-
-    async function restoreSession() {
-
-      if (!supabaseClient) {
-
-        showStatus(
-          "تعذر تحميل Supabase.",
-          "error"
-        );
+        resultBox.innerHTML = `
+            <div class="status">
+                <span class="error">
+                    ❌ صار خطأ أثناء البحث.
+                </span>
+            </div>
+        `;
 
         return;
-
-      }
-
-      try {
-
-        const result =
-          await supabaseClient.auth
-            .getSession();
-
-        if (result.error) {
-
-          console.error(
-            result.error
-          );
-
-          return;
-
-        }
-
-        const session =
-          result.data?.session;
-
-        if (!session) {
-
-          return;
-
-        }
-
-        currentUser =
-          session.user;
-
-        const admin =
-          await isAdmin();
-
-        if (!admin) {
-
-          await supabaseClient.auth
-            .signOut();
-
-          currentUser =
-            null;
-
-          return;
-
-        }
-
-        await showDashboard();
-
-      } catch (error) {
-
-        console.error(
-          error
-        );
-
-      }
-
     }
 
 
-    /* ==========================================
-       AUTH STATE
-    ========================================== */
+    if (!data || data.length === 0) {
 
-    function setupAuthListener() {
+        resultBox.innerHTML = `
+            <div class="status">
+                <span class="error">
+                    ❌ غير موجود هذا اللاعب.
+                </span>
+            </div>
+        `;
 
-      if (!supabaseClient) {
         return;
-      }
-
-      supabaseClient.auth
-        .onAuthStateChange(
-          (event, session) => {
-
-            setTimeout(
-              async () => {
-
-                try {
-
-                  if (!session) {
-
-                    currentUser =
-                      null;
-
-                    currentProfile =
-                      null;
-
-                    hideDashboard();
-
-                    return;
-
-                  }
-
-                  currentUser =
-                    session.user;
-
-                  const admin =
-                    await isAdmin();
-
-                  if (!admin) {
-
-                    await supabaseClient.auth
-                      .signOut();
-
-                    currentUser =
-                      null;
-
-                    hideDashboard();
-
-                    showStatus(
-                      "❌ هذا الحساب ليس أدمن.",
-                      "error"
-                    );
-
-                    return;
-
-                  }
-
-                  await showDashboard();
-
-                } catch (error) {
-
-                  console.error(
-                    error
-                  );
-
-                }
-
-              },
-              0
-            );
-
-          }
-        );
-
     }
 
 
-    /* ==========================================
-       EVENTS
-    ========================================== */
-
-    function setupEvents() {
-
-      $("#loginButton")
-        .addEventListener(
-          "click",
-          adminLogin
-        );
+    const player = data[0];
 
 
-      $("#searchButton")
-        .addEventListener(
-          "click",
-          searchUser
-        );
+    resultBox.innerHTML = `
+
+        <div class="player-card">
+
+            <h3>
+                🎮 ${escapeHtml(player.username)}
+            </h3>
+
+            <p>
+                💰 Galaxy Coins:
+                <strong>
+                    ${Number(player.galaxy_coins || 0).toLocaleString()}
+                </strong>
+            </p>
+
+            <p>
+                🏆 Rank:
+                <strong>
+                    ${escapeHtml(player.rank || "BRONZE")}
+                </strong>
+            </p>
+
+            <div class="coin-actions">
+
+                <input
+                    type="number"
+                    id="coinAmount"
+                    placeholder="عدد Galaxy Coins"
+                    min="1"
+                    step="1"
+                >
+
+                <button onclick="addCoins()">
+                    ➕ إضافة Galaxy Coins
+                </button>
+
+                <button
+                    class="danger"
+                    onclick="removeCoins()"
+                >
+                    ➖ حذف Galaxy Coins
+                </button>
+
+            </div>
+
+            <div id="coinStatus"></div>
+
+        </div>
+    `;
+
+}
 
 
-      $("#addButton")
-        .addEventListener(
-          "click",
-          () =>
-            changeCoins("add")
-        );
+// ===============================
+// ADD COINS
+// ===============================
+
+async function addCoins() {
+
+    const username =
+        document.getElementById("searchUsername")
+            .value.trim();
+
+    const amount =
+        Number(document.getElementById("coinAmount").value);
+
+    const status =
+        document.getElementById("coinStatus");
 
 
-      $("#removeButton")
-        .addEventListener(
-          "click",
-          () =>
-            changeCoins("remove")
-        );
+    if (!username || !amount || amount <= 0) {
+
+        status.innerHTML = `
+            <div class="status">
+                <span class="error">
+                    ❌ اكتب عدد صحيح من الـ Coins.
+                </span>
+            </div>
+        `;
+
+        return;
+    }
 
 
-      $("#logoutButton")
-        .addEventListener(
-          "click",
-          logout
-        );
+    status.innerHTML = `
+        <div class="status">
+            <span class="loading">
+                🔄 جاري إضافة Coins...
+            </span>
+        </div>
+    `;
 
 
-      /*
-        Enter للبحث
-      */
-
-      $("#searchUsername")
-        .addEventListener(
-          "keydown",
-          (event) => {
-
-            if (
-              event.key ===
-              "Enter"
-            ) {
-
-              searchUser();
-
+    const { data, error } =
+        await supabaseClient.rpc(
+            "admin_add_coins",
+            {
+                receiver_username: username,
+                amount: Math.floor(amount)
             }
-
-          }
         );
 
 
-      /*
-        Enter لتسجيل الدخول
-      */
+    if (error) {
 
-      $("#password")
-        .addEventListener(
-          "keydown",
-          (event) => {
+        console.error(error);
 
-            if (
-              event.key ===
-              "Enter"
-            ) {
+        status.innerHTML = `
+            <div class="status">
+                <span class="error">
+                    ❌ فشلت إضافة Coins.
+                </span>
+            </div>
+        `;
 
-              adminLogin();
+        return;
+    }
 
+
+    status.innerHTML = `
+        <div class="status">
+            <span class="success">
+                ✅ تمت إضافة ${Math.floor(amount).toLocaleString()}
+                Galaxy Coins بنجاح.
+            </span>
+        </div>
+    `;
+
+
+    await searchPlayer();
+
+    await loadAdminProfile();
+
+}
+
+
+// ===============================
+// REMOVE COINS
+// ===============================
+
+async function removeCoins() {
+
+    const username =
+        document.getElementById("searchUsername")
+            .value.trim();
+
+    const amount =
+        Number(document.getElementById("coinAmount").value);
+
+    const status =
+        document.getElementById("coinStatus");
+
+
+    if (!username || !amount || amount <= 0) {
+
+        status.innerHTML = `
+            <div class="status">
+                <span class="error">
+                    ❌ اكتب عدد صحيح من الـ Coins.
+                </span>
+            </div>
+        `;
+
+        return;
+    }
+
+
+    status.innerHTML = `
+        <div class="status">
+            <span class="loading">
+                🔄 جاري حذف Coins...
+            </span>
+        </div>
+    `;
+
+
+    const { data, error } =
+        await supabaseClient.rpc(
+            "admin_remove_coins",
+            {
+                receiver_username: username,
+                amount: Math.floor(amount)
             }
-
-          }
         );
 
+
+    if (error) {
+
+        console.error(error);
+
+        status.innerHTML = `
+            <div class="status">
+                <span class="error">
+                    ❌ فشل حذف Coins.
+                </span>
+            </div>
+        `;
+
+        return;
     }
 
 
-    /* ==========================================
-       START
-    ========================================== */
+    status.innerHTML = `
+        <div class="status">
+            <span class="success">
+                ✅ تمت إزالة ${Math.floor(amount).toLocaleString()}
+                Galaxy Coins بنجاح.
+            </span>
+        </div>
+    `;
 
-    async function start() {
 
-      createStars();
+    await searchPlayer();
 
-      setupEvents();
+    await loadAdminProfile();
 
-      setupAuthListener();
+}
 
-      await restoreSession();
+
+// ===============================
+// LOGOUT
+// ===============================
+
+async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    location.reload();
+
+}
+
+
+// ===============================
+// SECURITY: ESCAPE HTML
+// ===============================
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// ===============================
+// AUTO LOGIN CHECK
+// ===============================
+
+async function checkExistingSession() {
+
+    const {
+        data: { session }
+    } =
+        await supabaseClient.auth.getSession();
+
+    if (session) {
+
+        await checkAdmin();
 
     }
 
+}
 
-    /* ==========================================
-       RUN
-    ========================================== */
 
-    if (
-      document.readyState ===
-      "loading"
-    ) {
+checkExistingSession();
 
-      document.addEventListener(
-        "DOMContentLoaded",
-        start
-      );
-
-    } else {
-
-      start();
-
-    }
-
-  </script>
+</script>
 
 </body>
-
 </html>
