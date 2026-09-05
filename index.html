@@ -406,6 +406,7 @@
       justify-content: space-between;
       gap: 12px;
       transition: .2s;
+      cursor: pointer;
     }
 
     .player-card:hover {
@@ -415,6 +416,7 @@
 
     .player-info {
       min-width: 0;
+      flex: 1;
     }
 
     .player-avatar {
@@ -700,6 +702,82 @@
     }
 
     /* =========================
+       PLAYER PROFILE MODAL
+    ========================== */
+
+    .player-profile-box {
+      text-align: center;
+    }
+
+    .player-profile-avatar {
+      width: 105px;
+      height: 105px;
+      margin: 0 auto 18px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: linear-gradient(135deg,#6957e8,#00d4ff);
+      border: 2px solid rgba(98,234,255,.30);
+      box-shadow:
+        0 0 45px rgba(0,212,255,.18),
+        0 0 80px rgba(105,87,232,.12);
+      font-size: 44px;
+    }
+
+    .player-profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .player-profile-username {
+      font-size: 28px;
+      font-weight: 1000;
+      color: #7cecff;
+      word-break: break-word;
+    }
+
+    .player-profile-rank {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 15px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.09);
+      color: #d7d7eb;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .player-profile-status {
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+      color: #9292aa;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .player-profile-loading {
+      padding: 25px 10px;
+      text-align: center;
+      color: #9b9bb6;
+      line-height: 1.8;
+    }
+
+    .player-profile-error {
+      padding: 18px;
+      border-radius: 15px;
+      background: rgba(229,57,105,.08);
+      border: 1px solid rgba(229,57,105,.20);
+      color: #ff9ab7;
+      line-height: 1.8;
+    }
+
+    /* =========================
        FOOTER
     ========================== */
 
@@ -766,6 +844,11 @@
       .account-grid {
         grid-template-columns: 1fr 1fr;
       }
+
+      .player-profile-username {
+        font-size: 23px;
+      }
+
     }
   </style>
 </head>
@@ -1343,6 +1426,56 @@
 
 
   <!-- =========================
+       PLAYER PROFILE MODAL
+  ========================== -->
+
+  <div id="playerProfileModal" class="modal">
+
+    <div class="modal-box player-profile-box">
+
+      <div
+        id="playerProfileAvatar"
+        class="player-profile-avatar"
+      >
+        👤
+      </div>
+
+      <h2>
+        ملف اللاعب
+      </h2>
+
+      <div
+        id="playerProfileContent"
+        class="player-profile-loading"
+      >
+        ⏳ جاري تحميل اللاعب...
+      </div>
+
+      <div class="modal-actions">
+
+        <button
+          id="playerProfileAction"
+          type="button"
+        >
+          ➕ إضافة اللاعب
+        </button>
+
+        <button
+          id="closePlayerProfile"
+          class="secondary"
+          type="button"
+        >
+          إغلاق
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
        RESET PASSWORD
   ========================== -->
 
@@ -1528,6 +1661,8 @@
     let currentProfile = null;
     let authMode = "login";
 
+    let currentViewedPlayer = null;
+
 
     /* ==========================================
        HELPERS
@@ -1663,6 +1798,17 @@
       $("#accountModal")
         .classList
         .remove("show");
+
+    }
+
+
+    function closePlayerProfile() {
+
+      $("#playerProfileModal")
+        .classList
+        .remove("show");
+
+      currentViewedPlayer = null;
 
     }
 
@@ -2526,8 +2672,7 @@
 
     /* ==========================================
        PLAYER SEARCH
-       تم تعديل البحث ليستخدم RPC آمن
-       بدل القراءة المباشرة من profiles
+       يستخدم search_players
     ========================================== */
 
     async function searchPlayers() {
@@ -2702,6 +2847,23 @@
       card.className =
         "player-card";
 
+      /* فتح البروفايل عند الضغط على البطاقة */
+
+      card.onclick =
+        (event) => {
+
+          if (
+            event.target.closest("button")
+          ) {
+            return;
+          }
+
+          openPlayerProfile(
+            player.id
+          );
+
+        };
+
       const avatar =
         document.createElement("div");
 
@@ -2783,12 +2945,17 @@
           "➕ إضافة";
 
         button.onclick =
-          () =>
+          (event) => {
+
+            event.stopPropagation();
+
             addPlayer(
               player.id,
               player.username,
               button
             );
+
+          };
 
       } else {
 
@@ -2800,11 +2967,16 @@
         );
 
         button.onclick =
-          () =>
+          (event) => {
+
+            event.stopPropagation();
+
             removePlayer(
               player.id,
               player.username
             );
+
+          };
 
       }
 
@@ -2813,6 +2985,481 @@
       card.appendChild(button);
 
       return card;
+
+    }
+
+
+    /* ==========================================
+       OPEN PLAYER PROFILE
+       يستخدم get_player_profile
+    ========================================== */
+
+    async function openPlayerProfile(
+      playerId
+    ) {
+
+      if (!playerId) {
+
+        showError(
+          "معرف اللاعب غير موجود."
+        );
+
+        return;
+
+      }
+
+      if (!supabaseClient) {
+
+        showError(
+          "تعذر الاتصال بـ Supabase."
+        );
+
+        return;
+
+      }
+
+      if (
+        currentUser &&
+        playerId === currentUser.id
+      ) {
+
+        showAccount();
+
+        return;
+
+      }
+
+      currentViewedPlayer = {
+        id:
+          playerId
+      };
+
+      const modal =
+        $("#playerProfileModal");
+
+      const content =
+        $("#playerProfileContent");
+
+      const avatar =
+        $("#playerProfileAvatar");
+
+      const actionButton =
+        $("#playerProfileAction");
+
+      modal.classList.add("show");
+
+      avatar.innerHTML =
+        "⏳";
+
+      content.className =
+        "player-profile-loading";
+
+      content.innerHTML =
+        "⏳ جاري تحميل اللاعب...";
+
+      actionButton.style.display =
+        currentUser
+          ? "block"
+          : "none";
+
+      try {
+
+        const result =
+          await supabaseClient.rpc(
+            "get_player_profile",
+            {
+              player_uuid:
+                playerId
+            }
+          );
+
+        if (result.error) {
+
+          throw result.error;
+
+        }
+
+        let player =
+          result.data;
+
+        if (Array.isArray(player)) {
+
+          player =
+            player[0] || null;
+
+        }
+
+        if (!player) {
+
+          throw new Error(
+            "لم يتم العثور على هذا اللاعب."
+          );
+
+        }
+
+        currentViewedPlayer =
+          player;
+
+        /* Avatar */
+
+        avatar.innerHTML =
+          "";
+
+        if (player.avatar_url) {
+
+          const img =
+            document.createElement("img");
+
+          img.src =
+            player.avatar_url;
+
+          img.alt =
+            "Avatar";
+
+          img.onerror =
+            () => {
+
+              avatar.innerHTML =
+                "👤";
+
+            };
+
+          avatar.appendChild(img);
+
+        } else {
+
+          avatar.textContent =
+            "👤";
+
+        }
+
+        /* Content */
+
+        content.className =
+          "";
+
+        content.innerHTML =
+          `
+            <div class="player-profile-username">
+              @${escapeHtml(
+                player.username ||
+                "Player"
+              )}
+            </div>
+
+            <div class="player-profile-rank">
+              🏅 Rank:
+              ${escapeHtml(
+                player.rank ||
+                "BRONZE"
+              )}
+            </div>
+
+            <div class="player-profile-status">
+              🌌 لاعب في مجتمع Galaxy Arena
+              <br>
+              🪙 رصيد Galaxy Coins خاص ولا يظهر للاعبين الآخرين.
+            </div>
+          `;
+
+        /* Action */
+
+        if (!currentUser) {
+
+          actionButton.style.display =
+            "none";
+
+          return;
+
+        }
+
+        actionButton.style.display =
+          "block";
+
+        actionButton.textContent =
+          "⏳ جاري التحقق...";
+
+        actionButton.disabled =
+          true;
+
+        const existing =
+          await supabaseClient
+            .from("player_connections")
+            .select("id")
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .eq(
+              "player_id",
+              player.id
+            )
+            .maybeSingle();
+
+        if (existing.error) {
+
+          console.error(
+            "PLAYER CONNECTION CHECK ERROR:",
+            existing.error
+          );
+
+          actionButton.textContent =
+            "➕ إضافة اللاعب";
+
+          actionButton.disabled =
+            false;
+
+          return;
+
+        }
+
+        if (existing.data) {
+
+          actionButton.textContent =
+            "🗑️ إزالة اللاعب";
+
+          actionButton.classList.add(
+            "danger"
+          );
+
+        } else {
+
+          actionButton.textContent =
+            "➕ إضافة اللاعب";
+
+          actionButton.classList.remove(
+            "danger"
+          );
+
+        }
+
+        actionButton.disabled =
+          false;
+
+      } catch (error) {
+
+        console.error(
+          "PLAYER PROFILE ERROR:",
+          error
+        );
+
+        avatar.innerHTML =
+          "⚠️";
+
+        content.className =
+          "player-profile-error";
+
+        content.innerHTML =
+          `
+            ❌ تعذر تحميل بيانات اللاعب.
+            <br><br>
+            ${escapeHtml(
+              error.message ||
+              "حدث خطأ غير معروف."
+            )}
+          `;
+
+        actionButton.style.display =
+          "none";
+
+      }
+
+    }
+
+
+    /* ==========================================
+       PLAYER PROFILE ACTION
+    ========================================== */
+
+    async function handlePlayerProfileAction() {
+
+      if (!currentUser) {
+
+        closePlayerProfile();
+
+        openLogin();
+
+        return;
+
+      }
+
+      if (!currentViewedPlayer?.id) {
+
+        showError(
+          "لم يتم تحديد اللاعب."
+        );
+
+        return;
+
+      }
+
+      const player =
+        currentViewedPlayer;
+
+      if (
+        player.id === currentUser.id
+      ) {
+
+        closePlayerProfile();
+
+        showAccount();
+
+        return;
+
+      }
+
+      const button =
+        $("#playerProfileAction");
+
+      button.disabled =
+        true;
+
+      const originalText =
+        button.textContent;
+
+      button.textContent =
+        "⏳ جاري التنفيذ...";
+
+      try {
+
+        const existing =
+          await supabaseClient
+            .from("player_connections")
+            .select("id")
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .eq(
+              "player_id",
+              player.id
+            )
+            .maybeSingle();
+
+        if (existing.error) {
+
+          throw existing.error;
+
+        }
+
+        /* إذا موجود نحذفه */
+
+        if (existing.data) {
+
+          const result =
+            await supabaseClient
+              .from("player_connections")
+              .delete()
+              .eq(
+                "user_id",
+                currentUser.id
+              )
+              .eq(
+                "player_id",
+                player.id
+              );
+
+          if (result.error) {
+
+            throw result.error;
+
+          }
+
+          button.textContent =
+            "➕ إضافة اللاعب";
+
+          button.classList.remove(
+            "danger"
+          );
+
+          await loadMyPlayers();
+
+          alert(
+            "✅ تمت إزالة @" +
+            (
+              player.username ||
+              "Player"
+            ) +
+            " من قائمتك."
+          );
+
+        }
+
+        /* إذا غير موجود نضيفه */
+
+        else {
+
+          const result =
+            await supabaseClient
+              .from("player_connections")
+              .insert({
+
+                user_id:
+                  currentUser.id,
+
+                player_id:
+                  player.id
+
+              });
+
+          if (result.error) {
+
+            if (
+              result.error.code ===
+              "23505"
+            ) {
+
+              throw new Error(
+                "هذا اللاعب موجود بالفعل في قائمتك."
+              );
+
+            }
+
+            throw result.error;
+
+          }
+
+          button.textContent =
+            "🗑️ إزالة اللاعب";
+
+          button.classList.add(
+            "danger"
+          );
+
+          await loadMyPlayers();
+
+          alert(
+            "✅ تمت إضافة @" +
+            (
+              player.username ||
+              "Player"
+            ) +
+            " إلى لاعبيك."
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "PLAYER PROFILE ACTION ERROR:",
+          error
+        );
+
+        showError(
+          error.message ||
+          "تعذرت العملية."
+        );
+
+        button.textContent =
+          originalText;
+
+      } finally {
+
+        button.disabled =
+          false;
+
+      }
 
     }
 
@@ -2851,6 +3498,7 @@
       if (button) {
 
         button.disabled = true;
+
         button.textContent =
           "⏳";
 
@@ -2931,6 +3579,8 @@
 
     /* ==========================================
        LOAD MY PLAYERS
+       يستخدم get_player_profile
+       بدل القراءة المباشرة من profiles
     ========================================== */
 
     async function loadMyPlayers() {
@@ -2995,44 +3645,66 @@
               row.player_id
           );
 
-        const players =
-          await supabaseClient
-            .from("profiles")
-            .select(
-              "id,username,rank,avatar_url"
-            )
-            .in(
-              "id",
-              playerIds
+        const players = [];
+
+        for (
+          const playerId
+          of playerIds
+        ) {
+
+          try {
+
+            const result =
+              await supabaseClient.rpc(
+                "get_player_profile",
+                {
+                  player_uuid:
+                    playerId
+                }
+              );
+
+            if (result.error) {
+
+              console.error(
+                "PLAYER PROFILE LOAD ERROR:",
+                result.error
+              );
+
+              continue;
+
+            }
+
+            let player =
+              result.data;
+
+            if (Array.isArray(player)) {
+
+              player =
+                player[0] || null;
+
+            }
+
+            if (player) {
+
+              players.push(
+                player
+              );
+
+            }
+
+          } catch (error) {
+
+            console.error(
+              "PLAYER PROFILE SINGLE ERROR:",
+              error
             );
 
-        if (players.error) {
-
-          throw players.error;
+          }
 
         }
 
-        const playerMap =
-          new Map(
-            (players.data || [])
-              .map(
-                player => [
-                  player.id,
-                  player
-                ]
-              )
-          );
-
-        const orderedPlayers =
-          playerIds
-            .map(
-              id =>
-                playerMap.get(id)
-            )
-            .filter(Boolean);
-
         renderMyPlayers(
-          orderedPlayers
+          players
         );
 
       } catch (error) {
@@ -3046,6 +3718,11 @@
           `
             <div class="player-empty">
               ❌ تعذر تحميل لاعبيك.
+              <br>
+              ${escapeHtml(
+                error.message ||
+                "حدث خطأ."
+              )}
             </div>
           `;
 
@@ -3204,13 +3881,6 @@
 
 
     /* ==========================================
-       LOGIN / REGISTER
-    ========================================== */
-
-    /* موجودة بالأعلى بالكامل */
-
-
-    /* ==========================================
        FORGOT PASSWORD
     ========================================== */
 
@@ -3357,11 +4027,10 @@
       try {
 
         const result =
-          await supabaseClient.auth
-            .updateUser({
-              password:
-                password
-            });
+          await supabaseClient.auth.updateUser({
+            password:
+              password
+          });
 
         if (result.error) {
 
@@ -3506,8 +4175,14 @@
       $("#closeAccount").onclick =
         closeAccount;
 
+      $("#closePlayerProfile").onclick =
+        closePlayerProfile;
+
       $("#authSubmit").onclick =
         submitAuth;
+
+      $("#playerProfileAction").onclick =
+        handlePlayerProfileAction;
 
       $("#switchAuth").onclick =
         () => {
@@ -3675,6 +4350,26 @@
 
         }
       );
+
+
+      /* إغلاق Player Profile */
+
+      $("#playerProfileModal")
+        .addEventListener(
+          "click",
+          (event) => {
+
+            if (
+              event.target ===
+              $("#playerProfileModal")
+            ) {
+
+              closePlayerProfile();
+
+            }
+
+          }
+        );
 
     }
 
