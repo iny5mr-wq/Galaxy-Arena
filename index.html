@@ -1,150 +1,289 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
 
-    <title>Galaxy Arena</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-    <link rel="stylesheet" href="styles.css">
+  <title>Galaxy Arena</title>
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
 
-    <header class="navbar">
+  <!-- NAVBAR -->
+  <header>
 
-        <div class="brand">
-            🌌 Galaxy Arena
+    <nav>
+
+      <div class="logo">
+        🌌 Galaxy Arena
+      </div>
+
+      <div class="nav-links">
+
+        <a href="#home">
+          الرئيسية
+        </a>
+
+        <a href="#tournaments">
+          البطولات
+        </a>
+
+        <a href="#games">
+          الألعاب
+        </a>
+
+        <a href="#store">
+          المتجر
+        </a>
+
+      </div>
+
+      <div class="user-area">
+
+        <span>
+          🪙
+          <span id="coins">0</span>
+        </span>
+
+        <button
+          id="loginBtn"
+          type="button"
+        >
+          تسجيل الدخول
+        </button>
+
+      </div>
+
+    </nav>
+
+  </header>
+
+
+  <!-- HERO -->
+  <main>
+
+    <section
+      id="home"
+      class="hero"
+    >
+
+      <p>
+        WELCOME TO
+      </p>
+
+      <h1>
+        GALAXY ARENA
+      </h1>
+
+      <h2>
+        عالم اللاعبين يبدأ من هنا 🚀
+      </h2>
+
+      <p>
+        شارك بالبطولات، العب ألعابك المفضلة،
+        اجمع Galaxy Coins ونافس اللاعبين حول العالم.
+      </p>
+
+      <button
+        id="heroLoginBtn"
+        type="button"
+      >
+        🚀 تسجيل الدخول
+      </button>
+
+    </section>
+
+
+    <!-- TOURNAMENTS -->
+    <section
+      id="tournaments"
+      class="section"
+    >
+
+      <h2>
+        🏆 البطولات
+      </h2>
+
+      <div class="cards">
+
+        <div class="card">
+
+          <h3>
+            Call of Duty
+          </h3>
+
+          <p>
+            تنافس ضد أفضل اللاعبين.
+          </p>
+
+          <button type="button">
+            قريباً
+          </button>
+
         </div>
 
-        <nav>
-            <a href="#home">الرئيسية</a>
-            <a href="#tournaments">البطولات</a>
-            <a href="#games">الألعاب</a>
-            <a href="#store">المتجر</a>
-        </nav>
 
-        <div class="coins">
-            🪙 <span id="coins">0</span>
+        <div class="card">
+
+          <h3>
+            FC 26
+          </h3>
+
+          <p>
+            أثبت أنك أفضل لاعب كرة قدم.
+          </p>
+
+          <button type="button">
+            قريباً
+          </button>
+
         </div>
 
-    </header>
+
+        <div class="card">
+
+          <h3>
+            Fortnite
+          </h3>
+
+          <p>
+            ادخل المنافسة واربح.
+          </p>
+
+          <button type="button">
+            قريباً
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
 
 
-    <main>
+    <!-- GAMES -->
+    <section
+      id="games"
+      class="section"
+    >
 
-        <section id="home" class="hero">
+      <h2>
+        🎮 الألعاب
+      </h2>
 
-            <div class="hero-content">
+      <div class="cards">
 
-                <p class="welcome">WELCOME TO</p>
+        <div class="card">
+          <h3>Call of Duty</h3>
+          <p>FPS</p>
+        </div>
 
-                <h1>GALAXY ARENA</h1>
+        <div class="card">
+          <h3>FC 26</h3>
+          <p>Football</p>
+        </div>
 
-                <p>
-                    عالم اللاعبين والبطولات والألعاب
-                </p>
+        <div class="card">
+          <h3>Fortnite</h3>
+          <p>Battle Royale</p>
+        </div>
 
-                <button id="loginButton">
-                    تسجيل الدخول
-                </button>
+      </div>
 
-            </div>
-
-        </section>
-
-
-        <section id="tournaments" class="section">
-
-            <h2>🏆 البطولات</h2>
-
-            <div class="cards">
-
-                <div class="card">
-                    <h3>Call of Duty</h3>
-                    <p>بطولة يومية</p>
-                    <strong>الدخول: 500 🪙</strong>
-                    <button>انضم للبطولة</button>
-                </div>
-
-                <div class="card">
-                    <h3>FC 26</h3>
-                    <p>بطولة عالمية</p>
-                    <strong>الدخول: 1000 🪙</strong>
-                    <button>انضم للبطولة</button>
-                </div>
-
-                <div class="card">
-                    <h3>Fortnite</h3>
-                    <p>بطولة Solo</p>
-                    <strong>الدخول: 750 🪙</strong>
-                    <button>انضم للبطولة</button>
-                </div>
-
-            </div>
-
-        </section>
+    </section>
 
 
-        <section id="games" class="section">
+    <!-- STORE -->
+    <section
+      id="store"
+      class="section"
+    >
 
-            <h2>🎮 الألعاب</h2>
+      <h2>
+        🛒 Galaxy Store
+      </h2>
 
-            <div class="cards">
+      <div class="cards">
 
-                <div class="card">
-                    <h3>Call of Duty</h3>
-                    <p>استكشف البطولات والمنافسات.</p>
-                </div>
+        <div class="card coin-card">
 
-                <div class="card">
-                    <h3>FC 26</h3>
-                    <p>نافس اللاعبين حول العالم.</p>
-                </div>
+          <h3>
+            🪙 Galaxy Coins
+          </h3>
 
-                <div class="card">
-                    <h3>Fortnite</h3>
-                    <p>أثبت أنك الأفضل.</p>
-                </div>
+          <p>
+            اشحن رصيدك وشارك بالبطولات.
+          </p>
 
-            </div>
+          <button
+            id="buyCoinsBtn"
+            type="button"
+          >
+            شراء Galaxy Coins
+          </button>
 
-        </section>
+        </div>
 
+      </div>
 
-        <section id="store" class="section">
+    </section>
 
-            <h2>🛒 Galaxy Store</h2>
-
-            <div class="card store-card">
-
-                <h3>Galaxy Coins</h3>
-
-                <p>
-                    اشحن رصيدك واستمتع بالبطولات.
-                </p>
-
-                <button>
-                    شراء Galaxy Coins
-                </button>
-
-            </div>
-
-        </section>
-
-    </main>
+  </main>
 
 
-    <footer>
+  <!-- FOOTER -->
+  <footer>
 
-        <p>© 2026 Galaxy Arena</p>
+    <p>
+      © 2026 Galaxy Arena
+    </p>
 
-    </footer>
+    <p>
+      Built for gamers 🌌
+    </p>
+
+  </footer>
 
 
-    <script src="app.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+
+    /*
+      زر الدخول الموجود بالـ Hero
+      يستخدم نفس وظيفة تسجيل الدخول.
+    */
+
+    const heroLoginBtn =
+      document.querySelector("#heroLoginBtn");
+
+    if (heroLoginBtn) {
+
+      heroLoginBtn.addEventListener(
+        "click",
+        () => {
+
+          if (typeof login === "function") {
+            login();
+          }
+
+        }
+      );
+
+    }
+
+  </script>
 
 </body>
-
 </html>
