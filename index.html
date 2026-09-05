@@ -2526,6 +2526,8 @@
 
     /* ==========================================
        PLAYER SEARCH
+       تم تعديل البحث ليستخدم RPC آمن
+       بدل القراءة المباشرة من profiles
     ========================================== */
 
     async function searchPlayers() {
@@ -2587,16 +2589,13 @@
       try {
 
         const result =
-          await supabaseClient
-            .from("profiles")
-            .select(
-              "id,username,rank,avatar_url"
-            )
-            .ilike(
-              "username",
-              "%" + query + "%"
-            )
-            .limit(20);
+          await supabaseClient.rpc(
+            "search_players",
+            {
+              search_username:
+                query
+            }
+          );
 
         if (result.error) {
 
