@@ -2,26 +2,26 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#070511">
-<title>Username Galaxy V2</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#05020d">
+<title>Username Galaxy V3</title>
 
 <style>
 *{
   box-sizing:border-box;
   margin:0;
   padding:0;
-  font-family:Arial,Tahoma,sans-serif;
+  font-family:Arial,Tahoma,sans-serif
 }
 
 body{
   min-height:100vh;
   color:#fff;
   background:
-    radial-gradient(circle at 15% 15%,rgba(133,55,255,.25),transparent 30%),
-    radial-gradient(circle at 85% 80%,rgba(0,225,255,.18),transparent 32%),
-    #05020c;
-  overflow-x:hidden;
+  radial-gradient(circle at 15% 15%,rgba(130,40,255,.25),transparent 30%),
+  radial-gradient(circle at 85% 80%,rgba(0,220,255,.18),transparent 32%),
+  #05020d;
+  overflow-x:hidden
 }
 
 body:before{
@@ -29,16 +29,16 @@ body:before{
   position:fixed;
   inset:0;
   pointer-events:none;
-  opacity:.25;
+  opacity:.22;
   background-image:
-    radial-gradient(#fff 1px,transparent 1px),
-    radial-gradient(#fff 1px,transparent 1px);
+  radial-gradient(#fff 1px,transparent 1px),
+  radial-gradient(#fff 1px,transparent 1px);
   background-size:90px 90px,150px 150px;
   background-position:10px 20px,50px 80px;
-  animation:space 30s linear infinite;
+  animation:stars 30s linear infinite
 }
 
-@keyframes space{
+@keyframes stars{
   from{transform:translateY(0)}
   to{transform:translateY(100px)}
 }
@@ -48,12 +48,12 @@ body:before{
   z-index:1;
   width:min(1000px,94%);
   margin:auto;
-  padding:28px 0 40px;
+  padding:28px 0 40px
 }
 
 .header{
   text-align:center;
-  margin-bottom:22px;
+  margin-bottom:22px
 }
 
 .logo{
@@ -61,35 +61,35 @@ body:before{
   font-weight:900;
   background:linear-gradient(90deg,#bd6cff,#00eaff);
   -webkit-background-clip:text;
-  color:transparent;
+  color:transparent
 }
 
-.version{
+.sub{
   margin-top:7px;
-  color:#8e8a9e;
-  font-size:13px;
+  color:#8d899b;
+  font-size:13px
 }
 
 .card{
-  background:rgba(13,9,28,.88);
+  background:rgba(13,9,28,.9);
   border:1px solid rgba(150,90,255,.28);
   border-radius:22px;
   padding:20px;
   margin-bottom:18px;
-  box-shadow:0 0 35px rgba(91,30,255,.10);
-  backdrop-filter:blur(12px);
+  box-shadow:0 0 35px rgba(90,30,255,.1);
+  backdrop-filter:blur(12px)
 }
 
 .title{
   font-size:18px;
   font-weight:bold;
-  margin-bottom:14px;
+  margin-bottom:14px
 }
 
 .modes{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:9px;
+  gap:9px
 }
 
 .mode{
@@ -98,29 +98,28 @@ body:before{
   color:#ccc;
   border-radius:13px;
   padding:13px 6px;
-  cursor:pointer;
-  transition:.2s;
+  cursor:pointer
 }
 
 .mode.active{
   border-color:#00eaff;
   color:#fff;
   background:linear-gradient(135deg,#241047,#08212b);
-  box-shadow:0 0 18px rgba(0,234,255,.12);
+  box-shadow:0 0 18px rgba(0,234,255,.12)
 }
 
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:12px;
-  margin-top:16px;
+  margin-top:16px
 }
 
 label{
   display:block;
   color:#aaa;
   font-size:13px;
-  margin-bottom:7px;
+  margin-bottom:7px
 }
 
 input,select{
@@ -130,18 +129,18 @@ input,select{
   border:1px solid #34244d;
   border-radius:12px;
   padding:13px;
-  outline:none;
+  outline:none
 }
 
 input:focus,select:focus{
-  border-color:#00eaff;
+  border-color:#00eaff
 }
 
 .checks{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:9px;
-  margin-top:12px;
+  margin-top:12px
 }
 
 .check{
@@ -152,12 +151,12 @@ input:focus,select:focus{
   color:#ccc;
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:8px
 }
 
 .check input{
   width:auto;
-  accent-color:#00eaff;
+  accent-color:#00eaff
 }
 
 .generate{
@@ -166,23 +165,29 @@ input:focus,select:focus{
   padding:15px;
   border:0;
   border-radius:14px;
-  color:white;
+  color:#fff;
   font-size:16px;
   font-weight:bold;
   cursor:pointer;
-  background:linear-gradient(90deg,#792cff,#00c9ec);
-  box-shadow:0 0 24px rgba(0,200,255,.16);
+  background:linear-gradient(90deg,#792cff,#00c9ec)
 }
 
-.generate:active{
-  transform:scale(.99);
+.info{
+  margin-top:13px;
+  padding:12px;
+  border-radius:12px;
+  background:#0a0712;
+  border:1px solid #241a35;
+  color:#999;
+  font-size:12px;
+  line-height:1.7
 }
 
 .toolbar{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
-  margin-bottom:14px;
+  margin-bottom:14px
 }
 
 .btn{
@@ -191,11 +196,11 @@ input:focus,select:focus{
   color:#fff;
   padding:10px 13px;
   border-radius:10px;
-  cursor:pointer;
+  cursor:pointer
 }
 
 .btn:hover{
-  border-color:#00eaff;
+  border-color:#00eaff
 }
 
 .stats{
@@ -204,7 +209,7 @@ input:focus,select:focus{
   align-items:center;
   margin-bottom:12px;
   color:#aaa;
-  font-size:13px;
+  font-size:13px
 }
 
 .results{
@@ -212,8 +217,7 @@ input:focus,select:focus{
   grid-template-columns:repeat(3,1fr);
   gap:9px;
   max-height:560px;
-  overflow:auto;
-  padding:2px;
+  overflow:auto
 }
 
 .user{
@@ -221,81 +225,85 @@ input:focus,select:focus{
   background:#090611;
   border:1px solid #241a34;
   border-radius:12px;
-  padding:13px 8px;
-  text-align:center;
-  direction:ltr;
-  transition:.15s;
-}
-
-.user:hover{
-  border-color:#00eaff;
-  transform:translateY(-2px);
+  padding:14px 8px;
+  text-align:center
 }
 
 .name{
+  direction:ltr;
   font-weight:bold;
   font-size:16px;
-  margin-bottom:9px;
-  word-break:break-all;
+  margin-bottom:10px;
+  word-break:break-all
 }
 
-.user-actions{
+.status{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:7px;
+  font-size:10px;
+  margin-bottom:9px;
+  background:#171025;
+  color:#aaa
+}
+
+.status.available{
+  background:rgba(0,220,150,.1);
+  color:#63ffc8
+}
+
+.status.taken{
+  background:rgba(255,70,100,.1);
+  color:#ff879c
+}
+
+.actions{
   display:flex;
-  gap:5px;
+  gap:5px
 }
 
 .small{
   flex:1;
-  padding:7px 4px;
+  padding:7px 3px;
   border-radius:8px;
   border:1px solid #332345;
   background:#100a19;
   color:#ddd;
   cursor:pointer;
-  font-size:11px;
+  font-size:11px
 }
 
 .small:hover{
-  border-color:#00eaff;
+  border-color:#00eaff
 }
 
-.favorite{
+.fav{
   position:absolute;
   top:6px;
   right:7px;
   border:0;
   background:none;
-  color:#666;
+  color:#555;
   cursor:pointer;
-  font-size:15px;
+  font-size:16px
 }
 
-.favorite.on{
-  color:#ff4fc8;
+.fav.on{
+  color:#ff4fc8
 }
 
 .empty{
   grid-column:1/-1;
   text-align:center;
   color:#666;
-  padding:40px 10px;
+  padding:40px 10px
 }
 
 .footer{
   text-align:center;
   color:#555;
   font-size:11px;
-  margin-top:10px;
-}
-
-.badge{
-  display:inline-block;
-  margin-right:5px;
-  padding:3px 6px;
-  border-radius:6px;
-  background:#171025;
-  color:#8defff;
-  font-size:10px;
+  margin-top:10px
 }
 
 @media(max-width:650px){
@@ -304,7 +312,7 @@ input:focus,select:focus{
   .grid{grid-template-columns:1fr}
   .checks{grid-template-columns:1fr}
   .results{grid-template-columns:repeat(2,1fr)}
-  .stats{align-items:flex-start;gap:8px;flex-direction:column}
+  .stats{flex-direction:column;align-items:flex-start;gap:7px}
 }
 
 @media(max-width:380px){
@@ -317,500 +325,502 @@ input:focus,select:focus{
 
 <div class="app">
 
-  <header class="header">
-    <div class="logo">USERNAME GALAXY</div>
-    <div class="version">V2 • Short Username Generator</div>
-  </header>
+<header class="header">
+  <div class="logo">USERNAME GALAXY</div>
+  <div class="sub">V3 • Short Username Finder</div>
+</header>
 
-  <section class="card">
+<section class="card">
 
-    <div class="title">⚡ إعدادات التوليد</div>
+<div class="title">⚡ مولّد اليوزرات</div>
 
-    <div class="modes">
-      <button class="mode active" data-mode="3">
-        ثلاثي<br>
-        <small>3 أحرف</small>
-      </button>
+<div class="modes">
 
-      <button class="mode" data-mode="semi">
-        شبه ثلاثي<br>
-        <small>3 + رمز</small>
-      </button>
+<button class="mode active" data-mode="3">
+ثلاثي<br><small>3 أحرف</small>
+</button>
 
-      <button class="mode" data-mode="4">
-        رباعي<br>
-        <small>4 أحرف</small>
-      </button>
-    </div>
+<button class="mode" data-mode="semi">
+شبه ثلاثي<br><small>3 + رمز</small>
+</button>
 
-    <div class="grid">
+<button class="mode" data-mode="4">
+رباعي<br><small>4 أحرف</small>
+</button>
 
-      <div>
-        <label>عدد النتائج</label>
-        <input id="amount" type="number" min="1" max="10000" value="500">
-      </div>
+</div>
 
-      <div>
-        <label>نوع التركيبة</label>
-        <select id="characters">
-          <option value="letters">حروف فقط</option>
-          <option value="numbers">أرقام فقط</option>
-          <option value="mixed" selected>حروف + أرقام</option>
-        </select>
-      </div>
+<div class="grid">
 
-    </div>
+<div>
+<label>عدد النتائج</label>
+<input id="amount" type="number" min="1" max="10000" value="500">
+</div>
 
-    <div class="checks">
+<div>
+<label>التركيبة</label>
+<select id="chars">
+<option value="letters">حروف فقط</option>
+<option value="numbers">أرقام فقط</option>
+<option value="mixed" selected>حروف + أرقام</option>
+</select>
+</div>
 
-      <label class="check">
-        <input id="underscore" type="checkbox">
-        السماح بـ _
-      </label>
+</div>
 
-      <label class="check">
-        <input id="dot" type="checkbox">
-        السماح بـ .
-      </label>
+<div class="checks">
 
-    </div>
+<label class="check">
+<input id="underscore" type="checkbox">
+السماح بـ _
+</label>
 
-    <button class="generate" onclick="generate()">
-      🚀 توليد اليوزرات
-    </button>
+<label class="check">
+<input id="dot" type="checkbox">
+السماح بـ .
+</label>
 
-  </section>
+</div>
+
+<button class="generate" onclick="generate()">
+🚀 توليد اليوزرات
+</button>
+
+<div class="info">
+الأداة تولّد التركيبات فقط. اضغط «فحص» لفتح صفحة اليوزر في Instagram، ثم إذا كان الاسم متاحاً جرّبه من إعدادات حسابك.
+</div>
+
+</section>
 
 
-  <section class="card">
+<section class="card">
 
-    <div class="stats">
-      <span id="count">0 نتيجة</span>
-      <span id="favCount">0 مفضلة</span>
-    </div>
+<div class="stats">
+<span id="count">0 نتيجة</span>
+<span id="favCount">0 مفضلة</span>
+</div>
 
-    <div class="toolbar">
+<div class="toolbar">
 
-      <button class="btn" onclick="copyAll()">
-        📋 نسخ الكل
-      </button>
+<button class="btn" onclick="copyAll()">
+📋 نسخ الكل
+</button>
 
-      <button class="btn" onclick="copyFavorites()">
-        ❤️ نسخ المفضلة
-      </button>
+<button class="btn" onclick="copyAvailable()">
+🟢 نسخ المتاح
+</button>
 
-      <button class="btn" onclick="downloadTXT()">
-        💾 TXT
-      </button>
+<button class="btn" onclick="downloadTXT()">
+💾 تحميل TXT
+</button>
 
-      <button class="btn" onclick="openRandom()">
-        🎯 فحص عشوائي
-      </button>
+<button class="btn" onclick="clearAll()">
+🗑️ مسح
+</button>
 
-      <button class="btn" onclick="clearAll()">
-        🗑️ مسح
-      </button>
+</div>
 
-    </div>
+<div id="results" class="results">
 
-    <div id="results" class="results">
-      <div class="empty">
-        اضغط «توليد اليوزرات» للبدء
-      </div>
-    </div>
+<div class="empty">
+اضغط «توليد اليوزرات» للبدء
+</div>
 
-  </section>
+</div>
 
-  <div class="footer">
-    Username Galaxy V2
-  </div>
+</section>
+
+<div class="footer">
+Username Galaxy V3
+</div>
 
 </div>
 
 
 <script>
 
-let mode = "3";
-let users = [];
-let favorites = new Set();
+let mode="3";
+let users=[];
+let statusMap={};
+let favorites=new Set();
 
-const letters = "abcdefghijklmnopqrstuvwxyz";
-const numbers = "0123456789";
+const letters="abcdefghijklmnopqrstuvwxyz";
+const numbers="0123456789";
 
-document.querySelectorAll(".mode").forEach(btn => {
 
-  btn.addEventListener("click", () => {
+document.querySelectorAll(".mode").forEach(btn=>{
 
-    document.querySelectorAll(".mode")
-      .forEach(x => x.classList.remove("active"));
+btn.addEventListener("click",()=>{
 
-    btn.classList.add("active");
+document.querySelectorAll(".mode")
+.forEach(x=>x.classList.remove("active"));
 
-    mode = btn.dataset.mode;
+btn.classList.add("active");
 
-  });
+mode=btn.dataset.mode;
+
+});
 
 });
 
 
 function getChars(){
 
-  const type = document.getElementById("characters").value;
+const type=document.getElementById("chars").value;
 
-  let chars = "";
+if(type==="letters") return letters;
 
-  if(type === "letters")
-    chars = letters;
+if(type==="numbers") return numbers;
 
-  if(type === "numbers")
-    chars = numbers;
+return letters+numbers;
 
-  if(type === "mixed")
-    chars = letters + numbers;
-
-  return chars;
 }
 
 
 function randomChar(chars){
 
-  return chars[Math.floor(Math.random() * chars.length)];
+return chars[
+Math.floor(Math.random()*chars.length)
+];
 
 }
 
 
-function randomString(length, chars){
+function randomString(length,chars){
 
-  let result = "";
+let result="";
 
-  for(let i=0;i<length;i++){
-    result += randomChar(chars);
-  }
+for(let i=0;i<length;i++){
+result+=randomChar(chars);
+}
 
-  return result;
+return result;
 
 }
 
 
-function specialUsername(chars){
+function makeSemi(chars){
 
-  const allowUnderscore =
-    document.getElementById("underscore").checked;
+let symbols="";
 
-  const allowDot =
-    document.getElementById("dot").checked;
+if(document.getElementById("underscore").checked)
+symbols+="_";
 
-  let symbols = "";
+if(document.getElementById("dot").checked)
+symbols+=".";
 
-  if(allowUnderscore) symbols += "_";
-  if(allowDot) symbols += ".";
+if(!symbols){
+return randomString(4,chars);
+}
 
-  if(!symbols){
+const symbol=randomChar(symbols);
+const position=Math.floor(Math.random()*4);
 
-    return randomString(4, chars);
+let result="";
 
-  }
+for(let i=0;i<4;i++){
 
-  let symbol = randomChar(symbols);
+if(i===position)
+result+=symbol;
+else
+result+=randomChar(chars);
 
-  let position = Math.floor(Math.random() * 4);
+}
 
-  let result = "";
-
-  for(let i=0;i<4;i++){
-
-    if(i === position)
-      result += symbol;
-    else
-      result += randomChar(chars);
-
-  }
-
-  return result;
+return result;
 
 }
 
 
 function generate(){
 
-  const amount = Math.min(
-    Math.max(
-      parseInt(document.getElementById("amount").value) || 500,
-      1
-    ),
-    10000
-  );
+const amount=Math.min(
+Math.max(
+parseInt(document.getElementById("amount").value)||500,
+1
+),
+10000
+);
 
-  const chars = getChars();
+const chars=getChars();
 
-  if(!chars){
+const set=new Set();
 
-    alert("اختر نوع الأحرف.");
-    return;
+let tries=0;
 
-  }
+while(set.size<amount && tries<amount*100){
 
-  const set = new Set();
+let username;
 
-  let tries = 0;
-  const maxTries = amount * 100;
+if(mode==="3")
+username=randomString(3,chars);
 
-  while(set.size < amount && tries < maxTries){
+else if(mode==="4")
+username=randomString(4,chars);
 
-    let username;
+else
+username=makeSemi(chars);
 
-    if(mode === "3"){
+if(
+username.length>=3 &&
+username.length<=4 &&
+!username.startsWith(".") &&
+!username.endsWith(".") &&
+!username.includes("..")
+){
 
-      username = randomString(3, chars);
+set.add(username);
 
-    }else if(mode === "4"){
+}
 
-      username = randomString(4, chars);
+tries++;
 
-    }else{
+}
 
-      username = specialUsername(chars);
+users=Array.from(set);
 
-    }
+statusMap={};
 
-    if(
-      username.length >= 3 &&
-      username.length <= 4 &&
-      !username.startsWith(".") &&
-      !username.endsWith(".") &&
-      !username.includes("..")
-    ){
-
-      set.add(username);
-
-    }
-
-    tries++;
-
-  }
-
-  users = Array.from(set);
-
-  render();
+render();
 
 }
 
 
 function render(){
 
-  const box = document.getElementById("results");
+const box=document.getElementById("results");
 
-  document.getElementById("count").textContent =
-    users.length + " نتيجة";
+document.getElementById("count").textContent=
+users.length+" نتيجة";
 
-  document.getElementById("favCount").textContent =
-    favorites.size + " مفضلة";
+document.getElementById("favCount").textContent=
+favorites.size+" مفضلة";
 
-  if(!users.length){
+if(!users.length){
 
-    box.innerHTML =
-      '<div class="empty">لا توجد نتائج</div>';
+box.innerHTML=
+'<div class="empty">لا توجد نتائج</div>';
 
-    return;
+return;
 
-  }
+}
 
-  box.innerHTML = "";
+box.innerHTML="";
 
-  users.forEach(username => {
+users.forEach(username=>{
 
-    const card = document.createElement("div");
+const card=document.createElement("div");
+card.className="user";
 
-    card.className = "user";
+const fav=document.createElement("button");
+fav.className=
+"fav "+(favorites.has(username)?"on":"");
+fav.textContent="♥";
 
-    const favButton =
-      document.createElement("button");
+fav.onclick=()=>{
 
-    favButton.className =
-      "favorite " +
-      (favorites.has(username) ? "on" : "");
+if(favorites.has(username))
+favorites.delete(username);
+else
+favorites.add(username);
 
-    favButton.textContent = "♥";
+render();
 
-    favButton.onclick = () => {
-
-      if(favorites.has(username)){
-        favorites.delete(username);
-      }else{
-        favorites.add(username);
-      }
-
-      render();
-
-    };
+};
 
 
-    const name =
-      document.createElement("div");
-
-    name.className = "name";
-    name.textContent = username;
+const name=document.createElement("div");
+name.className="name";
+name.textContent=username;
 
 
-    const actions =
-      document.createElement("div");
+const status=document.createElement("div");
 
-    actions.className = "user-actions";
+const state=statusMap[username];
 
+status.className="status";
 
-    const copy =
-      document.createElement("button");
+if(state==="available"){
 
-    copy.className = "small";
-    copy.textContent = "نسخ";
+status.classList.add("available");
+status.textContent="🟢 متاح";
 
-    copy.onclick = () => {
+}else if(state==="taken"){
 
-      navigator.clipboard.writeText(username);
+status.classList.add("taken");
+status.textContent="🔴 مستخدم";
 
-      copy.textContent = "✓";
+}else{
 
-      setTimeout(()=>{
-        copy.textContent = "نسخ";
-      },800);
+status.textContent="⚪ غير مفحوص";
 
-    };
+}
 
 
-    const check =
-      document.createElement("button");
-
-    check.className = "small";
-    check.textContent = "فحص";
-
-    check.onclick = () => {
-
-      window.open(
-        "https://www.instagram.com/" +
-        encodeURIComponent(username) +
-        "/",
-        "_blank"
-      );
-
-    };
+const actions=document.createElement("div");
+actions.className="actions";
 
 
-    actions.appendChild(copy);
-    actions.appendChild(check);
+const copy=document.createElement("button");
+copy.className="small";
+copy.textContent="نسخ";
 
-    card.appendChild(favButton);
-    card.appendChild(name);
-    card.appendChild(actions);
+copy.onclick=()=>{
 
-    box.appendChild(card);
+navigator.clipboard.writeText(username);
 
-  });
+copy.textContent="✓";
+
+setTimeout(()=>{
+copy.textContent="نسخ";
+},800);
+
+};
+
+
+const check=document.createElement("button");
+check.className="small";
+check.textContent="فحص";
+
+check.onclick=()=>{
+
+window.open(
+"https://www.instagram.com/"+
+encodeURIComponent(username)+"/",
+"_blank"
+);
+
+};
+
+
+const available=document.createElement("button");
+available.className="small";
+available.textContent="متاح ✓";
+
+available.onclick=()=>{
+
+statusMap[username]="available";
+render();
+
+};
+
+
+const taken=document.createElement("button");
+taken.className="small";
+taken.textContent="مستخدم";
+
+taken.onclick=()=>{
+
+statusMap[username]="taken";
+render();
+
+};
+
+
+actions.appendChild(copy);
+actions.appendChild(check);
+
+card.appendChild(fav);
+card.appendChild(name);
+card.appendChild(status);
+card.appendChild(actions);
+
+const mark=document.createElement("div");
+
+mark.style.marginTop="5px";
+mark.style.display="flex";
+mark.style.gap="5px";
+
+mark.appendChild(available);
+mark.appendChild(taken);
+
+card.appendChild(mark);
+
+box.appendChild(card);
+
+});
 
 }
 
 
 function copyAll(){
 
-  if(!users.length){
+if(!users.length){
 
-    alert("ماكو نتائج.");
-    return;
+alert("ماكو نتائج.");
+return;
 
-  }
+}
 
-  navigator.clipboard.writeText(
-    users.join("\n")
-  );
+navigator.clipboard.writeText(
+users.join("\n")
+);
 
-  alert("تم نسخ " + users.length + " يوزر.");
+alert("تم نسخ النتائج.");
 
 }
 
 
-function copyFavorites(){
+function copyAvailable(){
 
-  const list =
-    users.filter(x => favorites.has(x));
+const list=users.filter(
+x=>statusMap[x]==="available"
+);
 
-  if(!list.length){
+if(!list.length){
 
-    alert("ماكو يوزرات بالمفضلة.");
-    return;
+alert("ماكو يوزرات معلّمة كمتاحة.");
 
-  }
+return;
 
-  navigator.clipboard.writeText(
-    list.join("\n")
-  );
+}
 
-  alert("تم نسخ المفضلة.");
+navigator.clipboard.writeText(
+list.join("\n")
+);
+
+alert("تم نسخ اليوزرات المتاحة.");
 
 }
 
 
 function downloadTXT(){
 
-  if(!users.length){
+if(!users.length){
 
-    alert("ماكو نتائج.");
-    return;
-
-  }
-
-  const blob =
-    new Blob(
-      [users.join("\n")],
-      {type:"text/plain;charset=utf-8"}
-    );
-
-  const url =
-    URL.createObjectURL(blob);
-
-  const a =
-    document.createElement("a");
-
-  a.href = url;
-  a.download = "username-galaxy-v2.txt";
-
-  document.body.appendChild(a);
-
-  a.click();
-
-  a.remove();
-
-  URL.revokeObjectURL(url);
+alert("ماكو نتائج.");
+return;
 
 }
 
+const blob=new Blob(
+[users.join("\n")],
+{type:"text/plain;charset=utf-8"}
+);
 
-function openRandom(){
+const url=URL.createObjectURL(blob);
 
-  if(!users.length){
+const a=document.createElement("a");
 
-    alert("ولد يوزرات أولاً.");
-    return;
+a.href=url;
+a.download="username-galaxy-v3.txt";
 
-  }
+document.body.appendChild(a);
+a.click();
+a.remove();
 
-  const username =
-    users[Math.floor(Math.random() * users.length)];
-
-  window.open(
-    "https://www.instagram.com/" +
-    encodeURIComponent(username) +
-    "/",
-    "_blank"
-  );
+URL.revokeObjectURL(url);
 
 }
 
 
 function clearAll(){
 
-  users = [];
-  favorites.clear();
+users=[];
+statusMap={};
+favorites.clear();
 
-  render();
+render();
 
 }
 
